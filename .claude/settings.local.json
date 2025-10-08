@@ -38,7 +38,11 @@
       "Bash(C:UsersalpasIdeaProjectsflutterbinflutter.bat --version)",
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" --version)",
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" config --enable-web)",
-      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" create . --platforms=web)"
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" create . --platforms=web)",
+      "Bash(taskkill:*)",
+      "Bash(timeout 30 docker-compose logs backend)",
+      "Bash(docker volume rm:*)",
+      "Bash(mvn package:*)"
     ],
     "deny": [],
     "ask": []
