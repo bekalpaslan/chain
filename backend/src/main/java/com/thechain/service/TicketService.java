@@ -43,9 +43,9 @@ public class TicketService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
 
-        // Check if user already has a child
-        if (user.getChildId() != null) {
-            throw new BusinessException("ALREADY_HAS_CHILD", "User already attached a child");
+        // Check if user already has an active invitee
+        if (user.getInviteePosition() != null) {
+            throw new BusinessException("ALREADY_HAS_INVITEE", "User already has an active invitee");
         }
 
         // Check for existing active ticket
@@ -151,5 +151,73 @@ public class TicketService {
             log.error("Error generating QR code", e);
             return null;
         }
+    }
+
+    /**
+     * Expires a ticket and triggers chain reversion logic.
+     * Called by scheduler when a ticket passes its deadline without being used.
+     */
+    @Transactional
+    public void expireTicket(UUID ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new BusinessException("TICKET_NOT_FOUND", "Ticket not found"));
+
+        if (ticket.getStatus() != Ticket.TicketStatus.ACTIVE) {
+            log.warn("Attempted to expire non-active ticket {}", ticketId);
+            return;
+        }
+
+        // Mark ticket as expired
+        ticket.setStatus(Ticket.TicketStatus.EXPIRED);
+        ticketRepository.save(ticket);
+
+        // Get the owner
+        User owner = userRepository.findById(ticket.getOwnerId())
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Ticket owner not found"));
+
+        // Increment wasted tickets count
+        owner.setWastedTicketsCount(owner.getWastedTicketsCount() + 1);
+        log.warn("User {} wasted ticket {}/3", owner.getChainKey(), owner.getWastedTicketsCount());
+
+        // Check if user should be removed from chain (3 strikes rule)
+        if (owner.getWastedTicketsCount() >= 3) {
+            log.error("User {} reached 3 wasted tickets - removing from chain", owner.getChainKey());
+            removeUserFromChain(owner);
+        } else {
+            userRepository.save(owner);
+        }
+
+        log.info("Ticket {} expired for user {}", ticketId, owner.getChainKey());
+    }
+
+    /**
+     * Removes a user from the chain and triggers chain reversion.
+     */
+    private void removeUserFromChain(User user) {
+        Integer inviterPosition = user.getInviterPosition();
+        Integer userPosition = user.getPosition();
+
+        // Mark user as removed
+        user.setStatus("removed");
+        user.setRemovedAt(Instant.now());
+        user.setRemovalReason("3_wasted_tickets");
+        user.setInviterPosition(null);
+        user.setInviteePosition(null);
+        user.setWastedTicketsCount(0); // Reset counter after removal
+        userRepository.save(user);
+
+        // If user was not the root (SEED0000001), trigger chain reversion
+        if (inviterPosition != null) {
+            // Find inviter by position
+            userRepository.findByPosition(inviterPosition).ifPresent(inviter -> {
+                // Clear inviter's invitee position (they lost their child)
+                inviter.setInviteePosition(null);
+                userRepository.save(inviter);
+                log.info("Chain reverted: User at position {} lost invitee at position {}",
+                         inviterPosition, userPosition);
+            });
+        }
+
+        log.info("User {} at position {} removed from chain", user.getChainKey(), userPosition);
     }
 }
