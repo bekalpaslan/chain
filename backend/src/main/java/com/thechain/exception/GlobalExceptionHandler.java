@@ -3,8 +3,12 @@ package com.thechain.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -31,6 +35,74 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = determineStatus(ex.getErrorCode());
         return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingRequestHeader(MissingRequestHeaderException ex) {
+        log.error("Missing request header: {}", ex.getHeaderName());
+
+        Map<String, Object> error = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("code", "MISSING_HEADER");
+        errorDetails.put("message", "Required header '" + ex.getHeaderName() + "' is missing");
+        errorDetails.put("timestamp", Instant.now().toString());
+        errorDetails.put("requestId", UUID.randomUUID().toString());
+
+        error.put("error", errorDetails);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.error("Type mismatch for parameter: {}", ex.getName());
+
+        Map<String, Object> error = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("code", "INVALID_PARAMETER");
+        errorDetails.put("message", "Invalid value for parameter '" + ex.getName() + "'");
+        errorDetails.put("timestamp", Instant.now().toString());
+        errorDetails.put("requestId", UUID.randomUUID().toString());
+
+        error.put("error", errorDetails);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
+        log.error("Validation failed: {}", ex.getMessage());
+
+        Map<String, Object> error = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("code", "VALIDATION_ERROR");
+        errorDetails.put("message", "Invalid request data");
+        errorDetails.put("timestamp", Instant.now().toString());
+        errorDetails.put("requestId", UUID.randomUUID().toString());
+
+        error.put("error", errorDetails);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        log.error("Method not supported: {}", ex.getMethod());
+
+        Map<String, Object> error = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("code", "METHOD_NOT_ALLOWED");
+        errorDetails.put("message", "HTTP method '" + ex.getMethod() + "' is not supported for this endpoint");
+        errorDetails.put("timestamp", Instant.now().toString());
+        errorDetails.put("requestId", UUID.randomUUID().toString());
+
+        error.put("error", errorDetails);
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
     @ExceptionHandler(Exception.class)

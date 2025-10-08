@@ -30,7 +30,15 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJkZXZpY2VJZCI6InNlZWQtZGV2aWNlIiwic3ViIjoiYTAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMDAxIiwiaWF0IjoxNzU5OTMxMDgxLCJleHAiOjE3NTk5MzQ2ODF9.qHKULlD_LZmETr3dZMd77YtIpbExImMuA5kFvMWlEvhjBYsSDlOtByXiRowjy2MC6t-cyl4BrRL6Wb3HHlmEcg\")",
       "Bash(mvn test:*)",
       "Bash(mvn test-compile:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(mvn clean:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Read(//c/Users/alpas/IdeaProjects/**)",
+      "Bash(C:UsersalpasIdeaProjectsflutterbinflutter.bat --version)",
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" --version)",
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" config --enable-web)",
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" create . --platforms=web)"
     ],
     "deny": [],
     "ask": []

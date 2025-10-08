@@ -1,7 +1,20 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiConfig {
-  // For Android Emulator use 10.0.2.2, for iOS Simulator use localhost
-  // For physical devices, use your machine's IP address
-  static const String baseUrl = 'http://10.0.2.2:8080/api/v1';
+  // Platform-specific base URL
+  // For Web: use localhost
+  // For Android Emulator: use 10.0.2.2
+  // For iOS Simulator: use localhost
+  // For physical devices: use your machine's IP address
+  static String get baseUrl {
+    if (kIsWeb) {
+      // For web, use localhost
+      return 'http://localhost:8080/api/v1';
+    } else {
+      // For mobile (Android emulator by default)
+      return 'http://10.0.2.2:8080/api/v1';
+    }
+  }
 
   // Auth endpoints
   static const String register = '/auth/register';
@@ -17,7 +30,13 @@ class ApiConfig {
   static const String myChainInfo = '/chain/my-info';
 
   // WebSocket
-  static const String wsUrl = 'ws://10.0.2.2:8080/api/v1/ws/chain';
+  static String get wsUrl {
+    if (kIsWeb) {
+      return 'ws://localhost:8080/api/v1/ws/chain';
+    } else {
+      return 'ws://10.0.2.2:8080/api/v1/ws/chain';
+    }
+  }
 
   // Timeouts
   static const Duration connectTimeout = Duration(seconds: 30);

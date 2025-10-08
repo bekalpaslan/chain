@@ -16,14 +16,32 @@ docs/
 
 # Build artifacts
 target/
-build/
 dist/
 *.jar
 *.war
 *.ear
 
-# Mobile
-mobile/
+# Mobile - exclude everything except build/web for nginx
+mobile/.dart_tool
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.metadata
+mobile/.packages
+mobile/android
+mobile/ios
+mobile/linux
+mobile/macos
+mobile/windows
+mobile/test
+mobile/lib
+mobile/pubspec.yaml
+mobile/pubspec.lock
+mobile/analysis_options.yaml
+mobile/build/android
+mobile/build/ios
+mobile/build/linux
+mobile/build/macos
+mobile/build/windows
 flutter/
 ios/
 android/

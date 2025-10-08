@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_chain/core/models/user_model.dart';
 import 'package:the_chain/core/providers/service_providers.dart';
+import 'package:the_chain/core/services/auth_service.dart';
 
 // Auth state
 class AuthState {

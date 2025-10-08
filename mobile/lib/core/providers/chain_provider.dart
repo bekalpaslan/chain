@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_chain/core/models/chain_stats_model.dart';
 import 'package:the_chain/core/models/user_model.dart';
 import 'package:the_chain/core/providers/service_providers.dart';
+import 'package:the_chain/core/services/chain_service.dart';
 
 // Chain stats state
 class ChainStatsState {

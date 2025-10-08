@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Chain - Decentralized Trust Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .stat-card .value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 10px 0;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 1s ease-in 0.3s both;
+        }
+
+        .recent-activity h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #f8f9fa;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-position {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+            animation: fadeIn 1s ease-in 0.6s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #4caf50;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 The Chain</h1>
+            <p>Building a Decentralized Trust Network</p>
+            <div style="margin-top: 20px;">
+                <span class="status-badge" id="apiStatus">Connecting...</span>
+            </div>
+        </header>
+
+        <div id="loading" class="loading">
+            Loading chain statistics...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="value" id="totalUsers">0</div>
+                    <div class="label">Connected to the chain</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Active Tickets</h3>
+                    <div class="value" id="activeTickets">0</div>
+                    <div class="label">Being processed</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Growth Rate</h3>
+                    <div class="value" id="growthRate">0%</div>
+                    <div class="label">Average daily growth</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Countries</h3>
+                    <div class="value" id="countries">0</div>
+                    <div class="label">Worldwide reach</div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>Recent Chain Activity</h2>
+                <ul class="activity-list" id="activityList">
+                    <!-- Activity items will be inserted here -->
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <p style="color: white; font-size: 1.3em; margin-bottom: 20px;">Ready to join the chain?</p>
+                <a href="#" class="cta-button">Get Started</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>Last updated: <span id="lastUpdate">Never</span></p>
+            <p style="margin-top: 10px;">The Chain &copy; 2025 - Decentralized Trust Network</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+        async function fetchChainStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/chain/stats`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayStats(data);
+                document.getElementById('apiStatus').textContent = 'Connected';
+                document.getElementById('apiStatus').style.background = '#4caf50';
+
+            } catch (error) {
+                console.error('Error fetching chain stats:', error);
+                showError('Unable to connect to the backend. Please ensure the backend is running on port 8080.');
+                document.getElementById('apiStatus').textContent = 'Disconnected';
+                document.getElementById('apiStatus').style.background = '#ff6b6b';
+            }
+        }
+
+        function displayStats(data) {
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('statsContainer').style.display = 'block';
+
+            // Update stats
+            document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+            document.getElementById('activeTickets').textContent = data.activeTickets || 0;
+            document.getElementById('growthRate').textContent =
+                (data.averageGrowthRate || 0).toFixed(1) + '%';
+            document.getElementById('countries').textContent = data.countries || 0;
+
+            // Update last update time
+            const lastUpdate = new Date(data.lastUpdate);
+            document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString();
+
+            // Display recent activity
+            displayRecentActivity(data.recentAttachments || []);
+        }
+
+        function displayRecentActivity(attachments) {
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = '';
+
+            if (attachments.length === 0) {
+                activityList.innerHTML = '<li class="activity-item">No recent activity</li>';
+                return;
+            }
+
+            attachments.forEach(attachment => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+
+                const userInitial = attachment.displayName.charAt(0).toUpperCase();
+                const timestamp = new Date(attachment.timestamp);
+                const timeAgo = getTimeAgo(timestamp);
+
+                li.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${userInitial}</div>
+                        <div class="user-details">
+                            <span class="user-name">${attachment.displayName}</span>
+                            <span class="user-position">Position #${attachment.childPosition}</span>
+                        </div>
+                    </div>
+                    <div class="timestamp">${timeAgo}</div>
+                `;
+
+                activityList.appendChild(li);
+            });
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+                }
+            }
+
+            return 'Just now';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = message;
+        }
+
+        // Fetch stats on page load
+        fetchChainStats();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchChainStats, 30000);
+    </script>
+</body>
+</html>
