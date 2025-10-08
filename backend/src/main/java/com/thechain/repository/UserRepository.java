@@ -36,7 +36,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     long countByStatus(String status);
 
-    @Query("SELECT COUNT(DISTINCT u.belongsTo) FROM User u WHERE u.belongsTo IS NOT NULL")
+    @Query("SELECT COUNT(DISTINCT u.associatedWith) FROM User u WHERE u.associatedWith IS NOT NULL")
     long countDistinctCountries();
 
     @Query("SELECT u FROM User u WHERE u.status IN ('active', 'seed') ORDER BY u.position DESC LIMIT 1")

@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -43,7 +44,10 @@ public class User {
     private UUID parentId;
 
     @Column(name = "child_id")
-    private UUID childId;
+    private UUID activeChildId;
+
+    // TO-CLAUDE: Find a way to store this in DB relationally.
+    private List<UUID> wastedChildIds;
 
     @Column(nullable = false)
     private String deviceId;

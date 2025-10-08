@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -31,11 +30,4 @@ public class RegisterRequest {
 
     @NotBlank(message = "Device fingerprint is required")
     private String deviceFingerprint;
-
-    @Builder.Default
-    private Boolean shareLocation = false;
-
-    private BigDecimal latitude;
-
-    private BigDecimal longitude;
 }

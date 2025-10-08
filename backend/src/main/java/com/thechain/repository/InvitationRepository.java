@@ -13,19 +13,26 @@ import java.util.UUID;
 @Repository
 public interface InvitationRepository extends JpaRepository<Invitation, UUID> {
 
-    Optional<Invitation> findByInviteePosition(Integer inviteePosition);
+    Optional<Invitation> findByChildId(UUID childId);
 
-    Optional<Invitation> findByInviterPosition(Integer inviterPosition);
+    Optional<Invitation> findByParentId(UUID parentId);
 
-    List<Invitation> findAllByInviterPosition(Integer inviterPosition);
+    List<Invitation> findAllByParentId(UUID parentId);
 
-    List<Invitation> findAllByInviterPositionAndStatus(Integer inviterPosition, Invitation.InvitationStatus status);
+    List<Invitation> findAllByParentIdAndStatus(UUID parentId, Invitation.InvitationStatus status);
 
-    @Query("SELECT i FROM Invitation i WHERE i.inviterPosition = :position AND i.status = 'ACTIVE'")
-    Optional<Invitation> findActiveInvitationByInviterPosition(@Param("position") Integer position);
+    @Query("SELECT i FROM Invitation i WHERE i.parentId = :parentId AND i.status = 'ACTIVE'")
+    Optional<Invitation> findActiveInvitationByParentId(@Param("parentId") UUID parentId);
+
+    /**
+     * Get list of wastedChildIds for a parent - children who were removed from chain
+     * This provides relational storage for User.wastedChildIds field
+     */
+    @Query("SELECT i.childId FROM Invitation i WHERE i.parentId = :parentId AND i.status = 'REMOVED'")
+    List<UUID> findWastedChildIdsByParentId(@Param("parentId") UUID parentId);
 
     @Query("SELECT COUNT(i) FROM Invitation i WHERE i.status = 'ACTIVE'")
     long countActiveInvitations();
 
-    boolean existsByInviteePositionAndStatus(Integer inviteePosition, Invitation.InvitationStatus status);
+    boolean existsByChildIdAndStatus(UUID childId, Invitation.InvitationStatus status);
 }

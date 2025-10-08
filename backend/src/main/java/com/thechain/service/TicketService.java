@@ -1,6 +1,7 @@
 package com.thechain.service;
 
 import com.thechain.dto.TicketResponse;
+import com.thechain.entity.RemovalReason;
 import com.thechain.entity.Ticket;
 import com.thechain.entity.User;
 import com.thechain.exception.BusinessException;
@@ -194,27 +195,25 @@ public class TicketService {
      * Removes a user from the chain and triggers chain reversion.
      */
     private void removeUserFromChain(User user) {
-        Integer inviterPosition = user.getInviterPosition();
+        UUID parentId = user.getParentId();
         Integer userPosition = user.getPosition();
 
         // Mark user as removed
         user.setStatus("removed");
         user.setRemovedAt(Instant.now());
-        user.setRemovalReason("3_wasted_tickets");
-        user.setInviterPosition(null);
-        user.setInviteePosition(null);
+        user.setRemovalReason(RemovalReason.WASTED.name());
         user.setWastedTicketsCount(0); // Reset counter after removal
         userRepository.save(user);
 
-        // If user was not the root (SEED0000001), trigger chain reversion
-        if (inviterPosition != null) {
-            // Find inviter by position
-            userRepository.findByPosition(inviterPosition).ifPresent(inviter -> {
-                // Clear inviter's invitee position (they lost their child)
-                inviter.setInviteePosition(null);
-                userRepository.save(inviter);
-                log.info("Chain reverted: User at position {} lost invitee at position {}",
-                         inviterPosition, userPosition);
+        // If user has a parent, trigger chain reversion
+        if (parentId != null) {
+            // Find parent by ID
+            userRepository.findById(parentId).ifPresent(parent -> {
+                // Clear parent's activeChildId (they lost their child)
+                parent.setActiveChildId(null);
+                userRepository.save(parent);
+                log.info("Chain reverted: Parent {} lost child at position {}",
+                         parent.getChainKey(), userPosition);
             });
         }
 

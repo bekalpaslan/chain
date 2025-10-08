@@ -13,12 +13,12 @@ import java.util.UUID;
 
 /**
  * Invitation entity - tracks invitation relationships between users
- * Separate from parent/child to preserve history and support ±1 visibility
+ * Uses UUID references for parent-child relationships
  */
 @Entity
 @Table(name = "invitations", indexes = {
-    @Index(name = "idx_invitations_inviter_pos", columnList = "inviterPosition"),
-    @Index(name = "idx_invitations_invitee_pos", columnList = "inviteePosition"),
+    @Index(name = "idx_invitations_parent_id", columnList = "parentId"),
+    @Index(name = "idx_invitations_child_id", columnList = "childId"),
     @Index(name = "idx_invitations_ticket_id", columnList = "ticketId"),
     @Index(name = "idx_invitations_status", columnList = "status")
 })
@@ -33,11 +33,11 @@ public class Invitation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, name = "inviter_position")
-    private Integer inviterPosition;
+    @Column(nullable = false, name = "parent_id")
+    private UUID parentId;
 
-    @Column(nullable = false, unique = true, name = "invitee_position")
-    private Integer inviteePosition;
+    @Column(nullable = false, unique = true, name = "child_id")
+    private UUID childId;
 
     @Column(nullable = false, name = "ticket_id")
     private UUID ticketId;
