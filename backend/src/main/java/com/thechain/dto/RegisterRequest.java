@@ -3,12 +3,18 @@ package com.thechain.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
 
     @NotNull(message = "Ticket ID is required")
@@ -26,6 +32,7 @@ public class RegisterRequest {
     @NotBlank(message = "Device fingerprint is required")
     private String deviceFingerprint;
 
+    @Builder.Default
     private Boolean shareLocation = false;
 
     private BigDecimal latitude;
