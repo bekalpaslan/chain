@@ -1,0 +1,56 @@
+name: the_chain
+description: The Chain - A viral social network connecting everyone through invitation tickets
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.4.9
+
+  # Networking
+  dio: ^5.4.0
+  web_socket_channel: ^2.4.0
+
+  # QR Code
+  mobile_scanner: ^3.5.5
+  qr_flutter: ^4.1.0
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
+
+  # UI/UX
+  go_router: ^12.1.3
+  flutter_svg: ^2.0.9
+
+  # Location
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
+
+  # Notifications
+  firebase_messaging: ^14.7.9
+
+  # Utils
+  intl: ^0.18.1
+  uuid: ^4.2.2
+  device_info_plus: ^9.1.1
+  package_info_plus: ^5.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.7
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/

@@ -19,4 +19,5 @@ public class TicketResponse {
     private Instant expiresAt;
     private String status;
     private Long timeRemaining;
+    private UUID ownerId;
 }

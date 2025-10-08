@@ -8,27 +8,35 @@ services:
       POSTGRES_DB: chaindb
       POSTGRES_USER: chain_user
       POSTGRES_PASSWORD: chain_pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U chain_user -d chaindb"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - chain-network
 
   redis:
     image: redis:7-alpine
     container_name: chain-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
+    networks:
+      - chain-network
 
   backend:
     build:
@@ -36,6 +44,7 @@ services:
       dockerfile: Dockerfile
     container_name: chain-backend
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: chaindb
@@ -43,7 +52,7 @@ services:
       DB_PASSWORD: chain_pass
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: your-production-secret-key-minimum-256-bits-change-this
+      JWT_SECRET: your-production-secret-key-minimum-256-bits-change-this-in-env-file
     ports:
       - "8080:8080"
     depends_on:
@@ -52,6 +61,21 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - chain-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/v1/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  chain-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
