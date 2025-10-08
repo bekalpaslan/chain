@@ -59,8 +59,8 @@ public class AuthService {
         User parent = userRepository.findById(ticket.getOwnerId())
                 .orElseThrow(() -> new BusinessException("PARENT_NOT_FOUND", "Ticket owner not found"));
 
-        if (parent.getChildId() != null) {
-            throw new BusinessException("PARENT_HAS_CHILD", "Parent already has a child");
+        if (parent.getInviteePosition() != null) {
+            throw new BusinessException("PARENT_HAS_INVITEE", "Parent already has an active invitee");
         }
 
         // Create new user
@@ -79,14 +79,16 @@ public class AuthService {
                 .deviceFingerprint(request.getDeviceFingerprint())
                 .build());
 
-        // Update parent's child reference
-        parent.setChildId(newUser.getId());
+        // Update parent's invitee position reference
+        parent.setInviteePosition(newUser.getPosition());
         userRepository.save(parent);
 
         // Mark ticket as used
+        Instant now = Instant.now();
         ticket.setStatus(Ticket.TicketStatus.USED);
+        ticket.setUsedAt(now);
         ticket.setClaimedBy(newUser.getId());
-        ticket.setClaimedAt(Instant.now());
+        ticket.setClaimedAt(now);
         ticketRepository.save(ticket);
 
         // Create attachment record
