@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     share_location BOOLEAN DEFAULT false,
     location_lat DECIMAL(9,6),
     location_lon DECIMAL(9,6),
-    location_country CHAR(2),
+    location_country VARCHAR(2),
     location_city VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
