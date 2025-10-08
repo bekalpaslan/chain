@@ -1,10 +1,12 @@
 package com.thechain.service;
 
 import com.thechain.dto.TicketResponse;
+import com.thechain.entity.Invitation;
 import com.thechain.entity.RemovalReason;
 import com.thechain.entity.Ticket;
 import com.thechain.entity.User;
 import com.thechain.exception.BusinessException;
+import com.thechain.repository.InvitationRepository;
 import com.thechain.repository.TicketRepository;
 import com.thechain.repository.UserRepository;
 import com.google.zxing.BarcodeFormat;
@@ -32,6 +34,8 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final InvitationRepository invitationRepository;
+    private final ChainService chainService;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -45,7 +49,7 @@ public class TicketService {
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
 
         // Check if user already has an active invitee
-        if (user.getInviteePosition() != null) {
+        if (user.getActiveChildId() != null) {
             throw new BusinessException("ALREADY_HAS_INVITEE", "User already has an active invitee");
         }
 
@@ -198,16 +202,22 @@ public class TicketService {
         UUID parentId = user.getParentId();
         Integer userPosition = user.getPosition();
 
-        // Mark user as removed
+        // 1. Mark user as removed
         user.setStatus("removed");
         user.setRemovedAt(Instant.now());
         user.setRemovalReason(RemovalReason.WASTED.name());
         user.setWastedTicketsCount(0); // Reset counter after removal
         userRepository.save(user);
 
-        // If user has a parent, trigger chain reversion
+        // 2. Update invitation status to REMOVED
+        invitationRepository.findByChildId(user.getId())
+            .ifPresent(invitation -> {
+                invitation.setStatus(Invitation.InvitationStatus.REMOVED);
+                invitationRepository.save(invitation);
+            });
+
+        // 3. If user has a parent, trigger chain reversion
         if (parentId != null) {
-            // Find parent by ID
             userRepository.findById(parentId).ifPresent(parent -> {
                 // Clear parent's activeChildId (they lost their child)
                 parent.setActiveChildId(null);
@@ -215,6 +225,9 @@ public class TicketService {
                 log.info("Chain reverted: Parent {} lost child at position {}",
                          parent.getChainKey(), userPosition);
             });
+
+            // 4. CHECK IF PARENT SHOULD BE REMOVED (3-strike rule)
+            chainService.checkParentRemovalFor3Strikes(user.getId());
         }
 
         log.info("User {} at position {} removed from chain", user.getChainKey(), userPosition);

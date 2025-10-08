@@ -99,9 +99,9 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_UserHasInvitee_ThrowsException() {
+    void generateTicket_UserHasActiveChild_ThrowsException() {
         // Given
-        testUser.setInviteePosition(2);
+        testUser.setActiveChildId(UUID.randomUUID());
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then

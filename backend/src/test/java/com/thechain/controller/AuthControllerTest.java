@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -51,7 +50,6 @@ class AuthControllerTest {
         registerRequest.setDisplayName("Test User");
         registerRequest.setDeviceId("test-device");
         registerRequest.setDeviceFingerprint("test-fingerprint");
-        registerRequest.setShareLocation(false);
 
         authResponse = AuthResponse.builder()
                 .userId(UUID.randomUUID())
@@ -83,10 +81,6 @@ class AuthControllerTest {
 
     @Test
     void register_WithLocation_Success() throws Exception {
-        // Given
-        registerRequest.setShareLocation(true);
-        registerRequest.setLatitude(new BigDecimal("52.5200"));
-        registerRequest.setLongitude(new BigDecimal("13.4050"));
 
         when(authService.register(any(RegisterRequest.class))).thenReturn(authResponse);
 

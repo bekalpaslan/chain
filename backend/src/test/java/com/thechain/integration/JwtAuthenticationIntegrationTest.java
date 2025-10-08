@@ -115,7 +115,7 @@ class JwtAuthenticationIntegrationTest {
         User newUser = userRepository.findByDeviceId("new-device-123").orElseThrow();
         assertThat(newUser.getDisplayName()).isEqualTo("NewUser");
         assertThat(newUser.getPosition()).isEqualTo(1);
-        assertThat(newUser.getInviteePosition()).isNull(); // New user has no invitee yet
+        assertThat(newUser.getActiveChildId()).isNull(); // New user has no invitee yet
 
         // Step 2: Validate access token
         assertThat(jwtService.validateToken(accessToken, newUserId)).isTrue();
@@ -354,11 +354,11 @@ class JwtAuthenticationIntegrationTest {
                 .deviceFingerprint("fingerprint-xyz")
                 .build();
 
-        authService.register(registerRequest);
+        AuthResponse register = authService.register(registerRequest);
 
         // Verify parent (seed) now has inviteePosition set
         User updatedSeed = userRepository.findById(seed.getId()).orElseThrow();
-        assertThat(updatedSeed.getInviteePosition()).isEqualTo(1);
+        assertThat(updatedSeed.getActiveChildId()).isEqualTo(register.getUserId());
     }
 
     /**

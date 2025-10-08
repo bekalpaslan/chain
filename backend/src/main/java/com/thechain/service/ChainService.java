@@ -5,7 +5,6 @@ import com.thechain.exception.BusinessException;
 import com.thechain.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,17 +52,22 @@ public class ChainService {
     @Transactional(readOnly = true)
     public User getCurrentTip() {
         // Find user with highest position who is active and has no active invitee
-        Optional<User> tipUser = userRepository.findAll().stream()
-            .filter(u -> "active".equals(u.getStatus()) || "seed".equals(u.getStatus()))
-            .filter(u -> u.getInviteePosition() == null ||
-                        !invitationRepository.existsByInviteePositionAndStatus(
-                            u.getInviteePosition(),
-                            Invitation.InvitationStatus.ACTIVE))
-            .max(Comparator.comparing(User::getPosition));
+        Optional<User> tipUser = getTipUser();
 
         return tipUser.orElseThrow(() ->
             new BusinessException("NO_TIP_FOUND", "Unable to identify chain tip"));
     }
+
+    private Optional<User> getTipUser() {
+        return userRepository.findAll().stream()
+            .filter(u -> "active".equals(u.getStatus()) || "seed".equals(u.getStatus()))
+            .filter(u -> u.getActiveChildId() == null ||
+                        !invitationRepository.existsByChildIdAndStatus(
+                            u.getActiveChildId(),
+                            Invitation.InvitationStatus.ACTIVE))
+            .max(Comparator.comparing(User::getPosition));
+    }
+    
     @Transactional(readOnly = true)
     public boolean isCurrentTip(UUID userId) {
         User currentTip = self.getCurrentTip();
@@ -87,16 +91,16 @@ public class ChainService {
 
         Map<String, Object> result = new HashMap<>();
 
-        // Get inviter (if exists)
-        if (user.getInviterPosition() != null) {
-            userRepository.findByPosition(user.getInviterPosition())
-                .ifPresent(inviter -> result.put("inviter", toUserSummary(inviter)));
+        // Get parent (if exists)
+        if (user.getParentId() != null) {
+            userRepository.findById(user.getParentId())
+                .ifPresent(parent -> result.put("parent", toUserSummary(parent)));
         }
 
-        // Get invitee (if exists)
-        if (user.getInviteePosition() != null) {
-            userRepository.findByPosition(user.getInviteePosition())
-                .ifPresent(invitee -> result.put("invitee", toUserSummary(invitee)));
+        // Get active child (if exists)
+        if (user.getActiveChildId() != null) {
+            userRepository.findById(user.getActiveChildId())
+                .ifPresent(child -> result.put("child", toUserSummary(child)));
         }
 
         return result;
@@ -166,40 +170,25 @@ public class ChainService {
         userRepository.save(user);
 
         // Mark invitation as removed
-        if (user.getPosition() != null) {
-            invitationRepository.findByInviteePosition(user.getPosition())
-                .ifPresent(invitation -> {
-                    invitation.setStatus(Invitation.InvitationStatus.REMOVED);
-                    invitationRepository.save(invitation);
-                });
+        invitationRepository.findByChildId(userId)
+            .ifPresent(invitation -> {
+                invitation.setStatus(Invitation.InvitationStatus.REMOVED);
+                invitationRepository.save(invitation);
+            });
+
+        // Clear parent's activeChildId reference
+        if (user.getParentId() != null) {
+            userRepository.findById(user.getParentId()).ifPresent(parent -> {
+                parent.setActiveChildId(null);
+                userRepository.save(parent);
+            });
         }
 
-        // Revert chain to inviter (FR-3.4)
-        if (user.getInviterPosition() != null) {
-            revertChainToPosition(user.getInviterPosition());
-        }
+        // Check if parent should be removed (3-strike rule)
+        // This can trigger cascading removal up the chain
+        self.checkParentRemovalFor3Strikes(userId);
     }
 
-    /**
-     * Revert chain to a specific position (FR-3.4)
-     * Called when a user is removed - makes their inviter the tip again
-     */
-    @Transactional
-    public void revertChainToPosition(Integer position) {
-        User newTip = userRepository.findByPosition(position)
-            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND",
-                "Cannot revert chain - user at position " + position + " not found"));
-
-        log.info("Reverting chain to position {}: {}", position, newTip.getChainKey());
-
-        // Clear the invitee reference
-        newTip.setInviteePosition(null);
-        userRepository.save(newTip);
-
-        // Check if new tip should earn Chain Savior badge
-        // Badge earned if they were reactivated and successfully invite again
-        // This will be checked when they successfully generate a new invitation
-    }
 
     /**
      * Award badge to user (FR-3.6)
@@ -223,21 +212,98 @@ public class ChainService {
     }
 
     /**
+     * Check if parent should be removed due to 3-strike rule
+     * Called when a child is removed from the chain
+     *
+     * 3-Strike Rule:
+     * - Parent gets removed after 3 CHILDREN fail (not after wasting 3 tickets)
+     * - Each removed child counts as one strike
+     * - Uses Invitation table with status=REMOVED to track wasted children
+     *
+     * @param removedChildId UUID of the child that was just removed
+     */
+    @Transactional
+    public void checkParentRemovalFor3Strikes(UUID removedChildId) {
+        // Find the invitation record for this child
+        Optional<Invitation> invitationOpt = invitationRepository.findByChildId(removedChildId);
+
+        if (invitationOpt.isEmpty()) {
+            log.warn("No invitation found for removed child {}", removedChildId);
+            return;
+        }
+
+        Invitation invitation = invitationOpt.get();
+        UUID parentId = invitation.getParentId();
+
+        // Get parent user
+        Optional<User> parentOpt = userRepository.findById(parentId);
+        if (parentOpt.isEmpty()) {
+            log.warn("Parent {} not found for removed child {}", parentId, removedChildId);
+            return;
+        }
+
+        User parent = parentOpt.get();
+
+        // Don't remove seed user
+        if ("seed".equals(parent.getStatus())) {
+            log.debug("Parent {} is seed - immune to 3-strike removal", parent.getChainKey());
+            return;
+        }
+
+        // Already removed
+        if ("removed".equals(parent.getStatus())) {
+            log.debug("Parent {} already removed", parent.getChainKey());
+            return;
+        }
+
+        // Count total removed children (wasted children) for this parent
+        List<UUID> wastedChildIds = invitationRepository.findWastedChildIdsByParentId(parentId);
+        int wastedChildCount = wastedChildIds.size();
+
+        log.info("Parent {} has {} wasted children (strike {}/3)",
+            parent.getChainKey(), wastedChildCount, wastedChildCount);
+
+        // Check if parent has reached 3 strikes
+        ChainRule currentRule = getCurrentRule();
+        if (wastedChildCount >= currentRule.getMaxAttempts()) {
+            log.warn("Parent {} reached 3 strikes - removing from chain", parent.getChainKey());
+
+            // Remove parent from chain (use self-proxy for transactional boundary)
+            self.removeUserFromChain(parentId, RemovalReason.WASTED.name());
+
+            // IMPORTANT: This can trigger cascading removal
+            // The parent's removal will call checkParentRemovalFor3Strikes on THEIR parent
+            // This continues until we reach seed or a parent with < 3 strikes
+        }
+    }
+
+    /**
      * Check if user should earn Chain Savior badge
-     * Called after successful invitation following a reversion
+     * Called after successful invitation following a child removal
+     *
+     * Badge Logic:
+     * - User must have had a previous child that was removed (wasted)
+     * - User successfully invited a new child (activeChildId is set)
+     * - This shows they "saved" the chain after a failure
      */
     @Transactional
     public void checkAndAwardChainSaviorBadge(User user) {
-        // User earns Chain Savior if:
-        // 1. Their previous invitee was removed
-        // 2. They successfully invited someone new
+        // Get list of wasted children for this user
+        List<UUID> wastedChildIds = invitationRepository.findWastedChildIdsByParentId(user.getId());
 
-        if (user.getWastedTicketsCount() > 0 && user.getInviteePosition() != null) {
+        // User earns Chain Savior if:
+        // 1. They have at least one wasted child (previous failure)
+        // 2. They now have an active child (successful recovery)
+        if (!wastedChildIds.isEmpty() && user.getActiveChildId() != null) {
             Map<String, Object> context = new HashMap<>();
             context.put("collapse_depth", 1);
-            context.put("wasted_tickets", user.getWastedTicketsCount());
+            context.put("wasted_children_count", wastedChildIds.size());
+            context.put("recovered_at", Instant.now());
 
             awardBadge(user.getPosition(), Badge.CHAIN_SAVIOR, context);
+
+            log.info("Awarded Chain Savior badge to user {} after {} failed attempts",
+                user.getChainKey(), wastedChildIds.size());
         }
     }
 
@@ -281,7 +347,6 @@ public class ChainService {
         summary.put("position", user.getPosition());
         summary.put("chainKey", user.getChainKey());
         summary.put("displayName", user.getDisplayName());
-        summary.put("avatarEmoji", user.getAvatarEmoji());
         summary.put("country", user.getAssociatedWith());
         summary.put("status", user.getStatus());
 

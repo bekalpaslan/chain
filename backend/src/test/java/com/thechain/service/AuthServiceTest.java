@@ -6,6 +6,7 @@ import com.thechain.entity.Ticket;
 import com.thechain.entity.User;
 import com.thechain.exception.BusinessException;
 import com.thechain.repository.AttachmentRepository;
+import com.thechain.repository.InvitationRepository;
 import com.thechain.repository.TicketRepository;
 import com.thechain.repository.UserRepository;
 import com.thechain.security.JwtUtil;
@@ -45,7 +46,10 @@ class AuthServiceTest {
     private JwtUtil jwtUtil;
 
     @Mock
-    private GeocodingService geocodingService;
+    private InvitationRepository invitationRepository;
+
+    @Mock
+    private ChainService chainService;
 
     @InjectMocks
     private AuthService authService;
@@ -83,7 +87,6 @@ class AuthServiceTest {
         registerRequest.setDisplayName("New User");
         registerRequest.setDeviceId("new-device");
         registerRequest.setDeviceFingerprint("new-fingerprint");
-        registerRequest.setShareLocation(false);
     }
 
     @Test
@@ -121,7 +124,9 @@ class AuthServiceTest {
 
         verify(ticketRepository).save(any(Ticket.class));
         verify(userRepository, times(2)).save(any(User.class));
+        verify(invitationRepository).save(any()); // New: Invitation record created
         verify(attachmentRepository).save(any());
+        verify(chainService).checkAndAwardChainSaviorBadge(any(User.class)); // New: Badge check
     }
 
     @Test
@@ -173,9 +178,9 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_ParentHasInvitee_ThrowsException() {
+    void register_ParentHasActiveChild_ThrowsException() {
         // Given
-        testUser.setInviteePosition(2);
+        testUser.setActiveChildId(UUID.randomUUID());
         when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
         when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
         when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(false);
@@ -185,43 +190,6 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.register(registerRequest))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already has an active invitee");
-    }
-
-    @Test
-    void register_WithLocation_Success() {
-        // Given
-        registerRequest.setShareLocation(true);
-        registerRequest.setLatitude(new BigDecimal("52.5200"));
-        registerRequest.setLongitude(new BigDecimal("13.4050"));
-
-        when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
-        when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
-        when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(false);
-        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        when(userRepository.findMaxPosition()).thenReturn(1);
-        when(geocodingService.reverseGeocode(any(), any()))
-                .thenReturn(new GeocodingService.Location("Berlin", "DE"));
-
-        User newUser = User.builder()
-                .id(UUID.randomUUID())
-                .chainKey("TEST00000002")
-                .displayName("New User")
-                .position(2)
-                .parentId(testUser.getId())
-                .deviceId("new-device")
-                .deviceFingerprint("new-fingerprint")
-                .build();
-
-        when(userRepository.save(any(User.class))).thenReturn(newUser);
-        when(jwtUtil.generateAccessToken(any(), any(), any())).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any(), any())).thenReturn("refresh-token");
-
-        // When
-        AuthResponse response = authService.register(registerRequest);
-
-        // Then
-        assertThat(response).isNotNull();
-        verify(geocodingService).reverseGeocode(any(), any());
     }
 
     @Test

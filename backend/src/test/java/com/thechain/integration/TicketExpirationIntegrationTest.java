@@ -1,7 +1,9 @@
 package com.thechain.integration;
 
+import com.thechain.entity.Invitation;
 import com.thechain.entity.Ticket;
 import com.thechain.entity.User;
+import com.thechain.repository.InvitationRepository;
 import com.thechain.repository.TicketRepository;
 import com.thechain.repository.UserRepository;
 import com.thechain.service.TicketService;
@@ -40,6 +42,9 @@ class TicketExpirationIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private InvitationRepository invitationRepository;
 
     private User testUser;
 
@@ -107,28 +112,27 @@ class TicketExpirationIntegrationTest {
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
         assertThat(updatedUser.getWastedTicketsCount()).isEqualTo(0);  // Reset after removal
         assertThat(updatedUser.getStatus()).isEqualTo("removed");
-        assertThat(updatedUser.getRemovalReason()).isEqualTo("3_wasted_tickets");
+        assertThat(updatedUser.getRemovalReason()).isEqualTo("WASTED");
         assertThat(updatedUser.getRemovedAt()).isNotNull();
-        assertThat(updatedUser.getInviterPosition()).isNull();
-        assertThat(updatedUser.getInviteePosition()).isNull();
+        // parentId and activeChildId are preserved for historical data
     }
 
     @Test
-    void ticketExpiration_WithInviter_RevertsChain() {
-        // Given: Create an inviter and set up relationship
-        User inviter = User.builder()
-                .chainKey("INVITER000001")
-                .displayName("Inviter")
+    void ticketExpiration_WithParent_RevertsChain() {
+        // Given: Create a parent and set up relationship
+        User parent = User.builder()
+                .chainKey("PARENT0000001")
+                .displayName("Parent")
                 .position(0)
-                .deviceId("inviter-device")
-                .deviceFingerprint("inviter-fingerprint")
-                .inviteePosition(1)  // Points to testUser
+                .deviceId("parent-device")
+                .deviceFingerprint("parent-fingerprint")
+                .activeChildId(testUser.getId())  // Points to testUser
                 .wastedTicketsCount(0)
                 .status("active")
                 .build();
-        inviter = userRepository.save(inviter);
+        parent = userRepository.save(parent);
 
-        testUser.setInviterPosition(0);  // Points back to inviter
+        testUser.setParentId(parent.getId());  // Points back to parent
         testUser.setWastedTicketsCount(2);  // On third strike
         testUser = userRepository.save(testUser);
 
@@ -137,13 +141,14 @@ class TicketExpirationIntegrationTest {
         // When: Third ticket expires
         ticketService.expireTicket(ticket.getId());
 
-        // Then: Chain reverts - inviter loses reference to testUser
-        User updatedInviter = userRepository.findById(inviter.getId()).orElseThrow();
-        assertThat(updatedInviter.getInviteePosition()).isNull();
+        // Then: Chain reverts - parent loses reference to testUser
+        User updatedParent = userRepository.findById(parent.getId()).orElseThrow();
+        assertThat(updatedParent.getActiveChildId()).isNull();
 
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
         assertThat(updatedUser.getStatus()).isEqualTo("removed");
-        assertThat(updatedUser.getInviterPosition()).isNull();
+        // parentId is preserved for historical data
+        assertThat(updatedUser.getParentId()).isEqualTo(parent.getId());
     }
 
     @Test
@@ -190,8 +195,117 @@ class TicketExpirationIntegrationTest {
         User afterStrike3 = userRepository.findById(testUser.getId()).orElseThrow();
         assertThat(afterStrike3.getWastedTicketsCount()).isEqualTo(0);  // Reset
         assertThat(afterStrike3.getStatus()).isEqualTo("removed");
-        assertThat(afterStrike3.getRemovalReason()).isEqualTo("3_wasted_tickets");
+        assertThat(afterStrike3.getRemovalReason()).isEqualTo("WASTED");
         assertThat(afterStrike3.getRemovedAt()).isNotNull();
+    }
+
+    @Test
+    void parentThreeStrike_ThreeChildrenWasteTickets_ParentRemoved() {
+        // Given: Parent with activeChildId pointing to first child
+        User parent = User.builder()
+                .chainKey("PARENT0000001")
+                .displayName("Parent User")
+                .position(10)
+                .deviceId("parent-device")
+                .deviceFingerprint("parent-fingerprint")
+                .wastedTicketsCount(0)
+                .status("active")
+                .build();
+        parent = userRepository.save(parent);
+
+        // Create and remove 3 children (simulating 3 strikes for parent)
+        for (int i = 1; i <= 3; i++) {
+            User child = User.builder()
+                    .chainKey("CHILD000000" + i)
+                    .displayName("Child " + i)
+                    .position(10 + i)
+                    .deviceId("child-device-" + i)
+                    .deviceFingerprint("child-fingerprint-" + i)
+                    .parentId(parent.getId())
+                    .wastedTicketsCount(2)  // Already on 2nd strike
+                    .status("active")
+                    .build();
+            child = userRepository.save(child);
+
+            // Create invitation record
+            invitationRepository.save(Invitation.builder()
+                    .parentId(parent.getId())
+                    .childId(child.getId())
+                    .ticketId(UUID.randomUUID())
+                    .status(Invitation.InvitationStatus.ACTIVE)
+                    .acceptedAt(Instant.now())
+                    .build());
+
+            parent.setActiveChildId(child.getId());
+            parent = userRepository.save(parent);
+
+            // Child wastes 3rd ticket - child removed
+            Ticket ticket = createExpiredTicket(child);
+            ticketService.expireTicket(ticket.getId());
+
+            // Verify child is removed
+            User removedChild = userRepository.findById(child.getId()).orElseThrow();
+            assertThat(removedChild.getStatus()).isEqualTo("removed");
+
+            // Verify invitation is marked as REMOVED
+            Invitation invitation = invitationRepository.findByChildId(child.getId()).orElseThrow();
+            assertThat(invitation.getStatus()).isEqualTo(Invitation.InvitationStatus.REMOVED);
+        }
+
+        // Then: After 3 children fail, parent should be removed
+        User updatedParent = userRepository.findById(parent.getId()).orElseThrow();
+        assertThat(updatedParent.getStatus()).isEqualTo("removed");
+        assertThat(updatedParent.getRemovalReason()).isEqualTo("WASTED");
+        assertThat(updatedParent.getRemovedAt()).isNotNull();
+    }
+
+    @Test
+    void parentThreeStrike_TwoChildrenFail_ParentStaysActive() {
+        // Given: Parent with 2 failed children (not yet 3 strikes)
+        User parent = User.builder()
+                .chainKey("PARENT0000002")
+                .displayName("Parent User 2")
+                .position(20)
+                .deviceId("parent-device-2")
+                .deviceFingerprint("parent-fingerprint-2")
+                .wastedTicketsCount(0)
+                .status("active")
+                .build();
+        parent = userRepository.save(parent);
+
+        // Create and remove only 2 children
+        for (int i = 1; i <= 2; i++) {
+            User child = User.builder()
+                    .chainKey("CHILD000002" + i)
+                    .displayName("Child " + i)
+                    .position(20 + i)
+                    .deviceId("child-device-2-" + i)
+                    .deviceFingerprint("child-fingerprint-2-" + i)
+                    .parentId(parent.getId())
+                    .wastedTicketsCount(2)
+                    .status("active")
+                    .build();
+            child = userRepository.save(child);
+
+            invitationRepository.save(Invitation.builder()
+                    .parentId(parent.getId())
+                    .childId(child.getId())
+                    .ticketId(UUID.randomUUID())
+                    .status(Invitation.InvitationStatus.ACTIVE)
+                    .acceptedAt(Instant.now())
+                    .build());
+
+            parent.setActiveChildId(child.getId());
+            parent = userRepository.save(parent);
+
+            // Child wastes 3rd ticket
+            Ticket ticket = createExpiredTicket(child);
+            ticketService.expireTicket(ticket.getId());
+        }
+
+        // Then: Parent should still be active (only 2 strikes)
+        User updatedParent = userRepository.findById(parent.getId()).orElseThrow();
+        assertThat(updatedParent.getStatus()).isEqualTo("active");
     }
 
     /**

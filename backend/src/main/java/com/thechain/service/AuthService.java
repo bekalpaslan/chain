@@ -3,10 +3,12 @@ package com.thechain.service;
 import com.thechain.dto.AuthResponse;
 import com.thechain.dto.RegisterRequest;
 import com.thechain.entity.Attachment;
+import com.thechain.entity.Invitation;
 import com.thechain.entity.Ticket;
 import com.thechain.entity.User;
 import com.thechain.exception.BusinessException;
 import com.thechain.repository.AttachmentRepository;
+import com.thechain.repository.InvitationRepository;
 import com.thechain.repository.TicketRepository;
 import com.thechain.repository.UserRepository;
 import com.thechain.security.JwtUtil;
@@ -25,9 +27,10 @@ public class AuthService {
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
     private final AttachmentRepository attachmentRepository;
+    private final InvitationRepository invitationRepository;
     private final TicketService ticketService;
     private final JwtUtil jwtUtil;
-    private final GeocodingService geocodingService;
+    private final ChainService chainService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -59,7 +62,7 @@ public class AuthService {
         User parent = userRepository.findById(ticket.getOwnerId())
                 .orElseThrow(() -> new BusinessException("PARENT_NOT_FOUND", "Ticket owner not found"));
 
-        if (parent.getInviteePosition() != null) {
+        if (parent.getActiveChildId() != null) {
             throw new BusinessException("PARENT_HAS_INVITEE", "Parent already has an active invitee");
         }
 
@@ -79,8 +82,8 @@ public class AuthService {
                 .deviceFingerprint(request.getDeviceFingerprint())
                 .build());
 
-        // Update parent's invitee position reference
-        parent.setInviteePosition(newUser.getPosition());
+        // Update parent's activeChildId reference
+        parent.setActiveChildId(newUser.getId());
         userRepository.save(parent);
 
         // Mark ticket as used
@@ -91,13 +94,26 @@ public class AuthService {
         ticket.setClaimedAt(now);
         ticketRepository.save(ticket);
 
-        // Create attachment record
+        // Create invitation record (new relational storage)
+        Invitation invitation = Invitation.builder()
+                .parentId(parent.getId())
+                .childId(newUser.getId())
+                .ticketId(ticket.getId())
+                .status(Invitation.InvitationStatus.ACTIVE)
+                .acceptedAt(Instant.now())
+                .build();
+        invitationRepository.save(invitation);
+
+        // Create attachment record (keep for backward compatibility if needed)
         Attachment attachment = Attachment.builder()
                 .parentId(parent.getId())
                 .childId(newUser.getId())
                 .ticketId(ticket.getId())
                 .build();
         attachmentRepository.save(attachment);
+
+        // Check if parent deserves Chain Savior badge
+        chainService.checkAndAwardChainSaviorBadge(parent);
 
         log.info("New user registered: {} at position {}", newUser.getChainKey(), newUser.getPosition());
 

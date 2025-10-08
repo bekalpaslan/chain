@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.TestPropertySource;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -103,19 +102,19 @@ class UserTest {
     }
 
     @Test
-    void createUser_WithParentAndInvitee_Success() {
+    void createUser_WithParentAndActiveChild_Success() {
         // Given
         UUID parentId = UUID.randomUUID();
-        Integer inviteePosition = 2;
+        UUID activeChildId = UUID.randomUUID();
         user.setParentId(parentId);
-        user.setInviteePosition(inviteePosition);
+        user.setActiveChildId(activeChildId);
 
         // When
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
         assertThat(savedUser.getParentId()).isEqualTo(parentId);
-        assertThat(savedUser.getInviteePosition()).isEqualTo(inviteePosition);
+        assertThat(savedUser.getActiveChildId()).isEqualTo(activeChildId);
     }
 
     @Test
@@ -237,17 +236,17 @@ class UserTest {
     }
 
     @Test
-    void userEntity_SupportsNullParentAndInvitee() {
-        // Given - user with no parent or invitee (root user)
+    void userEntity_SupportsNullParentAndActiveChild() {
+        // Given - user with no parent or active child (seed user or tip)
         user.setParentId(null);
-        user.setInviteePosition(null);
+        user.setActiveChildId(null);
 
         // When
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
         assertThat(savedUser.getParentId()).isNull();
-        assertThat(savedUser.getInviteePosition()).isNull();
+        assertThat(savedUser.getActiveChildId()).isNull();
     }
 
     @Test
