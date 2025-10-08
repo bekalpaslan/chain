@@ -70,26 +70,14 @@ public class AuthService {
         }
         nextPosition++;
 
-        User.UserBuilder userBuilder = User.builder()
+        // Location tracking has been removed - simplified user creation
+        User newUser = userRepository.save(User.builder()
                 .displayName(request.getDisplayName() != null ? request.getDisplayName() : "Anonymous #" + nextPosition)
                 .position(nextPosition)
                 .parentId(parent.getId())
                 .deviceId(request.getDeviceId())
                 .deviceFingerprint(request.getDeviceFingerprint())
-                .shareLocation(request.getShareLocation());
-
-        // Handle location
-        if (Boolean.TRUE.equals(request.getShareLocation()) && request.getLatitude() != null && request.getLongitude() != null) {
-            userBuilder.locationLat(request.getLatitude())
-                    .locationLon(request.getLongitude());
-
-            // Reverse geocode to get city and country
-            var location = geocodingService.reverseGeocode(request.getLatitude(), request.getLongitude());
-            userBuilder.locationCity(location.city())
-                    .locationCountry(location.country());
-        }
-
-        User newUser = userRepository.save(userBuilder.build());
+                .build());
 
         // Update parent's child reference
         parent.setChildId(newUser.getId());

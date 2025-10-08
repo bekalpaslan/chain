@@ -9,7 +9,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -52,22 +51,6 @@ public class User {
     @Column(nullable = false)
     private String deviceFingerprint;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean shareLocation = false;
-
-    @Column(precision = 9, scale = 6)
-    private BigDecimal locationLat;
-
-    @Column(precision = 9, scale = 6)
-    private BigDecimal locationLon;
-
-    @Column(length = 2)
-    private String locationCountry;
-
-    @Column(length = 100)
-    private String locationCity;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -78,6 +61,63 @@ public class User {
 
     @Column
     private Instant deletedAt;
+
+    // Authentication fields
+    @Column(length = 255)
+    private String email;
+
+    @Builder.Default
+    @Column
+    private Boolean emailVerified = false;
+
+    @Column(length = 255)
+    private String passwordHash;
+
+    // Social auth fields
+    @Column(length = 255)
+    private String appleUserId;
+
+    @Column(length = 255)
+    private String googleUserId;
+
+    // User profile
+    @Column(length = 100)
+    private String realName;
+
+    @Builder.Default
+    @Column
+    private Boolean isGuest = false;
+
+    @Builder.Default
+    @Column(length = 10)
+    private String avatarEmoji = "👤";
+
+    // Country of origin (ISO 3166-1 alpha-2 country code, e.g., "US", "GB", "DE")
+    @Column(length = 2, name = "belongs_to")
+    private String belongsTo;
+
+    // Status tracking
+    @Builder.Default
+    @Column(length = 20)
+    private String status = "active";
+
+    @Column(length = 50)
+    private String removalReason;
+
+    @Column
+    private Instant removedAt;
+
+    // Activity tracking
+    @Column
+    private Instant lastActiveAt;
+
+    @Builder.Default
+    @Column
+    private Integer wastedTicketsCount = 0;
+
+    @Builder.Default
+    @Column
+    private Integer totalTicketsGenerated = 0;
 
     @PrePersist
     public void prePersist() {

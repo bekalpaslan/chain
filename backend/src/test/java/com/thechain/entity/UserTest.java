@@ -32,7 +32,6 @@ class UserTest {
                 .position(1)
                 .deviceId("device-123")
                 .deviceFingerprint("fingerprint-123")
-                .shareLocation(false)
                 .build();
     }
 
@@ -47,7 +46,6 @@ class UserTest {
         assertThat(savedUser.getPosition()).isEqualTo(1);
         assertThat(savedUser.getDeviceId()).isEqualTo("device-123");
         assertThat(savedUser.getDeviceFingerprint()).isEqualTo("fingerprint-123");
-        assertThat(savedUser.getShareLocation()).isFalse();
     }
 
     @Test
@@ -101,26 +99,6 @@ class UserTest {
         // Then
         assertThat(updatedUser.getUpdatedAt()).isAfter(originalUpdatedAt);
         assertThat(updatedUser.getCreatedAt()).isEqualTo(savedUser.getCreatedAt());
-    }
-
-    @Test
-    void createUser_WithLocation_Success() {
-        // Given
-        user.setShareLocation(true);
-        user.setLocationLat(new BigDecimal("40.712800"));
-        user.setLocationLon(new BigDecimal("-74.006000"));
-        user.setLocationCountry("US");
-        user.setLocationCity("New York");
-
-        // When
-        User savedUser = entityManager.persistAndFlush(user);
-
-        // Then
-        assertThat(savedUser.getShareLocation()).isTrue();
-        assertThat(savedUser.getLocationLat()).isEqualByComparingTo(new BigDecimal("40.712800"));
-        assertThat(savedUser.getLocationLon()).isEqualByComparingTo(new BigDecimal("-74.006000"));
-        assertThat(savedUser.getLocationCountry()).isEqualTo("US");
-        assertThat(savedUser.getLocationCity()).isEqualTo("New York");
     }
 
     @Test
@@ -239,7 +217,6 @@ class UserTest {
                 .build();
 
         // Then
-        assertThat(newUser.getShareLocation()).isFalse();
         assertThat(newUser.getId()).isNull(); // Not persisted yet
         assertThat(newUser.getCreatedAt()).isNull(); // Not persisted yet
     }
@@ -259,19 +236,6 @@ class UserTest {
     }
 
     @Test
-    void userEntity_LocationCountryIsTwoCharacters() {
-        // Given
-        user.setLocationCountry("CA");
-
-        // When
-        User savedUser = entityManager.persistAndFlush(user);
-
-        // Then
-        assertThat(savedUser.getLocationCountry()).isEqualTo("CA");
-        assertThat(savedUser.getLocationCountry()).hasSize(2);
-    }
-
-    @Test
     void userEntity_SupportsNullParentAndChild() {
         // Given - user with no parent or child (root user)
         user.setParentId(null);
@@ -283,25 +247,6 @@ class UserTest {
         // Then
         assertThat(savedUser.getParentId()).isNull();
         assertThat(savedUser.getChildId()).isNull();
-    }
-
-    @Test
-    void userEntity_SupportsLocationWithoutCity() {
-        // Given
-        user.setShareLocation(true);
-        user.setLocationLat(new BigDecimal("51.507400"));
-        user.setLocationLon(new BigDecimal("-0.127800"));
-        user.setLocationCountry("GB");
-        user.setLocationCity(null);
-
-        // When
-        User savedUser = entityManager.persistAndFlush(user);
-
-        // Then
-        assertThat(savedUser.getLocationLat()).isNotNull();
-        assertThat(savedUser.getLocationLon()).isNotNull();
-        assertThat(savedUser.getLocationCountry()).isEqualTo("GB");
-        assertThat(savedUser.getLocationCity()).isNull();
     }
 
     @Test

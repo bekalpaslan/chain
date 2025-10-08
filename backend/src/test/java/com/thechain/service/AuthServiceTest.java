@@ -64,7 +64,6 @@ class AuthServiceTest {
                 .position(1)
                 .deviceId("test-device")
                 .deviceFingerprint("test-fingerprint")
-                .shareLocation(false)
                 .build();
 
         // Create test ticket
@@ -104,7 +103,6 @@ class AuthServiceTest {
                 .parentId(testUser.getId())
                 .deviceId("new-device")
                 .deviceFingerprint("new-fingerprint")
-                .shareLocation(false)
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(newUser);
@@ -212,11 +210,6 @@ class AuthServiceTest {
                 .parentId(testUser.getId())
                 .deviceId("new-device")
                 .deviceFingerprint("new-fingerprint")
-                .shareLocation(true)
-                .locationLat(new BigDecimal("52.5200"))
-                .locationLon(new BigDecimal("13.4050"))
-                .locationCity("Berlin")
-                .locationCountry("DE")
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(newUser);

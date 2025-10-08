@@ -38,7 +38,7 @@ public class ChainStatsService {
                             .childPosition(child.getPosition())
                             .displayName(child.getDisplayName())
                             .timestamp(attachment.getAttachedAt())
-                            .country(child.getLocationCountry())
+                            .country(null)  // Location tracking removed
                             .build();
                 })
                 .filter(java.util.Objects::nonNull)

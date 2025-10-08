@@ -49,7 +49,6 @@ class ChainStatsServiceTest {
                 .chainKey("TEST00000001")
                 .displayName("User 1")
                 .position(1)
-                .locationCountry("US")
                 .build();
 
         User user2 = User.builder()
@@ -57,7 +56,6 @@ class ChainStatsServiceTest {
                 .chainKey("TEST00000002")
                 .displayName("User 2")
                 .position(2)
-                .locationCountry("DE")
                 .build();
 
         User user3 = User.builder()
@@ -65,7 +63,6 @@ class ChainStatsServiceTest {
                 .chainKey("TEST00000003")
                 .displayName("User 3")
                 .position(3)
-                .locationCountry("GB")
                 .build();
 
         testUsers = Arrays.asList(user1, user2, user3);
@@ -142,7 +139,6 @@ class ChainStatsServiceTest {
         ChainStatsResponse.RecentAttachment first = response.getRecentAttachments().get(0);
         assertThat(first.getDisplayName()).isEqualTo("User 2");
         assertThat(first.getChildPosition()).isEqualTo(2);
-        assertThat(first.getCountry()).isEqualTo("DE");
     }
 
     @Test
