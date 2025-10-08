@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Chain - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="brand-large">
+                    <span class="chain-icon">🔗</span>
+                    <h1>The Chain</h1>
+                </div>
+                <p class="tagline">Join the Decentralized Trust Network</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTab">Login</button>
+                <button class="tab-btn" id="signupTab">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email or Chain Key</label>
+                    <input type="text" id="loginEmail" placeholder="Enter your email or chain key" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="link-text">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn-primary btn-full">Login</button>
+                <div class="form-divider">or</div>
+                <button type="button" class="btn-demo" id="demoLoginBtn">Try Demo Account</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="signupName">Display Name</label>
+                    <input type="text" id="signupName" placeholder="How should we call you?" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="your.email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Choose a strong password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupTicket">Invitation Ticket (Optional)</label>
+                    <input type="text" id="signupTicket" placeholder="TICKET-XXXX-XXXX-XXXX">
+                    <small class="form-hint">Leave empty to join as a seed user</small>
+                </div>
+                <button type="submit" class="btn-primary btn-full">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>By continuing, you agree to our <a href="#" class="link-text">Terms of Service</a></p>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <h2>How It Works</h2>
+            <div class="info-steps">
+                <div class="info-step">
+                    <div class="step-number">1</div>
+                    <h3>Join the Chain</h3>
+                    <p>Sign up with an invitation ticket or become a seed user</p>
+                </div>
+                <div class="info-step">
+                    <div class="step-number">2</div>
+                    <h3>Generate Your Ticket</h3>
+                    <p>Create a time-limited QR code to invite one person</p>
+                </div>
+                <div class="info-step">
+                    <div class="step-number">3</div>
+                    <h3>Grow the Chain</h3>
+                    <p>Share your ticket and watch the global chain expand</p>
+                </div>
+            </div>
+            <div class="stats-preview">
+                <div class="preview-stat">
+                    <strong id="previewUsers">0</strong>
+                    <span>Users Connected</span>
+                </div>
+                <div class="preview-stat">
+                    <strong id="previewCountries">0</strong>
+                    <span>Countries</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
