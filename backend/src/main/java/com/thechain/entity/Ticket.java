@@ -15,7 +15,9 @@ import java.util.UUID;
 @Table(name = "tickets", indexes = {
     @Index(name = "idx_tickets_owner_id", columnList = "ownerId"),
     @Index(name = "idx_tickets_status", columnList = "status"),
-    @Index(name = "idx_tickets_expires_at", columnList = "expiresAt")
+    @Index(name = "idx_tickets_expires_at", columnList = "expiresAt"),
+    @Index(name = "idx_tickets_ticket_code", columnList = "ticketCode"),
+    @Index(name = "idx_tickets_attempt_number", columnList = "attemptNumber")
 })
 @EntityListeners(AuditingEntityListener.class)
 @Data
@@ -31,12 +33,36 @@ public class Ticket {
     @Column(nullable = false, name = "owner_id")
     private UUID ownerId;
 
+    @Column(name = "ticket_code", length = 50)
+    private String ticketCode;
+
+    @Column(name = "next_position")
+    private Integer nextPosition;
+
+    @Column(name = "attempt_number")
+    @Builder.Default
+    private Integer attemptNumber = 1;
+
+    @Column(name = "rule_version")
+    @Builder.Default
+    private Integer ruleVersion = 1;
+
+    @Column(name = "duration_hours")
+    @Builder.Default
+    private Integer durationHours = 24;
+
+    @Column(name = "qr_code_url", length = 500)
+    private String qrCodeUrl;
+
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, name = "issued_at")
     private Instant issuedAt;
 
     @Column(nullable = false)
     private Instant expiresAt;
+
+    @Column(name = "used_at")
+    private Instant usedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

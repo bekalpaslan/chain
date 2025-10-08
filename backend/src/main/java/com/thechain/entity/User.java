@@ -80,36 +80,21 @@ public class User {
     @Column(length = 255)
     private String googleUserId;
 
-    // User profile
-    @Column(length = 100)
-    private String realName;
-
-    @Builder.Default
-    @Column
-    private Boolean isGuest = false;
-
-    @Builder.Default
-    @Column(length = 10)
-    private String avatarEmoji = "👤";
-
     // Country of origin (ISO 3166-1 alpha-2 country code, e.g., "US", "GB", "DE")
     @Column(length = 2, name = "belongs_to")
-    private String belongsTo;
+    private String associatedWith;
 
     // Status tracking
     @Builder.Default
     @Column(length = 20)
     private String status = "active";
 
+    // TO-CLAUDE: Removal reason can be ENUM, with only value "WASTED" for now.
     @Column(length = 50)
     private String removalReason;
 
     @Column
     private Instant removedAt;
-
-    // Activity tracking
-    @Column
-    private Instant lastActiveAt;
 
     @Builder.Default
     @Column
