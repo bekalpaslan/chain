@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -159,6 +160,41 @@ public class AuthService {
                 .tokens(AuthResponse.TokenInfo.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
+                        .expiresIn(3600L)
+                        .build())
+                .build();
+    }
+
+    /**
+     * Refresh access token using refresh token
+     */
+    public AuthResponse refreshToken(String refreshToken) {
+        // Extract userId from refresh token
+        UUID userId = jwtUtil.extractUserId(refreshToken);
+
+        // Validate refresh token
+        if (!jwtUtil.validateRefreshToken(refreshToken, userId)) {
+            throw new BusinessException("INVALID_TOKEN", "Invalid or expired refresh token");
+        }
+
+        // Get user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
+
+        // Generate new tokens
+        String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getChainKey(), user.getDeviceId());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getDeviceId());
+
+        log.info("Tokens refreshed for user {}", user.getChainKey());
+
+        return AuthResponse.builder()
+                .userId(user.getId())
+                .chainKey(user.getChainKey())
+                .displayName(user.getDisplayName())
+                .position(user.getPosition())
+                .tokens(AuthResponse.TokenInfo.builder()
+                        .accessToken(newAccessToken)
+                        .refreshToken(newRefreshToken)
                         .expiresIn(3600L)
                         .build())
                 .build();

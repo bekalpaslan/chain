@@ -67,10 +67,26 @@ public class JwtUtil {
         return extractClaims(token).get("deviceId", String.class);
     }
 
+    public String extractTokenType(String token) {
+        return extractClaims(token).get("type", String.class);
+    }
+
     public boolean isTokenValid(String token) {
         try {
             extractClaims(token);
             return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean validateRefreshToken(String token, UUID userId) {
+        try {
+            Claims claims = extractClaims(token);
+            String tokenType = claims.get("type", String.class);
+            UUID tokenUserId = UUID.fromString(claims.getSubject());
+
+            return "refresh".equals(tokenType) && userId.equals(tokenUserId);
         } catch (Exception e) {
             return false;
         }
