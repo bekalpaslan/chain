@@ -16,7 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @TestPropertySource(properties = {
     "spring.sql.init.mode=never",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.flyway.enabled=false"
 })
 class UserTest {
 
@@ -55,8 +56,8 @@ class UserTest {
 
         // Then
         assertThat(savedUser.getChainKey()).isNotNull();
-        assertThat(savedUser.getChainKey()).hasSize(12);
-        assertThat(savedUser.getChainKey()).matches("[A-Z0-9]{12}");
+        assertThat(savedUser.getChainKey()).hasSize(11);  // "CK-00000001" format
+        assertThat(savedUser.getChainKey()).matches("CK-\\d{8}");  // Pattern: CK-########
     }
 
     @Test
@@ -102,19 +103,19 @@ class UserTest {
     }
 
     @Test
-    void createUser_WithParentAndChild_Success() {
+    void createUser_WithParentAndInvitee_Success() {
         // Given
         UUID parentId = UUID.randomUUID();
-        UUID childId = UUID.randomUUID();
+        Integer inviteePosition = 2;
         user.setParentId(parentId);
-        user.setChildId(childId);
+        user.setInviteePosition(inviteePosition);
 
         // When
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
         assertThat(savedUser.getParentId()).isEqualTo(parentId);
-        assertThat(savedUser.getChildId()).isEqualTo(childId);
+        assertThat(savedUser.getInviteePosition()).isEqualTo(inviteePosition);
     }
 
     @Test
@@ -236,17 +237,17 @@ class UserTest {
     }
 
     @Test
-    void userEntity_SupportsNullParentAndChild() {
-        // Given - user with no parent or child (root user)
+    void userEntity_SupportsNullParentAndInvitee() {
+        // Given - user with no parent or invitee (root user)
         user.setParentId(null);
-        user.setChildId(null);
+        user.setInviteePosition(null);
 
         // When
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
         assertThat(savedUser.getParentId()).isNull();
-        assertThat(savedUser.getChildId()).isNull();
+        assertThat(savedUser.getInviteePosition()).isNull();
     }
 
     @Test
@@ -259,11 +260,13 @@ class UserTest {
     }
 
     @Test
-    void userEntity_ChainKeyDoesNotContainHyphens() {
+    void userEntity_ChainKeyFollowsFormat() {
         // When
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
-        assertThat(savedUser.getChainKey()).doesNotContain("-");
+        // Chain keys follow format: CK-########
+        assertThat(savedUser.getChainKey()).startsWith("CK-");
+        assertThat(savedUser.getChainKey()).matches("CK-\\d{8}");
     }
 }

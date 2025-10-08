@@ -173,9 +173,9 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_ParentHasChild_ThrowsException() {
+    void register_ParentHasInvitee_ThrowsException() {
         // Given
-        testUser.setChildId(UUID.randomUUID());
+        testUser.setInviteePosition(2);
         when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
         when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
         when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(false);
@@ -184,7 +184,7 @@ class AuthServiceTest {
         // When & Then
         assertThatThrownBy(() -> authService.register(registerRequest))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("already has a child");
+                .hasMessageContaining("already has an active invitee");
     }
 
     @Test

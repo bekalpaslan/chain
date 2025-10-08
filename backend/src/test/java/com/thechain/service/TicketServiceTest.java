@@ -99,15 +99,15 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_UserHasChild_ThrowsException() {
+    void generateTicket_UserHasInvitee_ThrowsException() {
         // Given
-        testUser.setChildId(UUID.randomUUID());
+        testUser.setInviteePosition(2);
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then
         assertThatThrownBy(() -> ticketService.generateTicket(testUser.getId()))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("already attached a child");
+                .hasMessageContaining("already has an active invitee");
 
         verify(ticketRepository, never()).save(any());
     }
