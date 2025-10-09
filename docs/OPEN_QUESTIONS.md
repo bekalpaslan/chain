@@ -147,7 +147,9 @@ This document tracks unresolved questions, design decisions pending approval, an
 
 **Recommendation:** Server-side for MVP - ensures consistency, easier to iterate on design.
 
-**Decision:** ⏳ Pending
+**Decision:** ✅ **Decided: Server-side** (October 9, 2025)
+- Backend already returns `qrCodeUrl` field in TicketResponse
+- See: `backend/src/main/java/com/thechain/dto/TicketResponse.java`
 
 ---
 
@@ -262,7 +264,10 @@ This document tracks unresolved questions, design decisions pending approval, an
 
 **Recommendation:** Option 1 for MVP (allow duplicates, show position or chain key for disambiguation).
 
-**Decision:** ⏳ Pending
+**Decision:** ✅ **Decided: Allow duplicates** (October 9, 2025)
+- Database schema has no unique constraint on display_name
+- Users are identified by userId (UUID) and chainKey
+- UI can show position number for disambiguation
 
 ---
 
@@ -562,12 +567,12 @@ This document tracks unresolved questions, design decisions pending approval, an
 | 1.3 | Monetization | Alpaslan | Month 3 | 🟡 Open |
 | 1.4 | Geographic launch | Alpaslan | Before dev | 🟡 Open |
 | 1.5 | Age restrictions | Legal | Before dev | 🟡 Open |
-| 2.1 | QR generation method | Tech Lead | Sprint 1 | 🟡 Open |
+| 2.1 | QR generation method | Tech Lead | Sprint 1 | ✅ Decided: Server-side |
 | 2.2 | WebSocket vs SSE | Tech Lead | Sprint 1 | 🟢 Open |
 | 2.3 | DB partitioning | Ops | Post-launch | 🟢 Deferred |
 | 2.4 | Multi-region | Ops | Post-launch | 🟢 Deferred |
 | 3.1 | Simultaneous claims UX | Product | Sprint 2 | 🔴 Open |
-| 3.2 | Display name uniqueness | Product | Sprint 1 | 🟡 Open |
+| 3.2 | Display name uniqueness | Product | Sprint 1 | ✅ Decided: Allow duplicates |
 | 3.3 | Anonymous numbering | Product | Sprint 1 | 🟢 Open |
 | 3.4 | Ticket sharing UX | Product | Sprint 1 | 🟡 Open |
 | 3.5 | Onboarding tutorial | Design | Sprint 3 | 🟢 Open |

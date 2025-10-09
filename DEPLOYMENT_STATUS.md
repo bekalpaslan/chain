@@ -1,7 +1,7 @@
 # Deployment Status
 
 **Date:** October 9, 2025
-**Status:** ✅ Backend Deployed | ⚠️ Flutter Apps Need CORS Config
+**Status:** ✅ Backend Deployed | ✅ Flutter Public App Running
 
 ---
 
@@ -39,54 +39,42 @@ curl http://localhost:8080/api/v1/chain/stats
 }
 ```
 
-### ⚠️ Flutter Apps (CORS Issue)
+### ✅ Flutter Apps
 
-**Public App:** Port 3000 (marketing/stats page)
-**Private App:** Port 3001 (user dashboard)
+**Public App:** Port 3000 (marketing/stats page) - ✅ **RUNNING**
+**Private App:** Port 3001 (user dashboard) - Ready to deploy
 
-**Current Blocker:** Cross-Origin Resource Sharing (CORS)
+**Status:** CORS successfully configured! The public app is now live and displaying chain statistics from the backend API.
 
-The Flutter web apps run on different ports (3000/3001) than the backend API (8080), which causes browsers to block the requests for security reasons.
+**Current Data Displayed:**
+- Total Users: 1
+- Active Tickets: 0
+- Wasted Tickets: 0
+- Countries: 0
 
-**Error:**
-```
-DioException [connection error]: The connection errored: 
-The XMLHttpRequest onError callback was called. This typically 
-indicates an error on the network layer.
-```
-
-**Root Cause:**
-Browser blocks requests from `http://localhost:3000` → `http://localhost:8080/api/v1`
+**Test:** Open http://localhost:3000 in Chrome to see the live stats page
 
 ---
 
-## Solutions
+## Deployment Configuration
 
-### Option 1: Enable CORS (Quick - 5 minutes)
+### ✅ CORS Enabled
 
-Update `backend/src/main/java/com/thechain/config/SecurityConfig.java`:
+CORS is now configured in `backend/src/main/java/com/thechain/config/SecurityConfig.java` to allow:
+- `http://localhost:3000` (Public app)
+- `http://localhost:3001` (Private app)
+- Other localhost ports for development
 
-```java
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList(
-        "http://localhost:3000",  // Public app
-        "http://localhost:3001"   // Private app
-    ));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(Arrays.asList("*"));
-    configuration.setAllowCredentials(true);
-    
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-}
-```
+Running Flutter apps locally with hot reload for development:
 
-Then rebuild backend:
 ```bash
-docker-compose restart backend
+# Terminal 1 - Public app (currently running)
+cd frontend/public-app
+flutter run -d chrome --web-port=3000
+
+# Terminal 2 - Private app
+cd frontend/private-app
+flutter run -d chrome --web-port=3001
 ```
 
 ### Option 2: Docker Build Flutter Apps (Slow - 30+ minutes)
@@ -110,23 +98,23 @@ Serve all apps from single origin using nginx:
 
 ## Quick Start
 
-### Start Backend Only (Currently Running)
+### Current Setup (Backend + Flutter Public App)
 ```bash
+# Start backend services
 docker-compose up -d postgres redis backend
-```
 
-### Run Flutter Apps Locally (After CORS Fix)
-```bash
-# Terminal 1 - Public app
+# Run Flutter public app
 cd frontend/public-app
 flutter run -d chrome --web-port=3000
+```
 
-# Terminal 2 - Private app  
+### Add Private App
+```bash
 cd frontend/private-app
 flutter run -d chrome --web-port=3001
 ```
 
-### Full Docker Stack (After Flutter Dockerfiles Fix)
+### Full Docker Stack (Optional)
 ```bash
 docker-compose up --build
 ```
@@ -149,12 +137,15 @@ docker-compose up --build
 - [x] API base URL configured (/api/v1)
 - [x] Flutter Dockerfiles created
 - [x] Nginx configs for Flutter apps
+- [x] Enable CORS in SecurityConfig
+- [x] Update ChainStats model to match backend
+- [x] Test Flutter → Backend connection
+- [x] **Flutter public app deployed and working!**
 
 ### Pending ⚠️
-- [ ] Enable CORS in SecurityConfig (5 min)
-- [ ] Test Flutter → Backend connection
-- [ ] Build Flutter Docker images (30+ min)
-- [ ] End-to-end testing
+- [ ] Deploy Flutter private app
+- [ ] Build Flutter Docker images (30+ min, optional)
+- [ ] End-to-end authentication testing
 - [ ] Production environment variables
 - [ ] SSL/HTTPS configuration
 - [ ] Domain configuration
@@ -163,19 +154,27 @@ docker-compose up --build
 
 ## Access URLs
 
-Once CORS is configured:
-
 | Service | URL | Status |
 |---------|-----|--------|
 | Backend API | http://localhost:8080/api/v1 | ✅ Running |
-| Public App | http://localhost:3000 | ⚠️ CORS blocked |
-| Private App | http://localhost:3001 | ⚠️ CORS blocked |
+| Public App | http://localhost:3000 | ✅ **Running** |
+| Private App | http://localhost:3001 | ⏸️ Not started |
 | PostgreSQL | localhost:5432 | ✅ Running |
 | Redis | localhost:6379 | ✅ Running |
 
 ---
 
 ## Files Updated
+
+### Backend Configuration
+- `backend/src/main/java/com/thechain/config/SecurityConfig.java` - Added CORS for localhost:3000/3001
+
+### Flutter Models
+- `frontend/shared/lib/models/chain_stats.dart` - Updated to match backend ChainStatsResponse
+- `frontend/shared/lib/models/chain_stats.g.dart` - Regenerated JSON serialization
+
+### Flutter UI
+- `frontend/public-app/lib/main.dart` - Fixed API client initialization, updated stats display
 
 ### Docker Configuration
 - `docker-compose.yml` - Removed old nginx service, updated services
@@ -195,17 +194,14 @@ Once CORS is configured:
 
 ## Next Steps
 
-**Recommended:** Enable CORS (Option 1) for immediate testing
-
-1. Update SecurityConfig.java with CORS configuration
-2. Restart backend container: `docker-compose restart backend`
-3. Run Flutter apps locally
-4. Test public stats page at http://localhost:3000
-5. Test private dashboard at http://localhost:3001
-
-**Alternative:** Build full Docker stack (takes longer but production-ready)
+1. **Deploy Private App** - Run the Flutter private app on port 3001
+2. **Implement Authentication Flow** - Test login/register with device fingerprinting
+3. **Test Ticket Generation** - Verify ticket creation and QR codes
+4. **Test Chain Attachment** - Verify child can claim ticket and attach to parent
+5. **Build Docker Images** (Optional) - For production deployment
 
 ---
 
-**Last Updated:** October 9, 2025, 02:35 AM
+**Last Updated:** October 9, 2025, 02:47 AM
 **Deployed By:** Claude Code
+**Status:** 🎉 Public app successfully deployed and displaying live stats!
