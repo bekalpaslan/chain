@@ -17,9 +17,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "invitations", indexes = {
-    @Index(name = "idx_invitations_parent_id", columnList = "parentId"),
-    @Index(name = "idx_invitations_child_id", columnList = "childId"),
-    @Index(name = "idx_invitations_ticket_id", columnList = "ticketId"),
+    @Index(name = "idx_invitations_parent_id", columnList = "parent_id"),
+    @Index(name = "idx_invitations_child_id", columnList = "child_id"),
+    @Index(name = "idx_invitations_ticket_id", columnList = "ticket_id"),
     @Index(name = "idx_invitations_status", columnList = "status")
 })
 @EntityListeners(AuditingEntityListener.class)
