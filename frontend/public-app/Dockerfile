@@ -17,21 +17,18 @@ RUN flutter channel stable
 RUN flutter upgrade
 RUN flutter config --enable-web
 
-# Set working directory
-WORKDIR /app
-
 # Copy shared package first
-COPY ../shared /shared
 WORKDIR /shared
+COPY shared/ /shared/
 RUN flutter pub get
 
 # Copy public app
 WORKDIR /app
-COPY pubspec.yaml pubspec.lock ./
+COPY public-app/pubspec.yaml public-app/pubspec.lock ./
 RUN flutter pub get
 
-# Copy source code
-COPY . .
+# Copy public app source code
+COPY public-app/ .
 
 # Build web app
 RUN flutter build web --release --web-renderer canvaskit
@@ -43,7 +40,7 @@ FROM nginx:alpine
 COPY --from=build-env /app/build/web /usr/share/nginx/html
 
 # Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY public-app/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 3000
 

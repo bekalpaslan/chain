@@ -1,6 +1,6 @@
 class ApiConstants {
-  // Base URL - can be overridden by environment
-  static const String defaultBaseUrl = 'http://localhost:8080';
+  // Base URL - includes /api/v1 context path
+  static const String defaultBaseUrl = 'http://localhost:8080/api/v1';
 
   // Auth endpoints
   static const String authLogin = '/auth/login';
