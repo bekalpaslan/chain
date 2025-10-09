@@ -30,10 +30,9 @@ public class JwtUtil {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateAccessToken(UUID userId, String chainKey, String deviceId) {
+    public String generateAccessToken(UUID userId, String chainKey) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("chainKey", chainKey);
-        claims.put("deviceId", deviceId);
         claims.put("type", "access");
 
         return Jwts.builder()
@@ -45,9 +44,8 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(UUID userId, String deviceId) {
+    public String generateRefreshToken(UUID userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("deviceId", deviceId);
         claims.put("type", "refresh");
 
         return Jwts.builder()
@@ -61,10 +59,6 @@ public class JwtUtil {
 
     public UUID extractUserId(String token) {
         return UUID.fromString(extractClaims(token).getSubject());
-    }
-
-    public String extractDeviceId(String token) {
-        return extractClaims(token).get("deviceId", String.class);
     }
 
     public String extractTokenType(String token) {

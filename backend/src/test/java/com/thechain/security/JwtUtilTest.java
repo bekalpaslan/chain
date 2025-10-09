@@ -24,10 +24,9 @@ class JwtUtilTest {
         // Given
         UUID userId = UUID.randomUUID();
         String chainKey = "TEST00000001";
-        String deviceId = "test-device";
 
         // When
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
+        String token = jwtUtil.generateAccessToken(userId, chainKey);
 
         // Then
         assertThat(token).isNotNull().isNotEmpty();
@@ -38,10 +37,9 @@ class JwtUtilTest {
     void generateRefreshToken_Success() {
         // Given
         UUID userId = UUID.randomUUID();
-        String deviceId = "test-device";
 
         // When
-        String token = jwtUtil.generateRefreshToken(userId, deviceId);
+        String token = jwtUtil.generateRefreshToken(userId);
 
         // Then
         assertThat(token).isNotNull().isNotEmpty();
@@ -52,8 +50,7 @@ class JwtUtilTest {
         // Given
         UUID userId = UUID.randomUUID();
         String chainKey = "TEST00000001";
-        String deviceId = "test-device";
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
+        String token = jwtUtil.generateAccessToken(userId, chainKey);
 
         // When
         UUID extractedUserId = jwtUtil.extractUserId(token);
@@ -62,28 +59,13 @@ class JwtUtilTest {
         assertThat(extractedUserId).isEqualTo(userId);
     }
 
-    @Test
-    void extractDeviceId_ValidToken_ReturnsDeviceId() {
-        // Given
-        UUID userId = UUID.randomUUID();
-        String chainKey = "TEST00000001";
-        String deviceId = "test-device";
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
-
-        // When
-        String extractedDeviceId = jwtUtil.extractDeviceId(token);
-
-        // Then
-        assertThat(extractedDeviceId).isEqualTo(deviceId);
-    }
 
     @Test
     void isTokenValid_ValidToken_ReturnsTrue() {
         // Given
         UUID userId = UUID.randomUUID();
         String chainKey = "TEST00000001";
-        String deviceId = "test-device";
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
+        String token = jwtUtil.generateAccessToken(userId, chainKey);
 
         // When
         boolean isValid = jwtUtil.isTokenValid(token);
@@ -109,8 +91,7 @@ class JwtUtilTest {
         // Given
         UUID userId = UUID.randomUUID();
         String chainKey = "TEST00000001";
-        String deviceId = "test-device";
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
+        String token = jwtUtil.generateAccessToken(userId, chainKey);
 
         // Tamper with the token
         String tamperedToken = token.substring(0, token.length() - 5) + "XXXXX";
@@ -126,8 +107,7 @@ class JwtUtilTest {
     void refreshToken_ValidRefreshToken_CanExtractUserId() {
         // Given
         UUID userId = UUID.randomUUID();
-        String deviceId = "test-device";
-        String refreshToken = jwtUtil.generateRefreshToken(userId, deviceId);
+        String refreshToken = jwtUtil.generateRefreshToken(userId);
 
         // Verify refresh token is valid
         assertThat(jwtUtil.isTokenValid(refreshToken)).isTrue();
@@ -144,14 +124,12 @@ class JwtUtilTest {
         // Given
         UUID userId = UUID.randomUUID();
         String chainKey = "TEST00000001";
-        String deviceId = "test-device";
 
         // When
-        String token = jwtUtil.generateAccessToken(userId, chainKey, deviceId);
+        String token = jwtUtil.generateAccessToken(userId, chainKey);
 
         // Then - Verify all fields can be extracted
         assertThat(jwtUtil.extractUserId(token)).isEqualTo(userId);
-        assertThat(jwtUtil.extractDeviceId(token)).isEqualTo(deviceId);
         assertThat(jwtUtil.isTokenValid(token)).isTrue();
     }
 }

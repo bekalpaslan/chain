@@ -18,7 +18,7 @@ import java.util.List;
     @Index(name = "idx_users_chain_key", columnList = "chainKey"),
     @Index(name = "idx_users_parent_id", columnList = "parentId"),
     @Index(name = "idx_users_position", columnList = "position"),
-    @Index(name = "idx_users_device_id", columnList = "deviceId")
+    @Index(name = "idx_users_username", columnList = "username")
 })
 @EntityListeners(AuditingEntityListener.class)
 @Data
@@ -49,12 +49,6 @@ public class User {
     // TO-CLAUDE: Find a way to store this in DB relationally.
     private List<UUID> wastedChildIds;
 
-    @Column(nullable = false)
-    private String deviceId;
-
-    @Column(nullable = false)
-    private String deviceFingerprint;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -66,16 +60,19 @@ public class User {
     @Column
     private Instant deletedAt;
 
-    // Authentication fields
+    // Authentication fields - username/password required
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
+
+    @Column(nullable = false, length = 255)
+    private String passwordHash;
+
     @Column(length = 255)
     private String email;
 
     @Builder.Default
     @Column
     private Boolean emailVerified = false;
-
-    @Column(length = 255)
-    private String passwordHash;
 
     // Social auth fields
     @Column(length = 255)

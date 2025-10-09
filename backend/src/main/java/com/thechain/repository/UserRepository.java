@@ -13,9 +13,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByChainKey(String chainKey);
 
-    Optional<User> findByDeviceId(String deviceId);
-
     Optional<User> findByPosition(Integer position);
+
+    Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
 
@@ -23,7 +23,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByGoogleUserId(String googleUserId);
 
-    boolean existsByDeviceFingerprint(String deviceFingerprint);
+    boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 

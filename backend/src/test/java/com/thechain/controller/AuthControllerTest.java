@@ -47,9 +47,8 @@ class AuthControllerTest {
         registerRequest = new RegisterRequest();
         registerRequest.setTicketId(UUID.randomUUID());
         registerRequest.setTicketSignature("test-signature");
-        registerRequest.setDisplayName("Test User");
-        registerRequest.setDeviceId("test-device");
-        registerRequest.setDeviceFingerprint("test-fingerprint");
+        registerRequest.setUsername("testuser");
+        registerRequest.setPassword("password123");
 
         authResponse = AuthResponse.builder()
                 .userId(UUID.randomUUID())
@@ -108,10 +107,10 @@ class AuthControllerTest {
     void login_Success_Returns200() throws Exception {
         // Given
         Map<String, String> loginRequest = new HashMap<>();
-        loginRequest.put("deviceId", "test-device");
-        loginRequest.put("deviceFingerprint", "test-fingerprint");
+        loginRequest.put("username", "testuser");
+        loginRequest.put("password", "password123");
 
-        when(authService.login("test-device", "test-fingerprint"))
+        when(authService.login("testuser", "password123"))
                 .thenReturn(authResponse);
 
         // When & Then
@@ -124,11 +123,68 @@ class AuthControllerTest {
     }
 
     @Test
+    void login_WithoutCredentials_Returns400() throws Exception {
+        // Given - Empty request
+        Map<String, String> loginRequest = new HashMap<>();
+
+        // When & Then
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_WithOnlyUsername_Returns400() throws Exception {
+        // Given - Username without password
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("username", "testuser");
+
+        // When & Then
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_WithOnlyPassword_Returns400() throws Exception {
+        // Given - Password without username
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("password", "password123");
+
+        // When & Then
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void health_Returns200() throws Exception {
         // When & Then
         mockMvc.perform(get("/auth/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("chain-backend"));
+    }
+
+    @Test
+    void refreshToken_Success_Returns200() throws Exception {
+        // Given
+        Map<String, String> refreshRequest = new HashMap<>();
+        refreshRequest.put("refreshToken", "valid-refresh-token");
+
+        when(authService.refreshToken("valid-refresh-token"))
+                .thenReturn(authResponse);
+
+        // When & Then
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refreshRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").exists())
+                .andExpect(jsonPath("$.tokens.accessToken").value("access-token"))
+                .andExpect(jsonPath("$.tokens.refreshToken").value("refresh-token"));
     }
 }

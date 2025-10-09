@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -51,6 +50,9 @@ class AuthServiceTest {
     @Mock
     private ChainService chainService;
 
+    @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private AuthService authService;
 
@@ -66,8 +68,8 @@ class AuthServiceTest {
                 .chainKey("TEST00000001")
                 .displayName("Test User")
                 .position(1)
-                .deviceId("test-device")
-                .deviceFingerprint("test-fingerprint")
+                .username("testuser")
+                .passwordHash("$2a$10$hashedPassword")
                 .build();
 
         // Create test ticket
@@ -84,9 +86,8 @@ class AuthServiceTest {
         registerRequest = new RegisterRequest();
         registerRequest.setTicketId(testTicket.getId());
         registerRequest.setTicketSignature("test-signature");
-        registerRequest.setDisplayName("New User");
-        registerRequest.setDeviceId("new-device");
-        registerRequest.setDeviceFingerprint("new-fingerprint");
+        registerRequest.setUsername("newuser");
+        registerRequest.setPassword("password123");
     }
 
     @Test
@@ -94,30 +95,31 @@ class AuthServiceTest {
         // Given
         when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
         when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
-        when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(false);
+        when(userRepository.existsByUsername("newuser")).thenReturn(false);
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(userRepository.findMaxPosition()).thenReturn(1);
 
         User newUser = User.builder()
                 .id(UUID.randomUUID())
                 .chainKey("TEST00000002")
-                .displayName("New User")
+                .displayName("newuser")
                 .position(2)
                 .parentId(testUser.getId())
-                .deviceId("new-device")
-                .deviceFingerprint("new-fingerprint")
+                .username("newuser")
+                .passwordHash("$2a$10$hashedPassword")
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(newUser);
-        when(jwtUtil.generateAccessToken(any(), any(), any())).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any(), any())).thenReturn("refresh-token");
+        when(passwordEncoder.encode("password123")).thenReturn("$2a$10$hashedPassword");
+        when(jwtUtil.generateAccessToken(any(), any())).thenReturn("access-token");
+        when(jwtUtil.generateRefreshToken(any())).thenReturn("refresh-token");
 
         // When
         AuthResponse response = authService.register(registerRequest);
 
         // Then
         assertThat(response).isNotNull();
-        assertThat(response.getDisplayName()).isEqualTo("New User");
+        assertThat(response.getDisplayName()).isEqualTo("newuser");
         assertThat(response.getPosition()).isEqualTo(2);
         assertThat(response.getParentId()).isEqualTo(testUser.getId());
         assertThat(response.getTokens().getAccessToken()).isEqualTo("access-token");
@@ -165,16 +167,16 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_DuplicateDevice_ThrowsException() {
+    void register_DuplicateUsername_ThrowsException() {
         // Given
         when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
         when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
-        when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(true);
+        when(userRepository.existsByUsername("newuser")).thenReturn(true);
 
         // When & Then
         assertThatThrownBy(() -> authService.register(registerRequest))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Device already registered");
+                .hasMessageContaining("Username already taken");
     }
 
     @Test
@@ -183,7 +185,7 @@ class AuthServiceTest {
         testUser.setActiveChildId(UUID.randomUUID());
         when(ticketRepository.findById(testTicket.getId())).thenReturn(Optional.of(testTicket));
         when(ticketService.verifyTicketSignature(testTicket, "test-signature")).thenReturn(true);
-        when(userRepository.existsByDeviceFingerprint("new-fingerprint")).thenReturn(false);
+        when(userRepository.existsByUsername("newuser")).thenReturn(false);
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then
@@ -195,15 +197,16 @@ class AuthServiceTest {
     @Test
     void login_Success() {
         // Given
-        String deviceId = "test-device";
-        String deviceFingerprint = "test-fingerprint";
+        String username = "testuser";
+        String password = "password123";
 
-        when(userRepository.findByDeviceId(deviceId)).thenReturn(Optional.of(testUser));
-        when(jwtUtil.generateAccessToken(any(), any(), any())).thenReturn("access-token");
-        when(jwtUtil.generateRefreshToken(any(), any())).thenReturn("refresh-token");
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(password, testUser.getPasswordHash())).thenReturn(true);
+        when(jwtUtil.generateAccessToken(any(), any())).thenReturn("access-token");
+        when(jwtUtil.generateRefreshToken(any())).thenReturn("refresh-token");
 
         // When
-        AuthResponse response = authService.login(deviceId, deviceFingerprint);
+        AuthResponse response = authService.login(username, password);
 
         // Then
         assertThat(response).isNotNull();
@@ -214,28 +217,101 @@ class AuthServiceTest {
     @Test
     void login_UserNotFound_ThrowsException() {
         // Given
-        String deviceId = "unknown-device";
-        String deviceFingerprint = "test-fingerprint";
+        String username = "nonexistent";
+        String password = "password123";
 
-        when(userRepository.findByDeviceId(deviceId)).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> authService.login(deviceId, deviceFingerprint))
+        assertThatThrownBy(() -> authService.login(username, password))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("not found");
+                .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo("USER_NOT_FOUND"));
     }
 
     @Test
-    void login_FingerprintMismatch_ThrowsException() {
+    void login_NoPasswordSet_ThrowsException() {
         // Given
-        String deviceId = "test-device";
-        String wrongFingerprint = "wrong-fingerprint";
+        User userWithoutPassword = User.builder()
+                .id(UUID.randomUUID())
+                .chainKey("TEST00000002")
+                .displayName("User Without Password")
+                .username("nopassuser")
+                .passwordHash(null)
+                .build();
 
-        when(userRepository.findByDeviceId(deviceId)).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsername("nopassuser")).thenReturn(Optional.of(userWithoutPassword));
 
         // When & Then
-        assertThatThrownBy(() -> authService.login(deviceId, wrongFingerprint))
+        assertThatThrownBy(() -> authService.login("nopassuser", "anypassword"))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("verification failed");
+                .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo("NO_PASSWORD_SET"));
+    }
+
+    @Test
+    void login_InvalidPassword_ThrowsException() {
+        // Given
+        String username = "testuser";
+        String wrongPassword = "wrongpassword";
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(wrongPassword, testUser.getPasswordHash())).thenReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> authService.login(username, wrongPassword))
+                .isInstanceOf(BusinessException.class)
+                .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo("INVALID_PASSWORD"));
+    }
+
+    @Test
+    void refreshToken_Success() {
+        // Given
+        String refreshToken = "valid-refresh-token";
+
+        when(jwtUtil.extractUserId(refreshToken)).thenReturn(testUser.getId());
+        when(jwtUtil.validateRefreshToken(refreshToken, testUser.getId())).thenReturn(true);
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(jwtUtil.generateAccessToken(any(), any())).thenReturn("new-access-token");
+        when(jwtUtil.generateRefreshToken(any())).thenReturn("new-refresh-token");
+
+        // When
+        AuthResponse response = authService.refreshToken(refreshToken);
+
+        // Then
+        assertThat(response).isNotNull();
+        assertThat(response.getUserId()).isEqualTo(testUser.getId());
+        assertThat(response.getChainKey()).isEqualTo("TEST00000001");
+        assertThat(response.getTokens().getAccessToken()).isEqualTo("new-access-token");
+        assertThat(response.getTokens().getRefreshToken()).isEqualTo("new-refresh-token");
+    }
+
+    @Test
+    void refreshToken_InvalidToken_ThrowsException() {
+        // Given
+        String invalidToken = "invalid-refresh-token";
+        UUID userId = UUID.randomUUID();
+
+        when(jwtUtil.extractUserId(invalidToken)).thenReturn(userId);
+        when(jwtUtil.validateRefreshToken(invalidToken, userId)).thenReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> authService.refreshToken(invalidToken))
+                .isInstanceOf(BusinessException.class)
+                .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo("INVALID_TOKEN"));
+    }
+
+    @Test
+    void refreshToken_UserNotFound_ThrowsException() {
+        // Given
+        String refreshToken = "valid-refresh-token";
+        UUID userId = UUID.randomUUID();
+
+        when(jwtUtil.extractUserId(refreshToken)).thenReturn(userId);
+        when(jwtUtil.validateRefreshToken(refreshToken, userId)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> authService.refreshToken(refreshToken))
+                .isInstanceOf(BusinessException.class)
+                .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo("USER_NOT_FOUND"));
     }
 }

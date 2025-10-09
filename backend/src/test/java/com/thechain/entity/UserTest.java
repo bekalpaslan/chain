@@ -30,8 +30,8 @@ class UserTest {
         user = User.builder()
                 .displayName("Test User")
                 .position(1)
-                .deviceId("device-123")
-                .deviceFingerprint("fingerprint-123")
+                .username("testuser")
+                .passwordHash("$2a$10$hashedPassword")
                 .build();
     }
 
@@ -44,8 +44,8 @@ class UserTest {
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getDisplayName()).isEqualTo("Test User");
         assertThat(savedUser.getPosition()).isEqualTo(1);
-        assertThat(savedUser.getDeviceId()).isEqualTo("device-123");
-        assertThat(savedUser.getDeviceFingerprint()).isEqualTo("fingerprint-123");
+        assertThat(savedUser.getUsername()).isEqualTo("testuser");
+        assertThat(savedUser.getPasswordHash()).isNotNull();
     }
 
     @Test
@@ -55,8 +55,8 @@ class UserTest {
 
         // Then
         assertThat(savedUser.getChainKey()).isNotNull();
-        assertThat(savedUser.getChainKey()).hasSize(11);  // "CK-00000001" format
-        assertThat(savedUser.getChainKey()).matches("CK-\\d{8}");  // Pattern: CK-########
+        assertThat(savedUser.getChainKey()).hasSize(12);  // 12 character hex string
+        assertThat(savedUser.getChainKey()).matches("[A-F0-9]{12}");  // Pattern: 12 uppercase hex chars
     }
 
     @Test
@@ -153,16 +153,16 @@ class UserTest {
                 .chainKey("UNIQUE123456")
                 .displayName("User 1")
                 .position(1)
-                .deviceId("device-1")
-                .deviceFingerprint("fingerprint-1")
+                .username("user1")
+                .passwordHash("$2a$10$dummyHash1111111111111111111111111111111111111111")
                 .build();
 
         User user2 = User.builder()
                 .chainKey("UNIQUE123456") // Same chain key
                 .displayName("User 2")
                 .position(2)
-                .deviceId("device-2")
-                .deviceFingerprint("fingerprint-2")
+                .username("user2")
+                .passwordHash("$2a$10$dummyHash2222222222222222222222222222222222222222")
                 .build();
 
         // When
@@ -183,15 +183,15 @@ class UserTest {
         User user1 = User.builder()
                 .displayName("User 1")
                 .position(1)
-                .deviceId("device-1")
-                .deviceFingerprint("fingerprint-1")
+                .username("user1")
+                .passwordHash("$2a$10$dummyHash1111111111111111111111111111111111111111")
                 .build();
 
         User user2 = User.builder()
                 .displayName("User 2")
                 .position(1) // Same position
-                .deviceId("device-2")
-                .deviceFingerprint("fingerprint-2")
+                .username("user2")
+                .passwordHash("$2a$10$dummyHash2222222222222222222222222222222222222222")
                 .build();
 
         // When
@@ -212,8 +212,7 @@ class UserTest {
         User newUser = User.builder()
                 .displayName("Builder User")
                 .position(10)
-                .deviceId("device-builder")
-                .deviceFingerprint("fingerprint-builder")
+                .username("builderuser")
                 .build();
 
         // Then
@@ -264,8 +263,8 @@ class UserTest {
         User savedUser = entityManager.persistAndFlush(user);
 
         // Then
-        // Chain keys follow format: CK-########
-        assertThat(savedUser.getChainKey()).startsWith("CK-");
-        assertThat(savedUser.getChainKey()).matches("CK-\\d{8}");
+        // Chain keys follow format: 12 uppercase hex characters
+        assertThat(savedUser.getChainKey()).hasSize(12);
+        assertThat(savedUser.getChainKey()).matches("[A-F0-9]{12}");
     }
 }

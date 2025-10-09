@@ -1,6 +1,7 @@
 package com.thechain.controller;
 
 import com.thechain.dto.AuthResponse;
+import com.thechain.dto.LoginRequest;
 import com.thechain.dto.RegisterRequest;
 import com.thechain.service.AuthService;
 import jakarta.validation.Valid;
@@ -25,11 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody Map<String, String> request) {
-        String deviceId = request.get("deviceId");
-        String deviceFingerprint = request.get("deviceFingerprint");
-
-        AuthResponse response = authService.login(deviceId, deviceFingerprint);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request.getUsername(), request.getPassword());
         return ResponseEntity.ok(response);
     }
 

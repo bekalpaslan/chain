@@ -32,6 +32,7 @@ public class AuthService {
     private final TicketService ticketService;
     private final JwtUtil jwtUtil;
     private final ChainService chainService;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -54,9 +55,9 @@ public class AuthService {
             throw new BusinessException("INVALID_SIGNATURE", "Invalid ticket signature");
         }
 
-        // Check for duplicate device
-        if (userRepository.existsByDeviceFingerprint(request.getDeviceFingerprint())) {
-            throw new BusinessException("DUPLICATE_USER", "Device already registered");
+        // Check for duplicate username
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new BusinessException("DUPLICATE_USERNAME", "Username already taken");
         }
 
         // Get parent user
@@ -74,13 +75,16 @@ public class AuthService {
         }
         nextPosition++;
 
-        // Location tracking has been removed - simplified user creation
+        // Hash password before storing
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+
+        // Create new user with username/password authentication only
         User newUser = userRepository.save(User.builder()
-                .displayName(request.getDisplayName() != null ? request.getDisplayName() : "Anonymous #" + nextPosition)
+                .displayName(request.getDisplayName() != null ? request.getDisplayName() : request.getUsername())
                 .position(nextPosition)
                 .parentId(parent.getId())
-                .deviceId(request.getDeviceId())
-                .deviceFingerprint(request.getDeviceFingerprint())
+                .username(request.getUsername())
+                .passwordHash(hashedPassword)
                 .build());
 
         // Update parent's activeChildId reference
@@ -119,8 +123,8 @@ public class AuthService {
         log.info("New user registered: {} at position {}", newUser.getChainKey(), newUser.getPosition());
 
         // Generate tokens
-        String accessToken = jwtUtil.generateAccessToken(newUser.getId(), newUser.getChainKey(), newUser.getDeviceId());
-        String refreshToken = jwtUtil.generateRefreshToken(newUser.getId(), newUser.getDeviceId());
+        String accessToken = jwtUtil.generateAccessToken(newUser.getId(), newUser.getChainKey());
+        String refreshToken = jwtUtil.generateRefreshToken(newUser.getId());
 
         return AuthResponse.builder()
                 .userId(newUser.getId())
@@ -138,19 +142,28 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse login(String deviceId, String deviceFingerprint) {
-        User user = userRepository.findByDeviceId(deviceId)
-                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found for this device"));
+    /**
+     * Username/password login
+     */
+    public AuthResponse login(String username, String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Invalid username or password"));
 
-        // Verify device fingerprint matches
-        if (!user.getDeviceFingerprint().equals(deviceFingerprint)) {
-            log.warn("Device fingerprint mismatch for user {}", user.getId());
-            throw new BusinessException("FINGERPRINT_MISMATCH", "Device verification failed");
+        // Check if user has password set
+        if (user.getPasswordHash() == null || user.getPasswordHash().isEmpty()) {
+            throw new BusinessException("NO_PASSWORD_SET", "This account does not have password authentication enabled");
+        }
+
+        // Verify password
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new BusinessException("INVALID_PASSWORD", "Invalid username or password");
         }
 
         // Generate new tokens
-        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getChainKey(), user.getDeviceId());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getDeviceId());
+        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getChainKey());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+
+        log.info("User {} logged in with username/password", user.getChainKey());
 
         return AuthResponse.builder()
                 .userId(user.getId())
@@ -164,6 +177,7 @@ public class AuthService {
                         .build())
                 .build();
     }
+
 
     /**
      * Refresh access token using refresh token
@@ -182,8 +196,8 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
 
         // Generate new tokens
-        String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getChainKey(), user.getDeviceId());
-        String newRefreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getDeviceId());
+        String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getChainKey());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getId());
 
         log.info("Tokens refreshed for user {}", user.getChainKey());
 
