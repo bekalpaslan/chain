@@ -5,25 +5,45 @@ part 'chain_stats.g.dart';
 @JsonSerializable()
 class ChainStats {
   final int totalUsers;
-  final int activeUsers;
-  final int removedUsers;
-  final int totalTickets;
   final int activeTickets;
-  final int usedTickets;
-  final int expiredTickets;
-  final int chainLength;
+  final DateTime chainStartDate;
+  final double averageGrowthRate;
+  final int totalWastedTickets;
+  final double wasteRate;
+  final int countries;
+  final DateTime lastUpdate;
+  final List<RecentAttachment> recentAttachments;
 
   ChainStats({
     required this.totalUsers,
-    required this.activeUsers,
-    required this.removedUsers,
-    required this.totalTickets,
     required this.activeTickets,
-    required this.usedTickets,
-    required this.expiredTickets,
-    required this.chainLength,
+    required this.chainStartDate,
+    required this.averageGrowthRate,
+    required this.totalWastedTickets,
+    required this.wasteRate,
+    required this.countries,
+    required this.lastUpdate,
+    required this.recentAttachments,
   });
 
   factory ChainStats.fromJson(Map<String, dynamic> json) => _$ChainStatsFromJson(json);
   Map<String, dynamic> toJson() => _$ChainStatsToJson(this);
+}
+
+@JsonSerializable()
+class RecentAttachment {
+  final int childPosition;
+  final String displayName;
+  final DateTime timestamp;
+  final String country;
+
+  RecentAttachment({
+    required this.childPosition,
+    required this.displayName,
+    required this.timestamp,
+    required this.country,
+  });
+
+  factory RecentAttachment.fromJson(Map<String, dynamic> json) => _$RecentAttachmentFromJson(json);
+  Map<String, dynamic> toJson() => _$RecentAttachmentToJson(this);
 }

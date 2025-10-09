@@ -30,7 +30,7 @@ class LandingPage extends ConsumerStatefulWidget {
 }
 
 class _LandingPageState extends ConsumerState<LandingPage> {
-  final ApiClient _apiClient = ApiClient(baseUrl: 'http://localhost:8080');
+  final ApiClient _apiClient = ApiClient();
   ChainStats? _stats;
   bool _loading = true;
   String? _error;
@@ -116,21 +116,21 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                 color: Colors.blue,
               ),
               _StatCard(
-                title: 'Active Users',
-                value: _stats!.activeUsers.toString(),
-                icon: Icons.person,
+                title: 'Active Tickets',
+                value: _stats!.activeTickets.toString(),
+                icon: Icons.confirmation_number,
                 color: Colors.green,
               ),
               _StatCard(
-                title: 'Chain Length',
-                value: _stats!.chainLength.toString(),
-                icon: Icons.link,
-                color: Colors.purple,
+                title: 'Wasted Tickets',
+                value: _stats!.totalWastedTickets.toString(),
+                icon: Icons.delete,
+                color: Colors.red,
               ),
               _StatCard(
-                title: 'Total Tickets',
-                value: _stats!.totalTickets.toString(),
-                icon: Icons.confirmation_number,
+                title: 'Countries',
+                value: _stats!.countries.toString(),
+                icon: Icons.flag,
                 color: Colors.orange,
               ),
             ],
