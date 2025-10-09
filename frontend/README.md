@@ -1,132 +1,116 @@
-# The Chain - Frontend Landing Page
+# The Chain - Frontend Architecture
 
-A beautiful, responsive landing page that displays real-time chain statistics without requiring user authentication.
+Flutter-based dual deployment architecture with shared core library.
 
-## Features
+## Structure
 
-- **Real-time Statistics**: Displays live data from the backend API
-- **No Authentication Required**: Public landing page accessible to all users
-- **Auto-refresh**: Statistics update every 30 seconds automatically
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Recent Activity**: Shows the latest user attachments to the chain
-- **Connection Status**: Visual indicator showing backend connectivity
-
-## Quick Start
-
-### Prerequisites
-- Backend API running on `http://localhost:8080/api/v1`
-- Python 3.x (for the simple HTTP server)
-
-### Running the Frontend
-
-1. **Start the HTTP server**:
-   ```bash
-   cd frontend
-   python -m http.server 3000
-   ```
-
-2. **Open in browser**:
-   ```
-   http://localhost:3000
-   ```
-
-### Alternative: Open Directly
-You can also open `index.html` directly in your browser, but CORS may prevent API calls. Using the HTTP server is recommended.
-
-## API Integration
-
-The landing page integrates with the following backend endpoint:
-
-### GET /api/v1/chain/stats
-
-**No authentication required**
-
-Returns:
-```json
-{
-  "totalUsers": 3,
-  "activeTickets": 0,
-  "chainStartDate": "2025-10-08T15:23:50.293Z",
-  "averageGrowthRate": 0.0,
-  "totalWastedTickets": 0,
-  "wasteRate": 0.0,
-  "countries": 0,
-  "lastUpdate": "2025-10-08T15:23:50.293Z",
-  "recentAttachments": [
-    {
-      "childPosition": 3,
-      "displayName": "Bob",
-      "timestamp": "2025-10-08T13:47:52.168Z",
-      "country": null
-    }
-  ]
-}
+```
+frontend/
+├── shared/          # Shared API client, models, and utilities (Flutter package)
+├── public-app/      # Public marketing site (Flutter web app, port 3000)
+└── private-app/     # Private user dashboard (Flutter web app, port 3001)
 ```
 
-## Displayed Statistics
+## Packages
 
-1. **Total Users**: Number of users connected to the chain
-2. **Active Tickets**: Current tickets being processed
-3. **Growth Rate**: Average daily growth percentage
-4. **Countries**: Number of countries with users
-5. **Recent Activity**: Latest user attachments with timestamps
+### 1. Shared Package (`shared/`)
 
-## Customization
+Common code used by both apps.
 
-### Changing the API URL
+**Contains:**
+- API client (Dio-based with auto token refresh)
+- JSON models (User, Ticket, ChainStats, AuthResponse)
+- Device info and fingerprinting utilities
+- Secure storage helpers
+- API constants and endpoints
 
-Edit the `API_BASE_URL` constant in `index.html`:
-
-```javascript
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+**Usage:**
+```yaml
+dependencies:
+  thechain_shared:
+    path: ../shared
 ```
 
-### Auto-refresh Interval
+### 2. Public App (`public-app/`)
 
-Change the refresh interval (default: 30 seconds):
+**Purpose:** Public marketing site showing chain statistics
 
-```javascript
-// Change 30000 to desired milliseconds
-setInterval(fetchChainStats, 30000);
+**Port:** 3000
+
+**Features:**
+- Landing page with real-time stats
+- No authentication required
+- Calls `/chain/stats` endpoint
+
+**Run:**
+```bash
+cd public-app
+flutter run -d chrome
 ```
 
-### Styling
+### 3. Private App (`private-app/`)
 
-The page uses inline CSS for simplicity. Key color variables:
-- Primary: `#667eea`
-- Secondary: `#764ba2`
-- Success: `#4caf50`
-- Error: `#ff6b6b`
+**Purpose:** Authenticated user dashboard
 
-## Browser Support
+**Port:** 3001
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+**Features:**
+- Device-based login
+- User profile and chain management
+- Ticket generation
+- Protected routes requiring JWT
 
-## Troubleshooting
+**Run:**
+```bash
+cd private-app
+flutter run -d chrome
+```
 
-### "Unable to connect to the backend"
-1. Ensure the backend is running on port 8080
-2. Check the API base URL in the code
-3. Verify CORS is properly configured in the backend
+## Development
 
-### Stats not updating
-1. Check browser console for errors
-2. Verify network connectivity
-3. Ensure the backend `/chain/stats` endpoint is accessible
+**Install dependencies for all packages:**
+```bash
+cd shared && flutter pub get
+cd ../public-app && flutter pub get
+cd ../private-app && flutter pub get
+```
 
-## Production Deployment
+**Regenerate models (after changes to shared/):**
+```bash
+cd shared
+flutter pub run build_runner build --delete-conflicting-outputs
+```
 
-For production:
-1. Use a proper web server (Nginx, Apache, etc.)
-2. Enable HTTPS
-3. Configure proper CORS headers
-4. Update `API_BASE_URL` to your production backend URL
-5. Minify CSS and JavaScript
-6. Add error tracking (e.g., Sentry)
+## Docker Deployment
 
-## License
+**Build and run full stack:**
+```bash
+# From project root
+docker-compose up --build
+```
 
-MIT License - See LICENSE file for details
+**Access:**
+- Public App: http://localhost:3000
+- Private App: http://localhost:3001
+- Backend API: http://localhost:8080
+
+## Tech Stack
+
+- **Framework:** Flutter 3.35.5
+- **Language:** Dart 3.9.2
+- **HTTP Client:** Dio ^5.4.0
+- **State Management:** Riverpod ^2.4.9
+- **Routing:** GoRouter ^13.0.0
+- **Storage:** flutter_secure_storage ^9.0.0
+- **JSON:** json_serializable ^6.7.1
+
+## Design Principles
+
+1. **Shared Core:** Single source of truth for API logic
+2. **Separation of Concerns:** Public vs Private functionality
+3. **Consistent Tech Stack:** Same libraries across both apps
+4. **Docker Ready:** Both apps fully containerized
+
+## Documentation
+
+See [docs/FLUTTER_IMPLEMENTATION_COMPLETE.md](../docs/FLUTTER_IMPLEMENTATION_COMPLETE.md) for comprehensive implementation details.
