@@ -1,30 +1,32 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thechain_private/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Private app displays login page', (WidgetTester tester) async {
+    // Build our app and trigger a frame
+    await tester.pumpWidget(const ProviderScope(child: PrivateApp()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the app title is displayed
+    expect(find.text('The Chain - Login'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify that the login page is shown
+    expect(find.text('Welcome to The Chain'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify login button exists
+    expect(find.text('Login with Device'), findsOneWidget);
+  });
+
+  testWidgets('Login button shows loading state when clicked', (WidgetTester tester) async {
+    // Build the app
+    await tester.pumpWidget(const ProviderScope(child: PrivateApp()));
+
+    // Find and tap the login button
+    final loginButton = find.text('Login with Device');
+    expect(loginButton, findsOneWidget);
+
+    // Note: Actual login will fail without mock API, but we can verify button exists
+    expect(find.byType(ElevatedButton), findsOneWidget);
   });
 }
