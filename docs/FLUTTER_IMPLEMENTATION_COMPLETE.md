@@ -544,3 +544,77 @@ docker-compose down
 **Implementation Date:** October 9, 2025
 **Status:** ✅ Complete and Ready for Testing
 **Total Files Created:** 19
+
+---
+
+## Deployment Update (October 9, 2025)
+
+### Backend Deployment ✅
+
+All backend services successfully deployed via Docker:
+- PostgreSQL: localhost:5432 (healthy)
+- Redis: localhost:6379 (healthy)
+- Spring Boot Backend: localhost:8080 (healthy)
+- API Endpoint: http://localhost:8080/api/v1
+
+**Verified Working:**
+```bash
+$ curl http://localhost:8080/api/v1/chain/stats
+{"totalUsers":1,"activeTickets":0,"chainStartDate":"2025-10-09T00:31:43Z",...}
+```
+
+### Flutter Apps Deployment ⚠️
+
+**Status:** Apps created and tested locally, Docker builds configured
+
+**Current Blocker:** CORS (Cross-Origin Resource Sharing)
+- Flutter apps run on ports 3000/3001
+- Backend runs on port 8080
+- Browser blocks cross-origin requests
+
+**Solution Needed:**
+Enable CORS in `backend/src/main/java/com/thechain/config/SecurityConfig.java` to allow origins:
+- `http://localhost:3000` (public-app)
+- `http://localhost:3001` (private-app)
+
+### Files Updated for Deployment
+
+1. **docker-compose.yml**
+   - Removed old nginx service
+   - Kept public-app and private-app services
+   - Removed obsolete version field
+
+2. **Flutter Dockerfiles**
+   - Fixed COPY paths for build context ./frontend
+   - Corrected nginx.conf paths
+   - Ready for Docker build (requires Flutter SDK download ~30 min)
+
+3. **API Constants**
+   - Added /api/v1 prefix to defaultBaseUrl
+   - All endpoints now use correct path
+
+### Deployment Documentation
+
+See `DEPLOYMENT_STATUS.md` for:
+- Current deployment status
+- CORS configuration guide
+- Access URLs
+- Next steps
+
+### Quick Deploy Commands
+
+**Backend Only (Running):**
+```bash
+docker-compose up -d postgres redis backend
+```
+
+**Local Flutter Development (After CORS fix):**
+```bash
+cd frontend/public-app && flutter run -d chrome --web-port=3000
+cd frontend/private-app && flutter run -d chrome --web-port=3001
+```
+
+**Full Stack (Docker):**
+```bash
+docker-compose up --build  # Takes 30+ min for Flutter SDK download
+```
