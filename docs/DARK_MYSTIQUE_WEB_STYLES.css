@@ -1,0 +1,672 @@
+/**
+ * Dark Mystique Design System - Web Styles
+ *
+ * CSS implementation of The Chain's dark mystique aesthetic for web components.
+ * Use these styles for any web-based interfaces, admin panels, or hybrid web views.
+ */
+
+/* ============================================================================
+   COLOR TOKENS
+   ============================================================================ */
+
+:root {
+  /* Primary - The Void */
+  --color-deep-void: #0A0A0F;
+  --color-void-secondary: #12121A;
+  --color-shadow-purple: #1A1A2E;
+  --color-twilight-gray: #16213E;
+
+  /* Accent - Mystical Energy */
+  --color-mystic-violet: #8B5CF6;
+  --color-ethereal-purple: #A78BFA;
+  --color-deep-magenta: #D946EF;
+  --color-ghost-cyan: #06B6D4;
+  --color-astral-cyan: #22D3EE;
+
+  /* Text */
+  --color-text-primary: #E4E4E7;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+
+  /* Semantic */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Shadows & Glows */
+  --shadow-card: 0 8px 15px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 10px 20px rgba(0, 0, 0, 0.4),
+                     0 0 25px rgba(139, 92, 246, 0.2);
+  --glow-purple: 0 0 20px rgba(139, 92, 246, 0.3),
+                 0 0 40px rgba(167, 139, 250, 0.2);
+  --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-medium: 300ms ease-in-out;
+  --transition-slow: 600ms ease-in-out;
+
+  /* Z-Index */
+  --z-background: -1;
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-dropdown: 100;
+  --z-modal: 1000;
+  --z-tooltip: 2000;
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: linear-gradient(
+    135deg,
+    var(--color-deep-void) 0%,
+    var(--color-void-secondary) 50%,
+    var(--color-shadow-purple) 100%
+  );
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+   TYPOGRAPHY
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+h1 {
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+h3 {
+  font-size: 28px;
+  letter-spacing: 0.075em;
+}
+
+h4 {
+  font-size: 22px;
+}
+
+h5 {
+  font-size: 18px;
+}
+
+h6 {
+  font-size: 16px;
+}
+
+p {
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.025em;
+}
+
+/* Gradient text effect */
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-ethereal-purple),
+    var(--color-mystic-violet)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(
+    135deg,
+    var(--color-ghost-cyan),
+    var(--color-astral-cyan)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================================
+   MYSTIQUE CARD
+   ============================================================================ */
+
+.mystique-card {
+  background: var(--color-shadow-purple);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-medium);
+}
+
+.mystique-card--elevated {
+  box-shadow: var(--shadow-elevated);
+}
+
+.mystique-card:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   MYSTIQUE BUTTON
+   ============================================================================ */
+
+.mystique-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  min-height: 48px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--color-mystic-violet),
+    var(--color-ethereal-purple)
+  );
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--transition-medium);
+}
+
+.mystique-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-mystic-violet),
+    var(--color-ethereal-purple)
+  );
+  opacity: 0;
+  transition: opacity var(--transition-medium);
+}
+
+.mystique-button:hover {
+  box-shadow: var(--glow-purple);
+  transform: translateY(-2px);
+}
+
+.mystique-button:hover::before {
+  opacity: 0.2;
+}
+
+.mystique-button:active {
+  transform: translateY(0);
+}
+
+.mystique-button--secondary {
+  background: linear-gradient(
+    135deg,
+    var(--color-ghost-cyan),
+    var(--color-astral-cyan)
+  );
+}
+
+.mystique-button--secondary:hover {
+  box-shadow: var(--glow-cyan);
+}
+
+.mystique-button--danger {
+  background: linear-gradient(
+    135deg,
+    var(--color-error),
+    #DC2626
+  );
+}
+
+.mystique-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Animated glow effect */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+  }
+}
+
+.mystique-button--animated {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* ============================================================================
+   MYSTIQUE INPUT FIELD
+   ============================================================================ */
+
+.mystique-input-group {
+  margin-bottom: var(--spacing-xl);
+}
+
+.mystique-input-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.mystique-input {
+  width: 100%;
+  padding: var(--spacing-lg);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+  color: var(--color-text-primary);
+  background: var(--color-twilight-gray);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all var(--transition-medium);
+}
+
+.mystique-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.mystique-input:focus {
+  border-color: var(--color-ghost-cyan);
+  border-width: 2px;
+  box-shadow: var(--glow-cyan);
+}
+
+.mystique-input:invalid:not(:placeholder-shown) {
+  border-color: var(--color-error);
+}
+
+/* Input with icon */
+.mystique-input--with-icon {
+  padding-left: 44px;
+}
+
+.mystique-input-icon {
+  position: absolute;
+  left: var(--spacing-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-ethereal-purple);
+}
+
+/* ============================================================================
+   MYSTIQUE STAT CARD
+   ============================================================================ */
+
+.mystique-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  padding: var(--spacing-2xl);
+  background: var(--color-shadow-purple);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+  transition: all var(--transition-medium);
+}
+
+.mystique-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5),
+              0 0 40px rgba(139, 92, 246, 0.3);
+}
+
+.mystique-stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--spacing-lg);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.3),
+    transparent
+  );
+}
+
+.mystique-stat-card__icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--color-mystic-violet);
+}
+
+.mystique-stat-card__value {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    135deg,
+    var(--color-mystic-violet),
+    rgba(139, 92, 246, 0.7)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-sm);
+}
+
+.mystique-stat-card__title {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.075em;
+  color: var(--color-text-secondary);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.mystique-stat-card__subtitle {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* ============================================================================
+   MYSTIQUE ALERT
+   ============================================================================ */
+
+.mystique-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--color-shadow-purple);
+  border-radius: var(--radius-md);
+  border: 1px solid;
+  margin-bottom: var(--spacing-lg);
+}
+
+.mystique-alert--success {
+  border-color: var(--color-success);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.mystique-alert--warning {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.mystique-alert--error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+.mystique-alert--info {
+  border-color: var(--color-astral-cyan);
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+}
+
+.mystique-alert__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.mystique-alert__message {
+  flex: 1;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+/* ============================================================================
+   CHAIN LINK DECORATION
+   ============================================================================ */
+
+.chain-link-decoration {
+  position: absolute;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.chain-link-decoration svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--color-mystic-violet);
+  stroke-width: 3;
+  fill: none;
+}
+
+/* ============================================================================
+   MYSTIQUE LOADING
+   ============================================================================ */
+
+.mystique-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.mystique-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-shadow-purple);
+  border-top-color: var(--color-ethereal-purple);
+  border-radius: 50%;
+  animation: spin 1s linear infinite, pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mystique-loading__text {
+  font-size: 14px;
+  letter-spacing: 0.075em;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Spacing */
+.mt-1 { margin-top: var(--spacing-xs); }
+.mt-2 { margin-top: var(--spacing-sm); }
+.mt-3 { margin-top: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-lg); }
+.mt-5 { margin-top: var(--spacing-xl); }
+.mt-6 { margin-top: var(--spacing-2xl); }
+
+.mb-1 { margin-bottom: var(--spacing-xs); }
+.mb-2 { margin-bottom: var(--spacing-sm); }
+.mb-3 { margin-bottom: var(--spacing-md); }
+.mb-4 { margin-bottom: var(--spacing-lg); }
+.mb-5 { margin-bottom: var(--spacing-xl); }
+.mb-6 { margin-bottom: var(--spacing-2xl); }
+
+.p-1 { padding: var(--spacing-xs); }
+.p-2 { padding: var(--spacing-sm); }
+.p-3 { padding: var(--spacing-md); }
+.p-4 { padding: var(--spacing-lg); }
+.p-5 { padding: var(--spacing-xl); }
+.p-6 { padding: var(--spacing-2xl); }
+
+/* Text alignment */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Display */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.gap-1 { gap: var(--spacing-xs); }
+.gap-2 { gap: var(--spacing-sm); }
+.gap-3 { gap: var(--spacing-md); }
+.gap-4 { gap: var(--spacing-lg); }
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-2xl);
+}
+
+.container--narrow {
+  max-width: 800px;
+}
+
+/* ============================================================================
+   ACCESSIBILITY
+   ============================================================================ */
+
+/* Focus visible styles */
+*:focus-visible {
+  outline: 2px solid var(--color-ghost-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .mystique-button--animated {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .mystique-card {
+    border-width: 2px;
+    border-color: var(--color-mystic-violet);
+  }
+
+  .mystique-button {
+    border: 2px solid white;
+  }
+
+  .mystique-input:focus {
+    border-width: 3px;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  h1 { font-size: 32px; }
+  h2 { font-size: 28px; }
+  h3 { font-size: 24px; }
+
+  .mystique-card {
+    padding: var(--spacing-lg);
+  }
+
+  .mystique-stat-card {
+    width: 160px;
+    padding: var(--spacing-lg);
+  }
+
+  .mystique-stat-card__value {
+    font-size: 28px;
+  }
+
+  .container {
+    padding: 0 var(--spacing-lg);
+  }
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .mystique-card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+
+  .mystique-button {
+    display: none;
+  }
+}

@@ -58,7 +58,41 @@ Register a new user (requires valid ticket).
 ---
 
 ### POST /auth/login
-Login existing user (device-based authentication).
+Login existing user with **hybrid authentication** (supports both email/password and device fingerprint).
+
+#### Option 1: Email/Password Login (with optional device registration)
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "userpassword",
+  "deviceId": "unique-device-identifier (optional)",
+  "deviceFingerprint": "hash-of-device-info (optional)"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "userId": "uuid",
+  "chainKey": "unique-id",
+  "displayName": "User Name",
+  "position": 42,
+  "tokens": {
+    "accessToken": "jwt...",
+    "refreshToken": "jwt...",
+    "expiresIn": 3600
+  }
+}
+```
+
+**Notes:**
+- If `deviceId` and `deviceFingerprint` are provided, the device will be registered for future fast logins
+- Device can only be registered to one account at a time
+- Password is verified using BCrypt
+
+#### Option 2: Device Fingerprint Login
 
 **Request:**
 ```json
@@ -73,6 +107,8 @@ Login existing user (device-based authentication).
 {
   "userId": "uuid",
   "chainKey": "unique-id",
+  "displayName": "User Name",
+  "position": 42,
   "tokens": {
     "accessToken": "jwt...",
     "refreshToken": "jwt...",
@@ -80,6 +116,12 @@ Login existing user (device-based authentication).
   }
 }
 ```
+
+**Errors:**
+- `400` - Missing or invalid credentials
+- `401` - Invalid email/password or device fingerprint mismatch
+- `404` - User not found
+- `409` - Device already registered to another account
 
 ---
 

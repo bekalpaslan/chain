@@ -1,5 +1,6 @@
 package com.thechain.service;
 
+import com.thechain.config.CacheConfig;
 import com.thechain.dto.TicketResponse;
 import com.thechain.entity.Invitation;
 import com.thechain.entity.RemovalReason;
@@ -16,6 +17,8 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +84,7 @@ public class TicketService {
         return buildTicketResponse(ticket);
     }
 
+    @Cacheable(value = CacheConfig.TICKET_CACHE, key = "#ticketId")
     public TicketResponse getTicket(UUID ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new BusinessException("TICKET_NOT_FOUND", "Ticket not found"));
@@ -162,6 +166,7 @@ public class TicketService {
      * Expires a ticket and triggers chain reversion logic.
      * Called by scheduler when a ticket passes its deadline without being used.
      */
+    @CacheEvict(value = CacheConfig.TICKET_CACHE, key = "#ticketId")
     @Transactional
     public void expireTicket(UUID ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)

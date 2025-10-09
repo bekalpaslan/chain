@@ -1,5 +1,6 @@
 package com.thechain.service;
 
+import com.thechain.config.CacheConfig;
 import com.thechain.dto.ChainStatsResponse;
 import com.thechain.entity.Attachment;
 import com.thechain.entity.Ticket;
@@ -8,6 +9,7 @@ import com.thechain.repository.AttachmentRepository;
 import com.thechain.repository.TicketRepository;
 import com.thechain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -22,6 +24,7 @@ public class ChainStatsService {
     private final TicketRepository ticketRepository;
     private final AttachmentRepository attachmentRepository;
 
+    @Cacheable(value = CacheConfig.CHAIN_STATS_CACHE, key = "'global'")
     public ChainStatsResponse getGlobalStats() {
         long totalUsers = userRepository.countByDeletedAtIsNull();
         long activeTickets = ticketRepository.countByStatus(Ticket.TicketStatus.ACTIVE);

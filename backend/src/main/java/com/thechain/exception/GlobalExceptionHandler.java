@@ -105,6 +105,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        log.error("Illegal argument: {}", ex.getMessage());
+
+        Map<String, Object> error = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
+
+        errorDetails.put("code", "INVALID_REQUEST");
+        errorDetails.put("message", ex.getMessage());
+        errorDetails.put("timestamp", Instant.now().toString());
+        errorDetails.put("requestId", UUID.randomUUID().toString());
+
+        error.put("error", errorDetails);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         log.error("Unexpected exception", ex);

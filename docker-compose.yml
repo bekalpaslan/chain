@@ -3,35 +3,51 @@ services:
     image: postgres:15-alpine
     container_name: chain-postgres
     environment:
-      POSTGRES_DB: chaindb
-      POSTGRES_USER: chain_user
-      POSTGRES_PASSWORD: chain_pass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chain_user -d chaindb"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '${POSTGRES_CPU_LIMIT:-1.0}'
+          memory: ${POSTGRES_MEMORY_LIMIT:-512M}
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - chain-network
 
   redis:
     image: redis:7-alpine
     container_name: chain-redis
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '${REDIS_CPU_LIMIT:-0.5}'
+          memory: ${REDIS_MEMORY_LIMIT:-256M}
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     networks:
       - chain-network
 
@@ -41,23 +57,32 @@ services:
       dockerfile: Dockerfile
     container_name: chain-backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: chaindb
-      DB_USER: chain_user
-      DB_PASSWORD: chain_pass
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_SECRET: your-production-secret-key-minimum-256-bits-change-this-in-env-file
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${BACKEND_CPU_LIMIT:-2.0}'
+          memory: ${BACKEND_MEMORY_LIMIT:-1G}
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - chain-network
     healthcheck:
@@ -73,13 +98,21 @@ services:
       dockerfile: public-app/Dockerfile
     container_name: chain-public-app
     ports:
-      - "3000:3000"
+      - "${PUBLIC_APP_PORT:-3000}:3000"
     environment:
-      - API_BASE_URL=http://backend:8080
+      - API_BASE_URL=${API_BASE_URL:-http://backend:8080}
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${FRONTEND_CPU_LIMIT:-0.5}'
+          memory: ${FRONTEND_MEMORY_LIMIT:-256M}
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - chain-network
 
@@ -89,13 +122,21 @@ services:
       dockerfile: private-app/Dockerfile
     container_name: chain-private-app
     ports:
-      - "3001:3001"
+      - "${PRIVATE_APP_PORT:-3001}:3001"
     environment:
-      - API_BASE_URL=http://backend:8080
+      - API_BASE_URL=${API_BASE_URL:-http://backend:8080}
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${FRONTEND_CPU_LIMIT:-0.5}'
+          memory: ${FRONTEND_MEMORY_LIMIT:-256M}
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - chain-network
 

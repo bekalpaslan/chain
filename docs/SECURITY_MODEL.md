@@ -8,12 +8,46 @@ This document outlines the security architecture, authentication mechanisms, and
 
 ## 1. Authentication & Authorization
 
-### 1.1 Device-Based Authentication
+### 1.1 Hybrid Authentication System
 
-**Primary Authentication Method:**
-- Users authenticate via device fingerprinting (no email/password required)
-- Reduces friction while maintaining reasonable security
-- Suitable for single-device, mobile-first use case
+The Chain supports **two parallel authentication methods** that can work independently or together:
+
+#### Option A: Email/Password Authentication (Traditional)
+
+**Benefits:**
+- Account recovery via email
+- Multi-device support out of the box
+- Familiar user experience
+- Stronger account security
+
+**Implementation:**
+```json
+{
+  "email": "user@example.com",
+  "password": "hashed-with-bcrypt",
+  "deviceId": "optional-for-fast-login",
+  "deviceFingerprint": "optional-for-fast-login"
+}
+```
+
+**Security Features:**
+- Passwords hashed with BCrypt (cost factor 10)
+- Optional device registration for subsequent fast logins
+- Device can only be linked to one account
+- Email verification (future enhancement)
+
+**Flow:**
+1. User logs in with email/password
+2. Server validates credentials
+3. If device info provided, register device for future fast logins
+4. Return JWT tokens
+
+#### Option B: Device Fingerprint Authentication (Passwordless)
+
+**Benefits:**
+- Zero-friction login experience
+- No password to remember or leak
+- Suitable for single-device use cases
 
 **Device Fingerprint Components:**
 ```javascript
@@ -27,9 +61,24 @@ This document outlines the security architecture, authentication mechanisms, and
 ```
 
 **Security Considerations:**
-- Device fingerprints stored as salted hashes
-- Multiple logins from same device allowed (but monitored)
-- Lost device recovery requires support intervention
+- Device fingerprints stored as SHA-256 hashes
+- Lost device recovery requires email/password fallback or support intervention
+- Device ownership validated on every login
+
+#### Hybrid Flow: Best of Both Worlds
+
+Users can start with email/password and then enable device-based fast login:
+
+1. **First Login:** Email/password + provide device credentials
+2. **Subsequent Logins:** Device fingerprint only (fast)
+3. **New Device:** Email/password required, then register new device
+4. **Account Recovery:** Always available via email/password
+
+**Security Properties:**
+- Device cannot be registered to multiple accounts
+- Email/password always works as fallback
+- Both methods generate same JWT tokens
+- Single unified authentication endpoint `/auth/login`
 
 ### 1.2 JWT Token Architecture
 

@@ -1,8 +1,8 @@
 # The Chain - Implementation Status & Technical Documentation
 
-**Version:** 2.1
-**Date:** October 8, 2025
-**Status:** Phase 1 & 2 Infrastructure Complete
+**Version:** 2.4
+**Date:** October 9, 2025
+**Status:** Phase 1 & 2 Complete + Hybrid Authentication Implemented
 **Author:** Alpaslan Bek
 **Document Type:** Implementation Status & Technical Reference
 
@@ -46,7 +46,8 @@ This document provides the current implementation status of **The Chain** applic
 ### Security & Authentication
 - **Security:** Spring Security
 - **JWT:** jjwt 0.12.3 (API + Implementation)
-- **Password:** BCrypt (planned)
+- **Password:** BCrypt (cost factor 10) ✅ **IMPLEMENTED**
+- **Authentication:** Hybrid (Email/Password + Device Fingerprint) ✅ **IMPLEMENTED**
 
 ### Additional Libraries
 - **QR Code Generation:** Google ZXing 3.5.2
@@ -438,11 +439,19 @@ tickets (
 #### Authentication
 ```
 POST   /auth/register             ✅ Device-based registration with tickets
-POST   /auth/login                ✅ Device fingerprint login (returns JWT)
+POST   /auth/login                ✅ Hybrid login (Email/Password OR Device Fingerprint)
+POST   /auth/refresh              ✅ Refresh token endpoint (implemented)
 GET    /auth/health               ✅ Service health check
-POST   /auth/refresh              ⏳ Refresh token endpoint (pending)
 POST   /auth/logout               ⏳ Session invalidation (pending)
 ```
+
+**New in v2.4:** Hybrid Authentication
+- ✅ Email/password login with BCrypt hashing
+- ✅ Device fingerprint passwordless login
+- ✅ Optional device registration during email login
+- ✅ Device ownership validation (one device, one account)
+- ✅ Comprehensive error handling (7 error codes)
+- ✅ 33/33 tests passing (AuthService + AuthController)
 
 #### Tickets
 ```
@@ -715,7 +724,138 @@ docker exec chain-postgres psql -U chain_user -d chaindb \
 
 ---
 
+---
+
+## Hybrid Authentication Implementation (October 9, 2025)
+
+### ✅ Complete Implementation
+
+The Chain now supports **dual authentication methods** that work independently or together:
+
+#### Features Implemented
+
+1. **Email/Password Authentication**
+   - BCrypt password hashing (cost factor 10)
+   - Email-based account lookup
+   - Password verification with constant-time comparison
+   - Optional device registration during login
+   - Account recovery support
+
+2. **Device Fingerprint Authentication**
+   - SHA-256 device fingerprint hashing
+   - Passwordless, zero-friction login
+   - Device-based account lookup
+   - Fingerprint verification
+
+3. **Hybrid Flow**
+   - Single unified `/auth/login` endpoint
+   - Priority: Email/password checked first, then device fingerprint
+   - Device registration during email/password login
+   - Device ownership validation (one device, one account)
+
+#### Backend Changes
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| [SecurityConfig.java](../backend/src/main/java/com/thechain/config/SecurityConfig.java) | ✅ | Added `PasswordEncoder` bean |
+| [AuthService.java](../backend/src/main/java/com/thechain/service/AuthService.java) | ✅ | Added `loginWithEmailPassword()` method |
+| [AuthController.java](../backend/src/main/java/com/thechain/controller/AuthController.java) | ✅ | Updated login routing logic |
+| [UserRepository.java](../backend/src/main/java/com/thechain/repository/UserRepository.java) | ✅ | Added `findByDeviceFingerprint()` |
+| [GlobalExceptionHandler.java](../backend/src/main/java/com/thechain/exception/GlobalExceptionHandler.java) | ✅ | Added `IllegalArgumentException` handler |
+
+#### Test Coverage: 33/33 Tests Passing ✅
+
+**AuthServiceTest (19 tests):**
+- Email/password authentication (10 tests)
+  - Success with/without device registration
+  - User not found
+  - No password set
+  - Invalid password
+  - Device already registered (security)
+  - Same user re-login
+- Token management (3 tests)
+  - Refresh token success
+  - Invalid token
+  - User not found
+- Existing device fingerprint tests (6 tests)
+
+**AuthControllerTest (14 tests):**
+- HTTP endpoint tests (9 new tests)
+  - Email/password login
+  - Email/password + device registration
+  - Device fingerprint login
+  - Missing credentials validation
+  - Incomplete credentials validation
+  - Refresh token endpoint
+- Existing endpoint tests (5 tests)
+
+#### Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `USER_NOT_FOUND` | 404 | Email not found |
+| `INVALID_PASSWORD` | 401 | Wrong password |
+| `NO_PASSWORD_SET` | 400 | Account has no password |
+| `DEVICE_ALREADY_REGISTERED` | 409 | Device linked to another account |
+| `INVALID_REQUEST` | 400 | Missing credentials |
+| `FINGERPRINT_MISMATCH` | 401 | Device fingerprint doesn't match |
+| `INVALID_TOKEN` | 401 | Invalid or expired token |
+
+#### Test Seed User
+
+```bash
+# Email/password login
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alpaslan@alpaslan.com",
+    "password": "alpaslan"
+  }'
+
+# Device fingerprint login
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "deviceId": "web_489323232",
+    "deviceFingerprint": "2d23d5f144c842a766b91e0853be834ea85143ff80ba5b6926ac64330a02bc2d"
+  }'
+```
+
+#### Documentation
+
+- [API Specification](API_SPECIFICATION.md) - Updated `/auth/login` endpoint
+- [Security Model](SECURITY_MODEL.md) - Updated authentication section
+- [Hybrid Authentication Implementation](HYBRID_AUTHENTICATION_IMPLEMENTATION.md) - **NEW** comprehensive guide
+
+#### Next Steps
+
+- [ ] Update Flutter frontend to support email/password UI
+- [ ] Implement email verification flow
+- [ ] Add password reset functionality
+- [ ] Create device management UI
+
+---
+
 ## Change Log
+
+### Version 2.4 (October 9, 2025 - 18:30)
+- ✅ **Implemented Hybrid Authentication System**
+- ✅ Added email/password authentication with BCrypt
+- ✅ Added device registration during email login
+- ✅ Created comprehensive test suite (33/33 tests passing)
+  - AuthServiceTest: 19 tests (10 new for email/password)
+  - AuthControllerTest: 14 tests (9 new for hybrid auth)
+- ✅ Updated SecurityConfig with PasswordEncoder bean
+- ✅ Added loginWithEmailPassword() to AuthService
+- ✅ Updated AuthController login routing
+- ✅ Added findByDeviceFingerprint() to UserRepository
+- ✅ Added IllegalArgumentException handler to GlobalExceptionHandler
+- ✅ Configured seed user with both auth methods
+- 📝 Created HYBRID_AUTHENTICATION_IMPLEMENTATION.md (400+ lines)
+- 📝 Updated API_SPECIFICATION.md with hybrid auth endpoints
+- 📝 Updated SECURITY_MODEL.md authentication section
+- 📝 Updated README.md with quick start guide
+- 📝 Updated IMPLEMENTATION_STATUS.md (this document)
 
 ### Version 2.3 (October 9, 2025 - 00:00)
 - ✅ **Completed Week 2 Integration Tests**

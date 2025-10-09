@@ -96,14 +96,14 @@ class ApiClient {
 
   // ========== Auth endpoints ==========
 
-  /// Login with device credentials
-  Future<AuthResponse> login(String deviceId, String deviceFingerprint) async {
+  /// Login with username and password
+  Future<AuthResponse> login(String username, String password) async {
     try {
       final response = await _dio.post(
         ApiConstants.authLogin,
         data: {
-          'deviceId': deviceId,
-          'deviceFingerprint': deviceFingerprint,
+          'username': username,
+          'password': password,
         },
       );
       return AuthResponse.fromJson(response.data);
@@ -116,9 +116,8 @@ class ApiClient {
   Future<AuthResponse> register({
     required String ticketId,
     required String ticketSignature,
-    required String displayName,
-    required String deviceId,
-    required String deviceFingerprint,
+    required String username,
+    required String password,
   }) async {
     try {
       final response = await _dio.post(
@@ -126,9 +125,8 @@ class ApiClient {
         data: {
           'ticketId': ticketId,
           'ticketSignature': ticketSignature,
-          'displayName': displayName,
-          'deviceId': deviceId,
-          'deviceFingerprint': deviceFingerprint,
+          'username': username,
+          'password': password,
         },
       );
       return AuthResponse.fromJson(response.data);
