@@ -48,7 +48,9 @@
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" pub run build_runner build --delete-conflicting-outputs)",
       "Bash(test:*)",
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" create . --project-name=thechain_public --platforms=web)",
-      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" run -d chrome --web-port=3000)"
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" run -d chrome --web-port=3000)",
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" run -d chrome --web-port=3001)",
+      "Bash(docker logs:*)"
     ],
     "deny": [],
     "ask": []

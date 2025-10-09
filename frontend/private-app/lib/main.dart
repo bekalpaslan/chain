@@ -30,7 +30,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final ApiClient _apiClient = ApiClient(baseUrl: 'http://localhost:8080');
+  final ApiClient _apiClient = ApiClient();
   bool _loading = false;
   String? _error;
 
@@ -60,12 +60,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         );
       }
     } catch (e) {
+      final errorMsg = e.toString();
       setState(() {
-        _error = e.toString();
+        // Check if user needs to register
+        if (errorMsg.contains('USER_NOT_FOUND') || errorMsg.contains('404')) {
+          _error = 'No account found. Please register first.';
+        } else {
+          _error = errorMsg;
+        }
         _loading = false;
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +96,35 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
+                    color: Colors.orange[50],
+                    border: Border.all(color: Colors.orange),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.red),
+                  child: Column(
+                    children: [
+                      Text(
+                        _error!,
+                        style: TextStyle(color: Colors.orange[900]),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (_error!.contains('register')) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'To join The Chain, you need an invitation ticket from an existing member.',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
               ],
               ElevatedButton(
                 onPressed: _loading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(200, 48),
+                ),
                 child: _loading
                     ? const SizedBox(
                         width: 20,
@@ -108,6 +132,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Text('Login with Device'),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Device-based login - no password needed',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -125,7 +154,7 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  final ApiClient _apiClient = ApiClient(baseUrl: 'http://localhost:8080');
+  final ApiClient _apiClient = ApiClient();
   User? _profile;
   bool _loading = true;
   String? _error;
