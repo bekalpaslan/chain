@@ -90,6 +90,38 @@ services:
       retries: 3
       start_period: 5s
 
+  public-app:
+    build:
+      context: ./frontend
+      dockerfile: public-app/Dockerfile
+    container_name: chain-public-app
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BASE_URL=http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - chain-network
+
+  private-app:
+    build:
+      context: ./frontend
+      dockerfile: private-app/Dockerfile
+    container_name: chain-private-app
+    ports:
+      - "3001:3001"
+    environment:
+      - API_BASE_URL=http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - chain-network
+
 networks:
   chain-network:
     driver: bridge
