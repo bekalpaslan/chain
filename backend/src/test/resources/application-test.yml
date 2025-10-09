@@ -18,6 +18,7 @@ spring:
   sql:
     init:
       mode: never
+      enabled: false
   flyway:
     enabled: false
   data:

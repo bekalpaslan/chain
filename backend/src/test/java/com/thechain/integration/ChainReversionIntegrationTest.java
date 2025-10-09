@@ -132,9 +132,7 @@ class ChainReversionIntegrationTest {
         // Given: Seed user with status="seed"
         seed.setStatus("seed");
         userRepository.save(seed);
-
-        String beforeStatus = seed.getStatus();
-
+        
         // When: Try to remove seed
         chainService.removeUserFromChain(seed.getId(), "test_removal");
 
@@ -311,8 +309,8 @@ class ChainReversionIntegrationTest {
                 .position(position)
                 .chainKey(chainKey)
                 .displayName("User " + position)
-                .deviceId("device-" + position)
-                .deviceFingerprint("fingerprint-" + position)
+                .username("user" + position)
+                .passwordHash("$2a$10$hashedPassword")
                 .parentId(parentId)
                 .status("active")
                 .wastedTicketsCount(0)

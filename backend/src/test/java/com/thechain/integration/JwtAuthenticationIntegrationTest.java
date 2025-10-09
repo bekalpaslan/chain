@@ -53,6 +53,9 @@ class JwtAuthenticationIntegrationTest {
     @Autowired
     private TicketRepository ticketRepository;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     private User seed;
     private Ticket validTicket;
 
@@ -63,10 +66,9 @@ class JwtAuthenticationIntegrationTest {
                 .position(0)
                 .chainKey("SEED00000000")
                 .displayName("Seed User")
-                .deviceId("seed-device")
-                .deviceFingerprint("seed-fingerprint")
                 .status("seed")
-                .email("seed@example.com")
+                .username("seeduser")
+                .passwordHash(passwordEncoder.encode("seedpassword"))
                 .wastedTicketsCount(0)
                 .build();
         seed = userRepository.save(seed);
@@ -87,16 +89,15 @@ class JwtAuthenticationIntegrationTest {
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .ticketId(validTicket.getId())
                 .ticketSignature(validTicket.getSignature()) // Use actual ticket signature
-                .displayName("NewUser")
-                .deviceId("new-device-123")
-                .deviceFingerprint("fingerprint-xyz")
+                .username("newuser")
+                .password("password123")
                 .build();
 
         AuthResponse registrationResponse = authService.register(registerRequest);
 
         // Verify registration response
         assertThat(registrationResponse).isNotNull();
-        assertThat(registrationResponse.getDisplayName()).isEqualTo("NewUser");
+        assertThat(registrationResponse.getDisplayName()).isEqualTo("newuser");
         assertThat(registrationResponse.getPosition()).isEqualTo(1);
         assertThat(registrationResponse.getTokens()).isNotNull();
         assertThat(registrationResponse.getTokens().getAccessToken()).isNotNull();
@@ -112,26 +113,26 @@ class JwtAuthenticationIntegrationTest {
         assertThat(usedTicket.getUsedAt()).isNotNull();
 
         // Verify user was created in database
-        User newUser = userRepository.findByDeviceId("new-device-123").orElseThrow();
-        assertThat(newUser.getDisplayName()).isEqualTo("NewUser");
+        User newUser = userRepository.findByUsername("newuser").orElseThrow();
+        assertThat(newUser.getDisplayName()).isEqualTo("newuser");
         assertThat(newUser.getPosition()).isEqualTo(1);
         assertThat(newUser.getActiveChildId()).isNull(); // New user has no invitee yet
 
         // Step 2: Validate access token
         assertThat(jwtService.validateToken(accessToken, newUserId)).isTrue();
-        assertThat(jwtService.extractChainKey(accessToken)).isEqualTo("CK-00000001");
+        assertThat(jwtService.extractChainKey(accessToken)).isNotNull();
         assertThat(jwtService.extractUserId(accessToken)).isEqualTo(newUserId);
 
         // Step 3: Validate refresh token
         assertThat(jwtService.validateRefreshToken(refreshToken, newUserId)).isTrue();
 
-        // Step 4: Login with device credentials
-        AuthResponse loginResponse = authService.login("new-device-123", "fingerprint-xyz");
+        // Step 4: Login with username/password
+        AuthResponse loginResponse = authService.login("newuser", "password123");
 
         assertThat(loginResponse).isNotNull();
         assertThat(loginResponse.getTokens().getAccessToken()).isNotNull();
         assertThat(loginResponse.getTokens().getRefreshToken()).isNotNull();
-        assertThat(loginResponse.getDisplayName()).isEqualTo("NewUser");
+        assertThat(loginResponse.getDisplayName()).isEqualTo("newuser");
 
         // Verify new tokens are valid
         String newAccessToken = loginResponse.getTokens().getAccessToken();
@@ -143,9 +144,8 @@ class JwtAuthenticationIntegrationTest {
         RegisterRequest request = RegisterRequest.builder()
                 .ticketId(UUID.randomUUID()) // Non-existent ticket
                 .ticketSignature("test-signature")
-                .displayName("NewUser")
-                .deviceId("device-123")
-                .deviceFingerprint("fingerprint-xyz")
+                .username("newuser")
+                .password("password123")
                 .build();
 
         assertThatThrownBy(() -> authService.register(request))
@@ -161,9 +161,8 @@ class JwtAuthenticationIntegrationTest {
         RegisterRequest request = RegisterRequest.builder()
                 .ticketId(expiredTicket.getId())
                 .ticketSignature("test-signature")
-                .displayName("NewUser")
-                .deviceId("device-123")
-                .deviceFingerprint("fingerprint-xyz")
+                .username("newuser")
+                .password("password123")
                 .build();
 
         assertThatThrownBy(() -> authService.register(request))
@@ -181,9 +180,8 @@ class JwtAuthenticationIntegrationTest {
         RegisterRequest request = RegisterRequest.builder()
                 .ticketId(validTicket.getId())
                 .ticketSignature("test-signature")
-                .displayName("NewUser")
-                .deviceId("device-123")
-                .deviceFingerprint("fingerprint-xyz")
+                .username("newuser")
+                .password("password123")
                 .build();
 
         assertThatThrownBy(() -> authService.register(request))
@@ -198,15 +196,15 @@ class JwtAuthenticationIntegrationTest {
                 .position(1)
                 .chainKey("CK-00000001")
                 .displayName("Test User")
-                .deviceId("test-device")
-                .deviceFingerprint("test-fingerprint")
+                .username("testuser")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .status("active")
                 .wastedTicketsCount(0)
                 .build();
         userRepository.save(user);
 
         // Login
-        AuthResponse response = authService.login("test-device", "test-fingerprint");
+        AuthResponse response = authService.login("testuser", "password123");
 
         assertThat(response.getTokens().getAccessToken()).isNotNull();
         assertThat(response.getTokens().getRefreshToken()).isNotNull();
@@ -214,30 +212,30 @@ class JwtAuthenticationIntegrationTest {
     }
 
     @Test
-    void login_WithInvalidDevice_Fails() {
-        assertThatThrownBy(() -> authService.login("non-existent-device", "fingerprint"))
+    void login_WithInvalidUsername_Fails() {
+        assertThatThrownBy(() -> authService.login("nonexistent", "password"))
             .isInstanceOf(BusinessException.class)
             .hasMessageContaining("User not found");
     }
 
     @Test
-    void login_WithMismatchedFingerprint_Fails() {
+    void login_WithWrongPassword_Fails() {
         // Create user
         User user = User.builder()
                 .position(1)
                 .chainKey("CK-00000001")
                 .displayName("Test User")
-                .deviceId("test-device")
-                .deviceFingerprint("correct-fingerprint")
+                .username("testuser")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .status("active")
                 .wastedTicketsCount(0)
                 .build();
         userRepository.save(user);
 
-        // Try to login with wrong fingerprint
-        assertThatThrownBy(() -> authService.login("test-device", "wrong-fingerprint"))
-            .isInstanceOf(BusinessException.class)
-            .hasMessageContaining("Device verification failed");
+        // Try to login with wrong password
+        assertThatThrownBy(() -> authService.login("testuser", "wrongpassword"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Invalid username or password");
     }
 
     @Test
@@ -247,17 +245,16 @@ class JwtAuthenticationIntegrationTest {
                 .position(1)
                 .chainKey("CK-00000001")
                 .displayName("Test User")
-                .deviceId("test-device")
+                .username("testuser")
                 .status("active")
                 .build();
         user = userRepository.save(user);
 
-        String token = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), user.getDeviceId());
+        String token = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), null);
 
         assertThat(jwtService.validateToken(token, user.getId())).isTrue();
         assertThat(jwtService.extractChainKey(token)).isEqualTo("CK-00000001");
-        assertThat(jwtService.extractDeviceId(token)).isEqualTo("test-device");
-        assertThat(jwtService.extractPosition(token)).isEqualTo(1);
+        assertThat(jwtService.extractUserId(token)).isEqualTo(user.getId());
     }
 
     @Test
@@ -273,12 +270,12 @@ class JwtAuthenticationIntegrationTest {
         User user = User.builder()
                 .position(1)
                 .chainKey("CK-00000001")
-                .deviceId("test-device")
+                .username("testuser")
                 .build();
         user = userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), user.getDeviceId());
-        String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getDeviceId());
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), null);
+        String refreshToken = jwtService.generateRefreshToken(user.getId(), null);
 
         // Both should be valid
         assertThat(jwtService.validateAccessToken(accessToken, user.getId())).isTrue();
@@ -299,19 +296,19 @@ class JwtAuthenticationIntegrationTest {
                 .position(1)
                 .chainKey("CK-00000001")
                 .displayName("Test User")
-                .deviceId("test-device")
-                .deviceFingerprint("test-fingerprint")
+                .username("testuser")
+                .passwordHash(passwordEncoder.encode("password123"))
                 .status("active")
                 .wastedTicketsCount(0)
                 .build();
         userRepository.save(user);
 
-        AuthResponse response1 = authService.login("test-device", "test-fingerprint");
+        AuthResponse response1 = authService.login("testuser", "password123");
 
         // Wait enough time to ensure different second in timestamp
         Thread.sleep(1100);
 
-        AuthResponse response2 = authService.login("test-device", "test-fingerprint");
+        AuthResponse response2 = authService.login("testuser", "password123");
 
         // Tokens should be different (different issuance time)
         assertThat(response1.getTokens().getAccessToken()).isNotEqualTo(response2.getTokens().getAccessToken());
@@ -329,17 +326,16 @@ class JwtAuthenticationIntegrationTest {
         User user = User.builder()
                 .position(42)
                 .chainKey("CK-00000042")
-                .deviceId("test-device")
+                .username("testuser")
                 .build();
         user = userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), user.getDeviceId());
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getChainKey(), user.getPosition(), null);
 
         // Verify all claims
         assertThat(jwtService.extractUserId(accessToken)).isEqualTo(user.getId());
         assertThat(jwtService.extractChainKey(accessToken)).isEqualTo("CK-00000042");
         assertThat(jwtService.extractPosition(accessToken)).isEqualTo(42);
-        assertThat(jwtService.extractDeviceId(accessToken)).isEqualTo("test-device");
         assertThat(jwtService.extractTokenType(accessToken)).isEqualTo("access");
         assertThat(jwtService.isTokenExpired(accessToken)).isFalse();
     }
@@ -349,9 +345,8 @@ class JwtAuthenticationIntegrationTest {
         RegisterRequest registerRequest = RegisterRequest.builder()
                 .ticketId(validTicket.getId())
                 .ticketSignature(validTicket.getSignature()) // Use actual ticket signature
-                .displayName("NewUser")
-                .deviceId("new-device-123")
-                .deviceFingerprint("fingerprint-xyz")
+                .username("newuser")
+                .password("password123")
                 .build();
 
         AuthResponse register = authService.register(registerRequest);

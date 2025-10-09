@@ -50,9 +50,22 @@
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" create . --project-name=thechain_public --platforms=web)",
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" run -d chrome --web-port=3000)",
       "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" run -d chrome --web-port=3001)",
-      "Bash(docker logs:*)"
+      "Bash(docker logs:*)",
+      "Bash(python3:*)",
+      "Bash(./mvnw:*)",
+      "Bash(mvn compile:*)",
+      "Bash(\"/c/Users/alpas/IdeaProjects/flutter/bin/flutter.bat\" build web --release)",
+      "Bash(find:*)",
+      "Bash(git mv:*)",
+      "Bash(mvn help:*)",
+      "Bash(openssl rand:*)",
+      "Bash(if [ -f \"C:\\Users\\alpas\\IdeaProjects\\ticketz\\.env.example\" ])",
+      "Bash(then echo \"exists\")",
+      "Bash(else echo \"not exists\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "outputStyle": "Explanatory"
 }
