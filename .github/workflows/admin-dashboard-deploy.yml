@@ -1,0 +1,364 @@
+name: Admin Dashboard - Production Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/admin_dashboard/**'
+      - '.github/workflows/admin-dashboard-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/admin-dashboard
+  FLUTTER_VERSION: '3.19.2'
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate version
+        id: version
+        run: echo "version=$(date +'%Y%m%d')-${{ github.run_number }}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            frontend/admin_dashboard/.dart_tool
+            frontend/admin_dashboard/build
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Install dependencies
+        working-directory: frontend/admin_dashboard
+        run: flutter pub get
+
+      - name: Run tests
+        working-directory: frontend/admin_dashboard
+        run: flutter test --coverage
+
+      - name: Analyze code
+        working-directory: frontend/admin_dashboard
+        run: flutter analyze
+
+      - name: Build web release
+        working-directory: frontend/admin_dashboard
+        run: |
+          flutter build web \
+            --release \
+            --web-renderer canvaskit \
+            --dart-define=PRODUCTION=true \
+            --dart-define=VERSION=${{ steps.version.outputs.version }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: web-build-${{ steps.version.outputs.version }}
+          path: frontend/admin_dashboard/build/web/
+          retention-days: 7
+
+  docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=${{ needs.build.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: frontend/admin_dashboard
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ needs.build.outputs.version }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    if: github.event_name == 'push' || github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://admin-staging.thechain.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name thechain-staging \
+            --region us-east-1
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/admin-dashboard \
+            admin-dashboard=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
+            -n thechain-staging \
+            --record
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/admin-dashboard \
+            -n thechain-staging \
+            --timeout=300s
+
+      - name: Run smoke tests
+        run: |
+          STAGING_URL="https://admin-staging.thechain.com"
+
+          # Health check
+          curl -f ${STAGING_URL}/health || exit 1
+
+          # Basic page load test
+          curl -f ${STAGING_URL} || exit 1
+
+          echo "Smoke tests passed!"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, docker, deploy-staging]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://admin.thechain.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: us-east-1
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name thechain-production \
+            --region us-east-1
+
+      - name: Backup current deployment
+        run: |
+          kubectl get deployment admin-dashboard \
+            -n thechain-production \
+            -o yaml > backup-deployment-$(date +%Y%m%d-%H%M%S).yaml
+
+      - name: Blue-Green Deployment
+        run: |
+          # Create green deployment
+          kubectl apply -f - <<EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: admin-dashboard-green
+            namespace: thechain-production
+          spec:
+            replicas: 3
+            selector:
+              matchLabels:
+                app: admin-dashboard
+                version: green
+            template:
+              metadata:
+                labels:
+                  app: admin-dashboard
+                  version: green
+              spec:
+                containers:
+                - name: admin-dashboard
+                  image: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }}
+                  ports:
+                  - containerPort: 8080
+                  env:
+                  - name: ENVIRONMENT
+                    value: production
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "512Mi"
+                      cpu: "500m"
+                  livenessProbe:
+                    httpGet:
+                      path: /health
+                      port: 8080
+                    initialDelaySeconds: 30
+                    periodSeconds: 10
+                  readinessProbe:
+                    httpGet:
+                      path: /health
+                      port: 8080
+                    initialDelaySeconds: 5
+                    periodSeconds: 5
+          EOF
+
+          # Wait for green deployment to be ready
+          kubectl rollout status deployment/admin-dashboard-green \
+            -n thechain-production \
+            --timeout=300s
+
+          # Switch traffic to green
+          kubectl patch service admin-dashboard \
+            -n thechain-production \
+            -p '{"spec":{"selector":{"version":"green"}}}'
+
+          # Wait and monitor
+          sleep 60
+
+          # If successful, cleanup blue deployment
+          kubectl delete deployment admin-dashboard \
+            -n thechain-production \
+            --ignore-not-found=true
+
+          # Rename green to main
+          kubectl patch deployment admin-dashboard-green \
+            -n thechain-production \
+            --type='json' \
+            -p='[{"op": "replace", "path": "/metadata/name", "value": "admin-dashboard"}]'
+
+      - name: Verify deployment
+        run: |
+          PROD_URL="https://admin.thechain.com"
+
+          # Comprehensive health checks
+          for i in {1..5}; do
+            if curl -f ${PROD_URL}/health; then
+              echo "Health check $i passed"
+            else
+              echo "Health check $i failed"
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Notify deployment status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Production Deployment: ${{ job.status }}
+            Version: ${{ needs.build.outputs.version }}
+            Actor: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  rollback:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    if: failure() && needs.deploy-production.result == 'failure'
+    needs: [deploy-production]
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: us-east-1
+
+      - name: Rollback deployment
+        run: |
+          aws eks update-kubeconfig \
+            --name thechain-production \
+            --region us-east-1
+
+          kubectl rollout undo deployment/admin-dashboard \
+            -n thechain-production
+
+          kubectl rollout status deployment/admin-dashboard \
+            -n thechain-production \
+            --timeout=300s
+
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "⚠️ Production deployment rolled back automatically",
+              color: "warning"
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
