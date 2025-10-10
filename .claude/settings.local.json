@@ -1,10 +1,21 @@
 {
   "permissions": {
     "allow": [
+      "Bash(awk:*)",
+      "Bash(xargs:*)",
+      "Bash(for:*)",
+      "Bash(done)",
+      "Bash(do echo \"=== File: $file ===\")",
       "Bash(pwsh:*)",
-      "Bash(powershell:*)",
+      "Bash(cat:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nrefactor: update agent system with industry-standard role names and comprehensive documentation\n\n- Renamed all agent files to professional titles (e.g., architecture-master → solution-architect)\n- Added comprehensive project analysis for each role including:\n  - Technology stack documentation\n  - Development guidelines\n  - Best practices and patterns\n  - Performance metrics and targets\n- Created TEAM_RESPONSIBILITIES_MATRIX.md defining cross-cutting responsibilities\n- Fixed public/private app understanding (public = stats, private = members)\n- Updated status.json with new agent names and corrected timestamps\n- Added support documentation for team structure and gaps\n\nKey changes:\n- Principal Solution Architect (enterprise architecture)\n- Senior Backend Engineer (Spring Boot/Java)\n- Principal Database Architect (PostgreSQL/Redis)\n- Senior Mobile Developer (Flutter/Dart)\n- DevOps Lead (CI/CD, Infrastructure)\n- Lead QA Engineer (testing strategy)\n\nThis refactoring provides clear role definitions and comprehensive onboarding documentation for The Chain project team.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add pink color (#e91e63) to UI Designer agent\n\nAdd creative pink color to represent design and user experience focus.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add green color (#2ecc71) to Senior Backend Engineer agent\n\nAdd vibrant green color to represent Java/Spring ecosystem and backend development.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add dark gray color (#34495e) to Solution Architect agent\n\nAdd professional dark gray to represent enterprise architecture and structural integrity.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(flutter pub:*)",
+      "Bash(dart run build_runner build:*)"
     ],
     "deny": [],
     "ask": []
