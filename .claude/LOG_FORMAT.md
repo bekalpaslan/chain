@@ -52,7 +52,12 @@ Full entry with task and consequences (required when affected_agents or risk_lev
 
 Field notes and constraints:
 
-- timestamp: ISO 8601 UTC string.
+- **timestamp**: ISO 8601 UTC string with **second precision only** (format: `YYYY-MM-DDTHH:MM:SSZ`).
+  - ✓ Correct: `"2025-10-10T12:30:00Z"` (second precision, UTC)
+  - ✗ Incorrect: `"2025-10-10T12:30:00.123Z"` (includes milliseconds)
+  - ✗ Incorrect: `"2025-10-10T12:30:00.1234567Z"` (includes microseconds)
+  - ✗ Incorrect: `"2025-10-10T12:30:00-05:00"` (not UTC)
+  - **Use the PowerShell utility:** `.claude/tools/Get-ClaudeTimestamp.ps1` for consistent timestamps
 - agent: short agent id (must match filename in `.claude/agents`).
 - task_id / task_title / task_description: identifiers and human-readable summary for the work item.
 - task_phase: one of planned|working|deploy|rollback|done|cancelled.
@@ -90,3 +95,29 @@ Recommended practice:
 - Always append one compact JSON line per state change to the per-agent log.
 - When a task may impact others, publish a task entry early with expected windows, affected_agents, and consequences so UIs and other agents can prepare.
 - Use the atomic snapshot pattern for `.claude/status.json` so dashboards always see a consistent single-file source-of-truth.
+
+### Timestamp Utility
+
+**IMPORTANT:** Always use the standardized timestamp utility to ensure consistency:
+
+```powershell
+# PowerShell - Use the utility function
+. .\.claude\tools\Get-ClaudeTimestamp.ps1
+$timestamp = Get-ClaudeTimestamp
+
+# Example log entry with correct timestamp
+$logEntry = @{
+    timestamp = Get-ClaudeTimestamp
+    agent = "project-manager"
+    status = "working"
+    emotion = "focused"
+} | ConvertTo-Json -Compress
+```
+
+**Format Requirements:**
+- **Format:** `YYYY-MM-DDTHH:MM:SSZ` (ISO 8601)
+- **Timezone:** Always UTC (Z suffix)
+- **Precision:** Seconds only (no milliseconds or microseconds)
+- **Validation:** Timestamps should be within ±30 days of current date for active logs
+
+This ensures all timestamps across agent logs, status files, and task tracking are consistent and correctly formatted.
