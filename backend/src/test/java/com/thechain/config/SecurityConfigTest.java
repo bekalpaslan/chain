@@ -97,14 +97,18 @@ class SecurityConfigTest {
     // ==================== CORS Configuration Tests ====================
 
     @Test
-    void corsConfiguration_ShouldAllowAllOrigins() throws Exception {
+    void corsConfiguration_ShouldAllowSpecificOrigins() throws Exception {
         CorsConfigurationSource source = securityConfig.corsConfigurationSource();
         CorsConfiguration config = source.getCorsConfiguration(
                 mockMvc.perform(get("/chain/stats")).andReturn().getRequest()
         );
 
         assertThat(config).isNotNull();
-        assertThat(config.getAllowedOrigins()).contains("*");
+        assertThat(config.getAllowedOrigins()).contains(
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:8080"
+        );
     }
 
     @Test
@@ -116,7 +120,7 @@ class SecurityConfigTest {
 
         assertThat(config).isNotNull();
         assertThat(config.getAllowedMethods())
-                .contains("GET", "POST", "PUT", "DELETE", "OPTIONS");
+                .contains("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
     }
 
     @Test
@@ -131,14 +135,14 @@ class SecurityConfigTest {
     }
 
     @Test
-    void corsConfiguration_ShouldNotAllowCredentials() throws Exception {
+    void corsConfiguration_ShouldAllowCredentials() throws Exception {
         CorsConfigurationSource source = securityConfig.corsConfigurationSource();
         CorsConfiguration config = source.getCorsConfiguration(
                 mockMvc.perform(get("/chain/stats")).andReturn().getRequest()
         );
 
         assertThat(config).isNotNull();
-        assertThat(config.getAllowCredentials()).isFalse();
+        assertThat(config.getAllowCredentials()).isTrue();
     }
 
     @Test
