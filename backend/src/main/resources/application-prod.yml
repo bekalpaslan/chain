@@ -1,0 +1,42 @@
+# Production Configuration Profile
+# Activate with: --spring.profiles.active=prod or SPRING_PROFILES_ACTIVE=prod
+
+spring:
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+
+# Production CORS Configuration
+# IMPORTANT: Update allowed-origins with your production frontend URL
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://yourdomain.com,https://www.yourdomain.com}
+
+# Logging Configuration for Production
+logging:
+  level:
+    com.thechain: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate: WARN
+  file:
+    name: /var/log/thechain/application.log
+    max-size: 50MB
+    max-history: 90
+
+# Server Configuration
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+# Security: Disable unnecessary actuator endpoints in production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

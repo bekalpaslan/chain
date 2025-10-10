@@ -66,6 +66,12 @@ server:
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
     min-response-size: 1024
 
+# CORS Configuration
+cors:
+  # Allowed origins - update for production deployment
+  # Use CORS_ALLOWED_ORIGINS environment variable in production
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET:your-secret-key-change-this-in-production-minimum-256-bits}
