@@ -1,0 +1,69 @@
+{
+  "id": "TASK-012",
+  "title": "Enhance Agent Status Visibility in Admin Dashboard",
+  "description": "Redesign agent status cards with prominent color-coded status indicators to improve at-a-glance visibility of agent activity levels",
+  "type": "ui-design",
+  "status": "pending",
+  "priority": "HIGH",
+  "assigned_to": "ui-designer",
+  "support_agents": ["web-dev-master", "senior-mobile-developer"],
+  "created_at": "2025-10-10T11:51:00Z",
+  "updated_at": "2025-10-10T11:51:00Z",
+  "started_at": null,
+  "completed_at": null,
+  "due_date": "2025-10-12T18:00:00Z",
+  "story_points": 3,
+  "tags": ["ui-design", "ux", "admin-dashboard", "status-visualization"],
+  "dependencies": {
+    "depends_on": ["TASK-011"],
+    "blocks": []
+  },
+  "acceptance_criteria": [
+    "Agent cards have prominent color-coded status indicators",
+    "Status colors follow semantic convention (green=working/active, gray=idle, red=blocked, yellow=focused)",
+    "Status is visible at-a-glance without reading text",
+    "Design is accessible (color blind friendly with icons/patterns)",
+    "Animation or visual feedback for status changes",
+    "Responsive design works on mobile and desktop",
+    "Dark Mystique theme maintained with new colors",
+    "Documentation includes color palette specifications"
+  ],
+  "sprint": "SPRINT-2025-10",
+  "technical_notes": {
+    "affected_files": [
+      "frontend/admin_dashboard/lib/widgets/agent_card.dart",
+      "frontend/admin_dashboard/lib/theme/dark_mystique_theme.dart",
+      "frontend/admin_dashboard/lib/widgets/mystique_components.dart"
+    ],
+    "design_requirements": {
+      "status_colors": {
+        "in_progress": "#4caf50 (Material Green 500) - Active work state",
+        "focused": "#ffc107 (Material Amber 500) - Deep focus/concentration",
+        "idle": "#616161 (Material Gray 700) - No active work",
+        "blocked": "#f44336 (Material Red 500) - Cannot proceed",
+        "satisfied": "#03a9f4 (Material Light Blue 500) - Recently unblocked",
+        "happy": "#8bc34a (Material Light Green 500) - Success/milestone"
+      },
+      "visual_elements": {
+        "primary_indicator": "Colored border (4px) around entire card",
+        "secondary_indicator": "Status badge with icon in top-right corner",
+        "tertiary_indicator": "Subtle background glow matching status color",
+        "animation": "Pulse effect for in_progress/focused states"
+      },
+      "accessibility": {
+        "color_blind_support": "Include icons for each status (✓ ⚡ ⏸ ⚠ 😊)",
+        "contrast_ratio": "Minimum 4.5:1 against dark background",
+        "screen_reader": "Status announced via semantic HTML labels"
+      }
+    },
+    "performance_requirements": "Status updates should be reflected within 500ms, no jank during animations",
+    "security_considerations": "None - purely visual enhancement"
+  },
+  "metadata": {
+    "estimated_hours": 6,
+    "actual_hours": 0,
+    "customer_impact": "HIGH - Improves operational visibility",
+    "risk_level": "LOW",
+    "user_story": "As a project manager, I want to see agent status at-a-glance with color coding, so I can quickly identify which agents are working, idle, or blocked without reading detailed text."
+  }
+}
