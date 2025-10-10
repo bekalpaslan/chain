@@ -62,7 +62,16 @@
       "Bash(if [ -f \"C:\\Users\\alpas\\IdeaProjects\\ticketz\\.env.example\" ])",
       "Bash(then echo \"exists\")",
       "Bash(else echo \"not exists\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(mvn:*)",
+      "Bash(if [ -f .env ])",
+      "Bash(then grep \"REDIS_PASSWORD\" .env)",
+      "Bash(else echo \".env file not found\")",
+      "Bash(timeout:*)",
+      "Bash(docker network inspect:*)",
+      "Bash(docker:*)",
+      "Bash(then grep \"POSTGRES_PASSWORD\\|DB_PASSWORD\" .env)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
