@@ -1,138 +1,170 @@
-# .claude — logging and status conventions
+# .claude System Documentation
 
-# .claude — logging and status conventions
+Welcome to the Claude agent orchestration system documentation.
 
-This document shows safe, repeatable patterns for:
+## 🚀 Quick Start
 
-- Appending newline-delimited JSON (JSONL) entries to per-agent logs in `.claude/logs/<agent>.log`.
-- Atomically updating the last-state file `.claude/status.json` so the dashboard and other readers always see a consistent snapshot.
+**New to the system?** Start here:
+1. Read [MANTRA.md](MANTRA.md) - Core principles
+2. Review [docs/references/TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md) - Your role
+3. Check [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md) - How to log
 
-These examples target PowerShell (pwsh) since your default shell is `pwsh.exe`. There are short notes for portability and concurrency considerations.
+**Project Manager?** See [docs/guides/ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)
 
-## Recommended flow for an agent when reporting progress
+## 📚 Documentation Structure
 
-1. Create a JSON object representing the log entry (one object per line).
-2. Append that JSON object as a single newline-terminated line to the agent's log file (`.claude/logs/<agent>.log`).
-3. Prepare an updated `status.json` object reflecting the agent's latest state, write it to a temp file, then atomically replace `.claude/status.json` with the temp file.
+### Core Documents (Root)
+- **[MANTRA.md](MANTRA.md)** - Core operating principles and philosophy
+- **[NEXT_ACTIONS_STRATEGIC_PLAN.md](NEXT_ACTIONS_STRATEGIC_PLAN.md)** - Current strategic roadmap
+- **[DOCUMENTATION_REORGANIZATION_PLAN.md](DOCUMENTATION_REORGANIZATION_PLAN.md)** - Documentation structure plan
 
-Append-only logs preserve history. `status.json` stores the single source-of-truth latest snapshot and must be replaced atomically.
+### Guides (`docs/guides/`)
+Step-by-step workflows and how-to documents:
+- **[ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)** - Project Manager workflow and agent delegation
 
-## PowerShell example — append one JSON line to an agent log
+### References (`docs/references/`)
+Authoritative specifications and quick references:
+- **[LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md)** - Complete logging specification
+- **[TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md)** - Agent roles and responsibilities
 
-The snippet below builds a small hashtable, converts it to a compact JSON string, and appends it to the agent log file as one line.
+### Archives (`docs/archives/`)
+Historical documents and audit reports:
+- See [docs/archives/README.md](docs/archives/README.md) for index
 
-```powershell
-# Build a log entry as a PowerShell hashtable
-$entry = @{ 
-    timestamp = (Get-Date).ToUniversalTime().ToString('o')
-    agent = 'java-backend-master'
-    task_id = 'TASK-0001'
-    phase = 'analysis'
-    status = 'working'
-    percent_complete = 5
-    importance = 'medium'
-    emotion = 'neutral'
-    blocked = $false
-    blocked_by = $null
-    interactions = @()
-    disagree = $false
-    disagree_reason = $null
-    findings = 'Started task'
-    artifacts = @()
-    next_steps = @('implement endpoint')
-    confidence = 0.5
-    meta = @{ duration_seconds = 0 }
-}
+## 🛠️ System Components
 
-# Convert to compact JSON (PowerShell 7+ supports -Compress)
-$line = $entry | ConvertTo-Json -Compress -Depth 10
+### Task Management
+- **[tasks/](tasks/)** - Active and completed tasks
+- **[tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md)** - Task management protocol
 
-# Append the single-line JSON to the agent log (creates file if missing)
-Add-Content -Path '.\.claude\logs\java-backend-master.log' -Value $line
+### Tools
+- **[tools/](tools/)** - CLI utilities for agents
+- **[tools/log](tools/log)** - Zero-friction logging tool (USE THIS!)
+- **[tools/check-compliance](tools/check-compliance)** - Validate logging compliance
+- **[tools/update-status.ps1](tools/update-status.ps1)** - PowerShell status helper
 
-# Optionally append a newline (Add-Content will place the value as a separate line already).
+### Logs & Status
+- **[logs/](logs/)** - Agent activity logs (JSONL format)
+- **[status.json](status.json)** - Current agent status (real-time dashboard)
+
+### Agent Definitions
+- **[agents/](agents/)** - Individual agent prompts and configurations
+
+## 📖 Common Tasks
+
+**How do I log my activities?**
+→ See [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md)
+→ **Quick:** `./.claude/tools/log your-agent-name "Your message" --status working --emotion neutral`
+
+**What are my responsibilities?**
+→ See [docs/references/TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md)
+
+**How do I manage tasks?**
+→ See [tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md)
+
+**How does orchestration work?**
+→ See [docs/guides/ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)
+
+**What are the core principles?**
+→ See [MANTRA.md](MANTRA.md)
+
+**How do I check my logging compliance?**
+→ Run: `./.claude/tools/check-compliance --agent your-agent-name`
+
+## 🔍 Finding Information
+
+**Use grep to search documentation:**
+```bash
+# Search all docs for a term
+grep -r "your search term" .claude/docs/
+
+# Search only active references
+grep -r "your search term" .claude/docs/references/
+
+# Search guides
+grep -r "your search term" .claude/docs/guides/
+
+# Find markdown files
+find .claude -name "*.md" -type f
 ```
 
-Notes:
-- Use `ConvertTo-Json -Compress` so the entry is a single-line JSON object. That keeps logs strictly newline-delimited JSON (JSONL).
-- `Add-Content` is append-only and works well for preserving history. If multiple processes append concurrently, the file system will generally serialize small append calls, but race conditions are possible on highly concurrent workloads — consider a dedicated logging service for heavy concurrency.
+## 🚨 Critical Requirements
 
-## PowerShell example — atomically update `.claude/status.json`
+### Logging is Mandatory
+**Every agent MUST log using the zero-friction tool:**
 
-To ensure readers never see a partial write of `status.json`, write the full JSON to a temporary file and then replace the original with `Move-Item -Force`. The move/rename is atomic on the same filesystem.
+```bash
+# Start work
+./.claude/tools/log your-agent-name "Starting task X" --status working --task TASK-XXX
 
-```powershell
-function Update-StatusAtomically {
-    param(
-        [Parameter(Mandatory=$true)]
-        [hashtable]$StatusObject,
-        [string]$StatusPath = '.\.claude\status.json'
-    )
+# Progress (every 2h minimum)
+./.claude/tools/log your-agent-name "Completed Phase 1" --status working --emotion focused --task TASK-XXX
 
-    # Build temp path in same folder
-    $dir = Split-Path -Parent $StatusPath
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+# Complete work
+./.claude/tools/log your-agent-name "Task complete" --status done --emotion happy --task TASK-XXX
 
-    $tmp = Join-Path $dir ([System.IO.Path]::GetRandomFileName() + '.tmp')
-
-    # Convert to compact JSON and write to temp file
-    $StatusObject | ConvertTo-Json -Compress -Depth 10 | Set-Content -Path $tmp -Encoding UTF8
-
-    # Atomically replace target file. Move-Item is atomic on the same volume.
-    Move-Item -Path $tmp -Destination $StatusPath -Force
-}
-
-# Example usage:
-$status = @{
-    last_update = (Get-Date).ToUniversalTime().ToString('o')
-    agents = @{
-        'java-backend-master' = @{
-            status = 'working'
-            task_id = 'TASK-0001'
-            percent_complete = 5
-            importance = 'medium'
-            emotion = 'neutral'
-            updated = (Get-Date).ToUniversalTime().ToString('o')
-            display_name = 'Java Backend Master'
-            findings = 'Started implementation'
-        }
-    }
-}
-
-Update-StatusAtomically -StatusObject $status -StatusPath '.\.claude\status.json'
+# Check compliance
+./.claude/tools/check-compliance --agent your-agent-name
 ```
 
-Notes and caveats:
-- Ensure the temp file is written to the same filesystem/volume as the final file — Move/rename semantics are atomic only within the same filesystem.
-- Use `-Compress` to avoid pretty-printed multi-line JSON (so the file is compact). If you prefer pretty JSON for human readability, omit `-Compress` but be aware consumers must handle multi-line JSON parsing.
-- `Set-Content` in PowerShell Core (pwsh) writes UTF-8 without BOM by default which is safe for most readers; include `-Encoding UTF8` to be explicit.
+**Your work is incomplete until you log it.** Non-compliance = task reassignment.
 
-## Combined pattern (append log, then update status)
+See [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md) for complete requirements.
 
-Agents should typically append to their log first (history) and then update `status.json` (latest snapshot). That ensures the snapshot references the latest chronological history.
+## 📝 Documentation Standards
 
-```powershell
-# Append history
-Add-Content -Path '.\.claude\logs\java-backend-master.log' -Value $line
+All documentation follows these standards:
+- Use relative paths in cross-references (e.g., `docs/references/FILE.md`)
+- Update README.md when adding new docs
+- Archive superseded documents (don't delete)
+- Date all audit reports and time-sensitive docs
+- Use clear, descriptive filenames
 
-# Atomically update snapshot
-Update-StatusAtomically -StatusObject $status -StatusPath '.\.claude\status.json'
+## 🗂️ File Organization
+
+**What goes where:**
+
+| Location | Content Type | Examples |
+|----------|--------------|----------|
+| `.claude/` (root) | Core principles, navigation, strategic plans | README.md, MANTRA.md |
+| `docs/guides/` | Step-by-step workflows | Orchestration guide |
+| `docs/references/` | Authoritative specs | Logging requirements, role matrix |
+| `docs/implementation/` | Technical implementation details | System design docs |
+| `docs/archives/YYYY-MM/` | Historical/audit documents | Audit reports, superseded docs |
+
+## 📊 System Health
+
+**Check system status:**
+```bash
+# View current agent status
+cat .claude/status.json | jq '.'
+
+# Check logging compliance
+./.claude/tools/check-compliance
+
+# View recent logs
+tail -20 .claude/logs/orchestrator.log
+
+# Find active tasks
+find .claude/tasks/_active -name "task.json"
 ```
 
-If you must perform the two operations together in a transactional manner, consider using an external coordination service (e.g., a small HTTP API that performs both writes under a lock), or implement a retry/backoff approach in readers.
+## 🎯 Getting Help
 
-## Concurrency guidance
+**Questions about:**
+- **Logging:** See [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md)
+- **Your Role:** See [docs/references/TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md)
+- **Tasks:** See [tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md)
+- **Process:** See [docs/guides/ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)
+- **Philosophy:** See [MANTRA.md](MANTRA.md)
 
-- Append-only logs are resilient for audit history. Frequent concurrent writes are usually OK for light-to-moderate throughput.
-- `status.json` should be small; each agent should write the full snapshot object and rely on atomic replace. If multiple agents update the snapshot concurrently, last-writer-wins; include timestamps (`last_update`) so the dashboard can choose the latest.
-- For heavy concurrency or strict consistency, use a central datastore (Redis, Postgres) or a local daemon that serializes agent updates and writes the files.
-
-## Optional: small Node.js and Bash examples
-
-- If you want Node or Bash examples as well, tell me and I will add them.
+**Can't find something?** Use grep to search all documentation:
+```bash
+grep -r "keyword" .claude/docs/
+```
 
 ---
 
-If you'd like, I can also:
-- Initialize `.claude/status.json` with all agents present and set to `idle` so the dashboard shows placeholders immediately.
-- Add a small PowerShell helper script `tools/update-status.ps1` that agents can call.
+**Last Updated:** 2025-10-10
+**Documentation Structure:** v2.0 (Reorganized)
+**Maintained By:** Project Manager & Scrum Master
