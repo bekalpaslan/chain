@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Chain Ticket Has Expired</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0A0A0F;
+            color: #E4E4E7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #6B6B7B;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8B5CF6;
+            letter-spacing: 2px;
+        }
+        .content {
+            background-color: #1A1A24;
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            border: 1px solid #2A2A3A;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #E4E4E7;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #B4B4B7;
+            margin-bottom: 25px;
+        }
+        .expired-box {
+            background: linear-gradient(135deg, rgba(107, 107, 123, 0.2), rgba(107, 107, 123, 0.1));
+            border-left: 4px solid #6B6B7B;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .expired-title {
+            color: #6B6B7B;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .ticket-info {
+            background-color: #0A0A0F;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid #2A2A3A;
+            opacity: 0.7;
+        }
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2A2A3A;
+        }
+        .ticket-row:last-child {
+            border-bottom: none;
+        }
+        .ticket-label {
+            color: #6B6B7B;
+            font-weight: 600;
+        }
+        .ticket-value {
+            color: #E4E4E7;
+            font-family: 'Courier New', monospace;
+            text-decoration: line-through;
+        }
+        .next-steps {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #8B5CF6;
+        }
+        .next-steps-title {
+            color: #8B5CF6;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .cta-button-disabled {
+            display: inline-block;
+            background: #2A2A3A;
+            color: #6B6B7B;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            cursor: not-allowed;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #6B6B7B;
+            font-size: 14px;
+            border-top: 1px solid #2A2A3A;
+            margin-top: 30px;
+        }
+        .footer-link {
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+        .attempt-badge {
+            background-color: #8B5CF6;
+            color: #FFFFFF;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 20px 10px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">THE CHAIN</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hey <span th:text="${displayName}">User</span>,
+            </div>
+
+            <div class="expired-box">
+                <div class="expired-title">Ticket Expired</div>
+                <div class="message">
+                    Unfortunately, your Chain ticket expired and is no longer valid.
+                </div>
+            </div>
+
+            <div class="ticket-info">
+                <div class="ticket-row">
+                    <span class="ticket-label">Ticket Code:</span>
+                    <span class="ticket-value" th:text="${ticketCode}">ABC123DEF456</span>
+                </div>
+                <div class="ticket-row">
+                    <span class="ticket-label">Expired At:</span>
+                    <span class="ticket-value" th:text="${expiredAt}">Jan 15, 2025 at 03:00 PM</span>
+                </div>
+                <div class="ticket-row">
+                    <span class="ticket-label">Attempt Number:</span>
+                    <span class="ticket-value">
+                        <span class="attempt-badge" th:text="${attemptNumber} + ' of 3'">1 of 3</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="next-steps" th:if="${canGenerateNewTicket}">
+                <div class="next-steps-title">Don't Give Up!</div>
+                <div class="message">
+                    You still have chances remaining. Generate a new ticket and try again.
+                    Remember, you can only generate up to 3 tickets total.
+                </div>
+                <center>
+                    <a href="https://thechain.app/tickets/generate" class="cta-button">Generate New Ticket</a>
+                </center>
+            </div>
+
+            <div class="next-steps" th:unless="${canGenerateNewTicket}">
+                <div class="next-steps-title">All Attempts Used</div>
+                <div class="message">
+                    You've used all 3 ticket attempts. Unfortunately, you cannot generate more tickets
+                    and your position in The Chain may be affected.
+                </div>
+                <center>
+                    <span class="cta-button-disabled">No Tickets Remaining</span>
+                </center>
+            </div>
+
+            <div class="message">
+                <strong>What happens now?</strong><br>
+                <span th:if="${canGenerateNewTicket}">
+                    • You can generate a new ticket immediately<br>
+                    • The new ticket will have a fresh 24-hour expiration<br>
+                    • Make sure to share it before it expires!
+                </span>
+                <span th:unless="${canGenerateNewTicket}">
+                    • Your position in The Chain may be removed if you don't have an active child<br>
+                    • This helps keep The Chain active and engaged<br>
+                    • Thank you for being part of The Chain
+                </span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>You're receiving this email because you're part of The Chain.</p>
+            <p>
+                <a href="https://thechain.app" class="footer-link">The Chain</a> |
+                <a href="https://thechain.app/settings" class="footer-link">Notification Settings</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                Username: <span th:text="${username}">@user</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

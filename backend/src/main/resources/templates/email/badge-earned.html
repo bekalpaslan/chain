@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You Earned a Badge!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0A0A0F;
+            color: #E4E4E7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #FFD700;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8B5CF6;
+            letter-spacing: 2px;
+        }
+        .celebration-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0A0A0F;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            display: inline-block;
+            animation: sparkle 2s infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .content {
+            background-color: #1A1A24;
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            border: 2px solid #FFD700;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #E4E4E7;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #B4B4B7;
+            margin-bottom: 25px;
+        }
+        .badge-showcase {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(139, 92, 246, 0.2));
+            border-radius: 12px;
+            padding: 40px;
+            margin: 30px 0;
+            text-align: center;
+            border: 2px solid #FFD700;
+        }
+        .badge-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .badge-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        .badge-description {
+            font-size: 18px;
+            color: #E4E4E7;
+            line-height: 1.5;
+        }
+        .achievement-box {
+            background-color: #0A0A0F;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #2A2A3A;
+        }
+        .achievement-title {
+            color: #8B5CF6;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background-color: #1A1A24;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #2A2A3A;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #06B6D4;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #B4B4B7;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0A0A0F;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #6B6B7B;
+            font-size: 14px;
+            border-top: 1px solid #2A2A3A;
+            margin-top: 30px;
+        }
+        .footer-link {
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 20px 10px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+            .badge-showcase {
+                padding: 30px 20px;
+            }
+            .badge-icon {
+                font-size: 60px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">THE CHAIN</div>
+            <div class="celebration-badge">ACHIEVEMENT UNLOCKED</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Congratulations, <span th:text="${displayName}">User</span>!
+            </div>
+
+            <div class="badge-showcase">
+                <div class="badge-icon" th:text="${badgeIcon}">🏆</div>
+                <div class="badge-name" th:text="${badgeName}">Chain Savior</div>
+                <div class="badge-description" th:text="${badgeDescription}">
+                    You've demonstrated exceptional commitment to The Chain
+                </div>
+            </div>
+
+            <div class="message" style="text-align: center; font-size: 18px;">
+                You've earned this prestigious badge through your actions in The Chain.
+                Your contribution helps keep the network alive and thriving!
+            </div>
+
+            <div class="achievement-box">
+                <div class="achievement-title">Your Chain Impact</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${position}">1234</div>
+                        <div class="stat-label">Your Position</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">⭐</div>
+                        <div class="stat-label">Elite Status</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message">
+                <strong>What this badge means:</strong><br>
+                • You're recognized as a valuable member of The Chain<br>
+                • This badge is displayed on your profile for all to see<br>
+                • You've contributed to the growth and sustainability of the network<br>
+                • You're setting an example for others to follow
+            </div>
+
+            <center>
+                <a href="https://thechain.app/profile" class="cta-button">View Your Profile</a>
+            </center>
+
+            <div class="message" style="text-align: center; margin-top: 30px; font-style: italic;">
+                "Excellence is not a skill, it's an attitude. Keep making The Chain stronger!"
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>You're receiving this email because you're part of The Chain.</p>
+            <p>
+                <a href="https://thechain.app" class="footer-link">The Chain</a> |
+                <a href="https://thechain.app/badges" class="footer-link">View All Badges</a> |
+                <a href="https://thechain.app/settings" class="footer-link">Notification Settings</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                Username: <span th:text="${username}">@user</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

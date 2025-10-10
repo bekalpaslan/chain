@@ -1,0 +1,102 @@
+# Email Configuration for The Chain
+# This file contains email service settings for SMTP providers
+
+spring:
+  mail:
+    # Gmail SMTP Configuration (Development)
+    # For production, switch to SendGrid or AWS SES
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          timeout: 5000
+          connectiontimeout: 5000
+          writetimeout: 5000
+
+        # Enable debug mode for troubleshooting (set to false in production)
+        debug: false
+
+# The Chain Email Settings
+thechain:
+  email:
+    # Sender information
+    from:
+      address: ${MAIL_FROM_ADDRESS:noreply@thechain.app}
+      name: "The Chain"
+
+    # Email templates configuration
+    templates:
+      enabled: true
+      cache: true
+      base-path: classpath:/templates/email/
+
+    # Retry configuration
+    retry:
+      max-attempts: 3
+      initial-delay: 1000
+      multiplier: 2.0
+      max-delay: 10000
+
+    # Rate limiting (emails per minute)
+    rate-limit:
+      enabled: true
+      max-per-minute: 60
+
+    # Feature flags
+    notifications:
+      ticket-expiration: true
+      badge-earned: true
+      ticket-used: true
+
+---
+# Production Configuration (SendGrid Example)
+spring:
+  config:
+    activate:
+      on-profile: prod-sendgrid
+
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SENDGRID_API_KEY:}
+    protocol: smtp
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+---
+# Production Configuration (AWS SES Example)
+spring:
+  config:
+    activate:
+      on-profile: prod-ses
+
+  mail:
+    host: email-smtp.us-east-1.amazonaws.com
+    port: 587
+    username: ${AWS_SES_USERNAME:}
+    password: ${AWS_SES_PASSWORD:}
+    protocol: smtp
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Chain Ticket Expires Soon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0A0A0F;
+            color: #E4E4E7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #8B5CF6;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8B5CF6;
+            letter-spacing: 2px;
+        }
+        .content {
+            background-color: #1A1A24;
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            border: 1px solid #2A2A3A;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #E4E4E7;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #B4B4B7;
+            margin-bottom: 25px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+            border-left: 4px solid #8B5CF6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .warning-title {
+            color: #8B5CF6;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .ticket-info {
+            background-color: #0A0A0F;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 1px solid #2A2A3A;
+        }
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2A2A3A;
+        }
+        .ticket-row:last-child {
+            border-bottom: none;
+        }
+        .ticket-label {
+            color: #8B5CF6;
+            font-weight: 600;
+        }
+        .ticket-value {
+            color: #E4E4E7;
+            font-family: 'Courier New', monospace;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #6B6B7B;
+            font-size: 14px;
+            border-top: 1px solid #2A2A3A;
+            margin-top: 30px;
+        }
+        .footer-link {
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+        .emphasis {
+            color: #06B6D4;
+            font-weight: 600;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 20px 10px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">THE CHAIN</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hey <span th:text="${displayName}">User</span>,
+            </div>
+
+            <div class="message">
+                This is a friendly reminder that your Chain ticket is <span class="emphasis">expiring in 12 hours</span>.
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">Time is Running Out</div>
+                <div class="message">
+                    Your ticket must be used before it expires, or you'll lose your spot in The Chain.
+                    Don't let this opportunity slip away!
+                </div>
+            </div>
+
+            <div class="ticket-info">
+                <div class="ticket-row">
+                    <span class="ticket-label">Ticket Code:</span>
+                    <span class="ticket-value" th:text="${ticketCode}">ABC123DEF456</span>
+                </div>
+                <div class="ticket-row">
+                    <span class="ticket-label">Expires At:</span>
+                    <span class="ticket-value" th:text="${expiresAt}">Jan 15, 2025 at 03:00 PM</span>
+                </div>
+                <div class="ticket-row">
+                    <span class="ticket-label">Next Position:</span>
+                    <span class="ticket-value" th:text="${nextPosition}">1234</span>
+                </div>
+            </div>
+
+            <div class="message">
+                Share your ticket with someone special and grow The Chain. Every connection matters.
+            </div>
+
+            <center>
+                <a href="https://thechain.app" class="cta-button">View My Ticket</a>
+            </center>
+        </div>
+
+        <div class="footer">
+            <p>You're receiving this email because you're part of The Chain.</p>
+            <p>
+                <a href="https://thechain.app" class="footer-link">The Chain</a> |
+                <a href="https://thechain.app/settings" class="footer-link">Notification Settings</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                Username: <span th:text="${username}">@user</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

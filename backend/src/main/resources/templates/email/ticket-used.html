@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Someone Joined Your Chain!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0A0A0F;
+            color: #E4E4E7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #10B981;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8B5CF6;
+            letter-spacing: 2px;
+        }
+        .success-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .content {
+            background-color: #1A1A24;
+            border-radius: 12px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            border: 2px solid #10B981;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #E4E4E7;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #B4B4B7;
+            margin-bottom: 25px;
+        }
+        .success-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+            border-left: 4px solid #10B981;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+        .success-title {
+            color: #10B981;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .invitee-card {
+            background-color: #0A0A0F;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #10B981;
+        }
+        .invitee-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2A2A3A;
+        }
+        .invitee-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-right: 20px;
+        }
+        .invitee-info {
+            flex: 1;
+        }
+        .invitee-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #E4E4E7;
+            margin-bottom: 5px;
+        }
+        .invitee-username {
+            font-size: 14px;
+            color: #8B5CF6;
+        }
+        .invitee-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .detail-item {
+            background-color: #1A1A24;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .detail-label {
+            color: #B4B4B7;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            color: #E4E4E7;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .chain-visual {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 40px;
+            color: #10B981;
+        }
+        .impact-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px solid #8B5CF6;
+        }
+        .impact-title {
+            color: #8B5CF6;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #6B6B7B;
+            font-size: 14px;
+            border-top: 1px solid #2A2A3A;
+            margin-top: 30px;
+        }
+        .footer-link {
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 20px 10px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+            .invitee-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">THE CHAIN</div>
+            <div class="success-badge">TICKET USED</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Great news, <span th:text="${displayName}">User</span>!
+            </div>
+
+            <div class="success-box">
+                <div class="success-icon">🎉</div>
+                <div class="success-title">Someone Joined Your Chain!</div>
+                <div class="message">
+                    Your ticket has been successfully used. The Chain grows stronger!
+                </div>
+            </div>
+
+            <div class="invitee-card">
+                <div class="invitee-header">
+                    <div class="invitee-avatar" th:text="${inviteeDisplayName.substring(0, 1).toUpperCase()}">A</div>
+                    <div class="invitee-info">
+                        <div class="invitee-name" th:text="${inviteeDisplayName}">Alex Johnson</div>
+                        <div class="invitee-username">@<span th:text="${inviteeUsername}">alexj</span></div>
+                    </div>
+                </div>
+                <div class="invitee-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Position in Chain</div>
+                        <div class="detail-value" th:text="'#' + ${inviteePosition}">#1234</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Joined At</div>
+                        <div class="detail-value" th:text="${usedAt}">Jan 15, 2025</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chain-visual">
+                You ➔ <span th:text="${inviteeDisplayName}">New Member</span> ➔ ...
+            </div>
+
+            <div class="impact-box">
+                <div class="impact-title">Your Impact on The Chain</div>
+                <div class="message">
+                    ✅ You've successfully extended The Chain<br>
+                    ✅ Your ticket was used within the time limit<br>
+                    ✅ You're helping grow the network<br>
+                    ✅ Your position remains secure
+                </div>
+            </div>
+
+            <div class="message">
+                <strong>What happens next?</strong><br>
+                • <span th:text="${inviteeDisplayName}">The new member</span> can now generate their own ticket<br>
+                • They have 24 hours to share it and extend the chain<br>
+                • You'll continue to see updates about your chain lineage<br>
+                • Keep engaging with The Chain community!
+            </div>
+
+            <center>
+                <a href="https://thechain.app/chain" class="cta-button">View Your Chain</a>
+            </center>
+
+            <div class="message" style="text-align: center; margin-top: 30px; padding: 20px; background-color: #0A0A0F; border-radius: 8px;">
+                <strong>Ticket Details</strong><br>
+                Code: <code style="color: #8B5CF6; font-family: 'Courier New', monospace;" th:text="${ticketCode}">ABC123DEF456</code>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>You're receiving this email because someone used your ticket.</p>
+            <p>
+                <a href="https://thechain.app" class="footer-link">The Chain</a> |
+                <a href="https://thechain.app/chain" class="footer-link">View Your Chain</a> |
+                <a href="https://thechain.app/settings" class="footer-link">Notification Settings</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                Username: <span th:text="${username}">@user</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
