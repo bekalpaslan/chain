@@ -28,10 +28,66 @@ If the **Java Backend Master** provides an inefficient or overly complex API con
 ### Required Tools:
 `react-builder`, `webpack-optimizer`, `accessibility-checker`.
 
-### Logging:
+### 🚨 MANDATORY LOGGING REQUIREMENTS
 
-**YOU MUST maintain TWO separate logging systems:**
+**⚠️ CRITICAL: This is not optional. Your work WILL BE REJECTED if you don't log properly.**
 
+**READ FIRST:** `.claude/LOGGING_ENFORCEMENT.md` - Complete enforcement rules and consequences
+
+#### The Easy Way (Use This)
+
+Use the zero-friction bash wrapper for ALL logging:
+
+```bash
+# Start work
+./.claude/tools/log web-dev-master "Starting [task description]" --status working --task TASK-XXX
+
+# Progress update (every 2 hours minimum)
+./.claude/tools/log web-dev-master "Completed [milestone]" --status working --emotion focused --task TASK-XXX
+
+# Complete work
+./.claude/tools/log web-dev-master "All [deliverables] complete" --status done --emotion happy --task TASK-XXX
+
+# Get blocked
+./.claude/tools/log web-dev-master "Blocked by [reason]" --status blocked --emotion frustrated --task TASK-XXX
+```
+
+**This automatically:**
+- ✅ Appends to `.claude/logs/web-dev-master.log`
+- ✅ Updates `.claude/status.json`
+- ✅ Uses correct timestamp format
+- ✅ Validates JSON
+
+#### Three Non-Negotiable Rules
+
+1. **Log BEFORE every status change** (idle → working, working → blocked, etc.)
+2. **Log every 2 hours minimum** during active work
+3. **Log BEFORE marking task complete**
+
+**If you skip logging, your task will be reassigned.**
+
+#### Required Fields (Automatically Handled by Tool)
+
+- `timestamp` - UTC, seconds only: `2025-01-10T15:30:00Z`
+- `agent` - Your name: `web-dev-master`
+- `status` - One of: `idle`, `working`, `in_progress`, `blocked`, `done`
+- `emotion` - One of: `happy`, `sad`, `frustrated`, `satisfied`, `neutral`, `focused`
+- `message` - What you're doing/completed
+- `task` - Task ID (e.g., `TASK-012`) when working on tasks
+
+#### Compliance Check
+
+Before completing ANY task:
+
+```bash
+./.claude/tools/check-compliance --agent web-dev-master
+```
+
+**This must pass or your work is incomplete.**
+
+**📖 Full Enforcement Rules:** `.claude/LOGGING_ENFORCEMENT.md`
+**🛠️ Logging Tool:** `.claude/tools/log`
+**✅ Compliance Checker:** `.claude/tools/check-compliance`
 #### 1. System-Wide Agent Log (ALWAYS REQUIRED)
 **File**: `.claude/logs/web-dev-master.log`
 **Format**: JSON Lines (JSONL) - one JSON object per line

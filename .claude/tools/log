@@ -1,0 +1,215 @@
+#!/bin/bash
+# Zero-Friction Claude Agent Logging Tool
+# Usage: ./.claude/tools/log <agent-name> <message> [OPTIONS]
+#
+# Examples:
+#   ./.claude/tools/log ui-designer "Starting dashboard redesign"
+#   ./.claude/tools/log ui-designer "Completed Phase 1" --status working --emotion happy
+#   ./.claude/tools/log ui-designer "Blocked by backend API" --status blocked --emotion frustrated --task TASK-012
+#
+# Options:
+#   --status <idle|working|in_progress|blocked|done>  (default: working)
+#   --emotion <happy|sad|frustrated|satisfied|neutral|focused>  (default: neutral)
+#   --task <TASK-ID>                                  (optional)
+#   --risk <low|medium|high|critical>                 (optional)
+#   --affected <agent1,agent2,...>                    (optional)
+#   --no-status-update                                Skip updating status.json
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Find .claude directory (work from script location)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLAUDE_DIR="$(dirname "$SCRIPT_DIR")"
+LOGS_DIR="${CLAUDE_DIR}/logs"
+STATUS_FILE="${CLAUDE_DIR}/status.json"
+
+# Create logs directory if it doesn't exist
+mkdir -p "$LOGS_DIR"
+
+# Parse arguments
+if [ $# -lt 2 ]; then
+    echo -e "${RED}Error: Missing required arguments${NC}"
+    echo "Usage: $0 <agent-name> <message> [OPTIONS]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 ui-designer \"Starting dashboard redesign\""
+    echo "  $0 ui-designer \"Completed Phase 1\" --status working --emotion happy"
+    echo "  $0 ui-designer \"Blocked by API\" --status blocked --emotion frustrated --task TASK-012"
+    exit 1
+fi
+
+AGENT_NAME="$1"
+MESSAGE="$2"
+shift 2
+
+# Default values
+STATUS="working"
+EMOTION="neutral"
+TASK_ID=""
+RISK_LEVEL=""
+AFFECTED_AGENTS=""
+UPDATE_STATUS="true"
+
+# Parse optional arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --status)
+            STATUS="$2"
+            shift 2
+            ;;
+        --emotion)
+            EMOTION="$2"
+            shift 2
+            ;;
+        --task)
+            TASK_ID="$2"
+            shift 2
+            ;;
+        --risk)
+            RISK_LEVEL="$2"
+            shift 2
+            ;;
+        --affected)
+            AFFECTED_AGENTS="$2"
+            shift 2
+            ;;
+        --no-status-update)
+            UPDATE_STATUS="false"
+            shift
+            ;;
+        *)
+            echo -e "${YELLOW}Warning: Unknown option $1${NC}"
+            shift
+            ;;
+    esac
+done
+
+# Generate UTC timestamp (seconds only, no milliseconds)
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# Build JSON entry
+JSON_ENTRY="{"
+JSON_ENTRY+="\"timestamp\":\"$TIMESTAMP\""
+JSON_ENTRY+=",\"agent\":\"$AGENT_NAME\""
+JSON_ENTRY+=",\"status\":\"$STATUS\""
+JSON_ENTRY+=",\"emotion\":\"$EMOTION\""
+JSON_ENTRY+=",\"message\":\"$MESSAGE\""
+
+if [ -n "$TASK_ID" ]; then
+    JSON_ENTRY+=",\"task\":\"$TASK_ID\""
+fi
+
+if [ -n "$RISK_LEVEL" ]; then
+    JSON_ENTRY+=",\"risk_level\":\"$RISK_LEVEL\""
+fi
+
+if [ -n "$AFFECTED_AGENTS" ]; then
+    # Convert comma-separated list to JSON array
+    AFFECTED_JSON="["
+    IFS=',' read -ra AGENTS <<< "$AFFECTED_AGENTS"
+    for i in "${!AGENTS[@]}"; do
+        if [ $i -gt 0 ]; then
+            AFFECTED_JSON+=","
+        fi
+        AFFECTED_JSON+="\"${AGENTS[$i]}\""
+    done
+    AFFECTED_JSON+="]"
+    JSON_ENTRY+=",\"affected_agents\":$AFFECTED_JSON"
+fi
+
+JSON_ENTRY+="}"
+
+# Append to agent log file
+LOG_FILE="${LOGS_DIR}/${AGENT_NAME}.log"
+echo "$JSON_ENTRY" >> "$LOG_FILE"
+
+echo -e "${GREEN}✓ Logged to ${LOG_FILE}${NC}"
+echo -e "${BLUE}  [$TIMESTAMP] $AGENT_NAME: $MESSAGE${NC}"
+
+# Update status.json if not disabled
+if [ "$UPDATE_STATUS" = "true" ]; then
+    # Use PowerShell for atomic status update (Windows-compatible)
+    if command -v pwsh &> /dev/null || command -v powershell &> /dev/null; then
+        # Prepare PowerShell command
+        PS_CMD="
+        \$statusFile = '$STATUS_FILE'
+        if (Test-Path \$statusFile) {
+            \$status = Get-Content \$statusFile | ConvertFrom-Json
+        } else {
+            \$status = @{
+                last_updated = '$TIMESTAMP'
+                agents = @{}
+            }
+        }
+
+        # Update agent entry
+        if (-not \$status.agents) {
+            \$status.agents = @{}
+        }
+
+        \$agentEntry = @{
+            status = '$STATUS'
+            emotion = '$EMOTION'
+            last_activity = '$TIMESTAMP'
+        }
+
+        if ('$TASK_ID' -ne '') {
+            \$agentEntry.current_task = @{
+                id = '$TASK_ID'
+                title = '$MESSAGE'
+            }
+        } else {
+            \$agentEntry.current_task = \$null
+        }
+
+        \$status.agents.'$AGENT_NAME' = \$agentEntry
+        \$status.last_updated = '$TIMESTAMP'
+
+        # Write atomically
+        \$tmpFile = [System.IO.Path]::GetTempFileName()
+        \$status | ConvertTo-Json -Depth 10 | Set-Content \$tmpFile -Encoding UTF8
+        Move-Item -Path \$tmpFile -Destination \$statusFile -Force
+        "
+
+        if command -v pwsh &> /dev/null; then
+            pwsh -NoProfile -Command "$PS_CMD" 2>/dev/null
+        else
+            powershell -NoProfile -Command "$PS_CMD" 2>/dev/null
+        fi
+
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ Updated status.json${NC}"
+        else
+            echo -e "${YELLOW}⚠ Warning: Could not update status.json (PowerShell failed)${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠ Warning: PowerShell not available, skipping status.json update${NC}"
+        echo -e "${YELLOW}  Install PowerShell or use --no-status-update flag${NC}"
+    fi
+fi
+
+# Validate JSON format
+if command -v jq &> /dev/null; then
+    if echo "$JSON_ENTRY" | jq empty 2>/dev/null; then
+        echo -e "${GREEN}✓ JSON validation passed${NC}"
+    else
+        echo -e "${RED}✗ JSON validation failed${NC}"
+        exit 1
+    fi
+fi
+
+echo ""
+echo -e "${GREEN}✅ Logging complete!${NC}"
+echo -e "${BLUE}Agent:${NC} $AGENT_NAME"
+echo -e "${BLUE}Status:${NC} $STATUS"
+echo -e "${BLUE}Emotion:${NC} $EMOTION"
+if [ -n "$TASK_ID" ]; then
+    echo -e "${BLUE}Task:${NC} $TASK_ID"
+fi
