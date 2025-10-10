@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thechain_shared/thechain_shared.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: PrivateApp()));
@@ -18,6 +19,10 @@ class PrivateApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const AuthCheckPage(),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const DashboardPage(),
+      },
     );
   }
 }
@@ -54,7 +59,7 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
       } else {
         // No session, go to login
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       }
     }
@@ -384,7 +389,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     // Navigate back to login
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
     }

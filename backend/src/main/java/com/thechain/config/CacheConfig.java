@@ -34,21 +34,6 @@ public class CacheConfig implements CachingConfigurer {
     public static final String CHAIN_STATS_CACHE = "chainStats";
 
     @Bean
-    @Override
-    public CacheManager cacheManager() {
-        return RedisCacheManager.builder(connectionFactory())
-                .cacheDefaults(defaultCacheConfiguration())
-                .withInitialCacheConfigurations(getCacheConfigurations())
-                .transactionAware()
-                .build();
-    }
-
-    private RedisConnectionFactory connectionFactory() {
-        // This will be auto-injected by Spring Boot from application.yml
-        return null;
-    }
-
-    @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultCacheConfiguration())
