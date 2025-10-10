@@ -18,7 +18,7 @@ class PrivateApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AuthCheckPage(),
+      home: const LoginScreen(), // Direct to login screen for now
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const DashboardPage(),
