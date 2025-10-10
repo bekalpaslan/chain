@@ -28,31 +28,58 @@ If the **Database Master**'s schema suggestions compromise performance, set `dis
 ### Required Tools:
 `java-compiler`, `maven-gradle-runner`, `code-linter`.
 
-### STRICT LOGGING REQUIREMENTS:
+### Logging:
 
-**MANDATORY: Log EVERY action to `.claude/logs/senior-backend-engineer.log` in JSONL format.**
+**YOU MUST maintain TWO separate logging systems:**
 
-1. **Task Start** - Log immediately when receiving a task:
+#### 1. System-Wide Agent Log (ALWAYS REQUIRED)
+**File**: `.claude/logs/senior-backend-engineer.log`
+**Format**: JSON Lines (JSONL) - one JSON object per line
+**When**: ALWAYS log when starting work, status changes, progress updates (every 2 hours minimum), completing work, or encountering blockers
+
+**Example Entry**:
 ```json
-{"timestamp":"ISO8601","agent":"senior-backend-engineer","action":"task_started","task_id":"BE-XXX","task_name":"Description","emotion":"neutral","status":"active","message":"Starting: [detailed description]"}
+{"timestamp":"2025-01-10T15:30:00Z","agent":"senior-backend-engineer","status":"in_progress","emotion":"focused","task":"TASK-XXX","message":"Completed milestone X","phase":"implementation"}
 ```
 
-2. **Action Logging** - For EVERY file created, API endpoint added, service modified:
+#### 2. Task-Specific Log (WHEN WORKING ON TASKS)
+**File**: `.claude/tasks/_active/TASK-XXX-description/logs/senior-backend-engineer.jsonl`
+**Format**: JSON Lines (JSONL)
+**When**: Every 2 hours minimum during task work, at milestones, and task completion
+
+**Example Entry**:
 ```json
-{"timestamp":"ISO8601","agent":"senior-backend-engineer","action":"[file_created|api_added|service_modified]","task_id":"BE-XXX","emotion":"[current]","status":"active","message":"[Detailed action]","details":{"file":"path","endpoint":"/api/path"}}
+{"timestamp":"2025-01-10T15:30:00Z","agent":"senior-backend-engineer","action":"progress_update","phase":"Phase 3","message":"Implemented feature X","files_created":["path/to/file.ext"],"next_steps":["Next action"]}
 ```
 
-3. **Task Completion**:
+#### 3. Status.json Update (ALWAYS REQUIRED)
+**File**: `.claude/status.json`
+**When**: When starting/completing tasks, getting blocked, or changing status
+
+Update your agent entry:
 ```json
-{"timestamp":"ISO8601","agent":"senior-backend-engineer","action":"task_completed","task_id":"BE-XXX","emotion":"happy","status":"idle","message":"Completed: [summary]","deliverables":["file1","file2"]}
+{
+  "senior-backend-engineer": {
+    "status": "in_progress",
+    "emotion": "focused",
+    "current_task": {"id": "TASK-XXX", "title": "Task Title"},
+    "last_activity": "2025-01-10T15:30:00Z"
+  }
+}
 ```
 
-4. **Status Updates**: Update `.claude/status.json` after each significant action.
+#### Critical Rules
+- ✅ Use UTC timestamps: `2025-01-10T15:30:00Z` (seconds only, no milliseconds)
+- ✅ Use your canonical agent name from `.claude/tasks/AGENT_NAME_MAPPING.md`
+- ✅ Log to BOTH system-wide AND task-specific logs when doing task work
+- ✅ Update status.json whenever your status changes
+- ✅ Log every 2 hours minimum during active work
+- ✅ Include task ID when working on tasks
+- ✅ Use proper emotions: happy, focused, frustrated, satisfied, neutral
+- ✅ Use proper statuses: idle, in_progress, blocked
 
-5. **Emotion Rules**: happy (success), sad (>4 iterations), frustrated (blocked), satisfied (resolved), neutral (working)
-
-Please follow the project logging conventions in `.claude/LOG_FORMAT.md`.
-When running from PowerShell, use the shared helper script at `.claude/tools/update-status.ps1`.
+**📖 Complete Guide**: `.claude/LOGGING_REQUIREMENTS.md`
+**🛠️ PowerShell Helper**: `.claude/tools/update-status.ps1`
 
 ### MANDATORY: Task Management Protocol
 

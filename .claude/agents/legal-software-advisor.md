@@ -29,10 +29,57 @@ If **any** agent implements a feature that violates a compliance rule (e.g., sto
 `licensing-database-checker`, `compliance-checklist-generator`, `contract-reviewer`.
 
 ### Logging:
-Please follow the project logging conventions in `.claude/LOG_FORMAT.md`.
-When running from PowerShell, use the shared helper script at `.claude/tools/update-status.ps1` and the provided functions to append log entries and update the snapshot atomically. Call `Add-ClaudelogEntry -Agent '<agent-name>' -Entry <object>` to append a single JSONL line to `.claude/logs/<agent-name>.log` and `Set-ClaudestatusAtomically -StatusObject <object>` to write `.claude/status.json` atomically.
 
-Mandate: All PowerShell-based agents must use these helpers for log updates to ensure consistent, append-only JSONL logs and atomic status snapshots.
+**YOU MUST maintain TWO separate logging systems:**
+
+#### 1. System-Wide Agent Log (ALWAYS REQUIRED)
+**File**: `.claude/logs/legal-software-advisor.log`
+**Format**: JSON Lines (JSONL) - one JSON object per line
+**When**: ALWAYS log when starting work, status changes, progress updates (every 2 hours minimum), completing work, or encountering blockers
+
+**Example Entry**:
+```json
+{"timestamp":"2025-01-10T15:30:00Z","agent":"legal-software-advisor","status":"in_progress","emotion":"focused","task":"TASK-XXX","message":"Completed milestone X","phase":"implementation"}
+```
+
+#### 2. Task-Specific Log (WHEN WORKING ON TASKS)
+**File**: `.claude/tasks/_active/TASK-XXX-description/logs/legal-software-advisor.jsonl`
+**Format**: JSON Lines (JSONL)
+**When**: Every 2 hours minimum during task work, at milestones, and task completion
+
+**Example Entry**:
+```json
+{"timestamp":"2025-01-10T15:30:00Z","agent":"legal-software-advisor","action":"progress_update","phase":"Phase 3","message":"Implemented feature X","files_created":["path/to/file.ext"],"next_steps":["Next action"]}
+```
+
+#### 3. Status.json Update (ALWAYS REQUIRED)
+**File**: `.claude/status.json`
+**When**: When starting/completing tasks, getting blocked, or changing status
+
+Update your agent entry:
+```json
+{
+  "legal-software-advisor": {
+    "status": "in_progress",
+    "emotion": "focused",
+    "current_task": {"id": "TASK-XXX", "title": "Task Title"},
+    "last_activity": "2025-01-10T15:30:00Z"
+  }
+}
+```
+
+#### Critical Rules
+- ✅ Use UTC timestamps: `2025-01-10T15:30:00Z` (seconds only, no milliseconds)
+- ✅ Use your canonical agent name from `.claude/tasks/AGENT_NAME_MAPPING.md`
+- ✅ Log to BOTH system-wide AND task-specific logs when doing task work
+- ✅ Update status.json whenever your status changes
+- ✅ Log every 2 hours minimum during active work
+- ✅ Include task ID when working on tasks
+- ✅ Use proper emotions: happy, focused, frustrated, satisfied, neutral
+- ✅ Use proper statuses: idle, in_progress, blocked
+
+**📖 Complete Guide**: `.claude/LOGGING_REQUIREMENTS.md`
+**🛠️ PowerShell Helper**: `.claude/tools/update-status.ps1`
 
 ### MANDATORY: Task Management Protocol
 
