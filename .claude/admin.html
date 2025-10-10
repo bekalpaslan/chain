@@ -1,0 +1,111 @@
+<!doctype html>
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Team Admin Dashboard — Live Status</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:20px;background:#f5f7fa;}
+    h2{margin-top:30px}
+        h1{color:#1a202c;}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-top:20px;}
+        .card{border-radius:12px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.05);background:white;border-left:5px solid var(--status-color, #3182ce);}
+        .card h3{margin-top:0;font-size:1.2rem;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:10px;}
+        .data-label{font-weight:600;color:#4a5568;}
+        .bar{height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;margin-top:6px;}
+        .bar>i{display:block;height:100%;}
+        .critical{background:#e53e3e} .high{background:#f6ad55} .medium{background:#ecc94b} .low{background:#68d391}
+        .working{--status-color: #3182ce;} .done{--status-color: #38a169;} .blocked{--status-color: #e53e3e;} .disagreed{--status-color: #9f7aea;} .idle{--status-color: #a0aec0;}
+        .happy{color:#38a169;} .sad{color:#e53e3e;} .frustrated{color:#dd6b20;} .satisfied{color:#3182ce;} .neutral{color:#4a5568;}
+    </style>
+</head>
+<body>
+    <h1>Team Admin Dashboard — Last Status Only</h1>
+    <p>Reading live status from <code>.claude/status.json</code>. **History is in per-agent logs.**</p>
+
+    <div id="last-updated"><span class="data-label">Last update:</span> Loading…</div>
+    <div class="grid" id="agents"></div>
+    <h2>Current Work</h2>
+    <div id="current-work"></div>
+
+    <script>
+        async function fetchStatus(){
+            try{
+                const res = await fetch('./.claude/status.json',{cache:'no-store'});
+                const json = await res.json();
+                document.getElementById('last-updated').innerHTML = `<span class="data-label">Last update:</span> ${json.last_update}`;
+                const el = document.getElementById('agents'); el.innerHTML='';
+                
+                for(const [name, s] of Object.entries(json.agents || {})){
+                    const pct = s.percent_complete || 0;
+                    const importance = s.importance || 'medium';
+                    const status = s.status || 'idle';
+                    const emotion = s.emotion || 'neutral';
+                    
+                    let importanceCls;
+                    if (importance === 'critical') importanceCls = 'critical';
+                    else if (importance === 'high') importanceCls = 'high';
+                    else if (importance === 'low') importanceCls = 'low';
+                    else importanceCls = 'medium';
+                    
+                    const card=document.createElement('div');
+                    card.className = `card ${status}`;
+                    
+                    card.innerHTML = `
+                        <h3>${s.display_name || name}</h3>
+                        <div><span class="data-label">Status:</span> <b>${status.toUpperCase()}</b></div>
+                        <div><span class="data-label">Task:</span> ${s.task_id || '-'}</div>
+                        <div><span class="data-label">Emotion:</span> <span class="${emotion}">${emotion.toUpperCase()}</span></div>
+                        
+                        <div style='margin-top:10px'><span class="data-label">Progress:</span> ${pct}%</div>
+                        <div class='bar'><i class='${importanceCls}' style='width:${Math.min(100,pct)}%'></i></div>
+                        
+                        <div style='margin-top:6px'><span class="data-label">Importance:</span> <span style='text-transform: capitalize;'>${importance}</span></div>
+                        <div style='margin-top:10px'><span class="data-label">Last Finding:</span> ${s.findings || 'No recent summary.'}</div>
+                        
+                        <div style='margin-top:10px'><a href='./logs/${name}.log' target='_blank'>Open Log</a></div>
+                    `;
+                    el.appendChild(card);
+                }
+                // Build current work list: for agents with task_id or risk_level
+                const workEl = document.getElementById('current-work'); workEl.innerHTML='';
+                const tasks = [];
+                for(const [name, s] of Object.entries(json.agents || {})){
+                    if (s.task_id || s.risk_level){
+                        tasks.push({agent:name, title: s.task_title || s.task_id || '-', phase: s.task_phase || '-', risk: s.risk_level || 'low', affected: s.affected_agents || []});
+                    }
+                }
+                if (tasks.length===0){ workEl.innerHTML = '<div>No active work with stated impact.</div>' }
+                else{
+                    const ul = document.createElement('div');
+                    ul.style.display='grid'; ul.style.gridTemplateColumns='repeat(auto-fit,minmax(280px,1fr))'; ul.style.gap='12px';
+                    tasks.forEach(t=>{
+                        const card = document.createElement('div'); card.className='card';
+                        let riskCls;
+                        if (t.risk === 'critical') riskCls = 'critical';
+                        else if (t.risk === 'high') riskCls = 'high';
+                        else if (t.risk === 'medium') riskCls = 'medium';
+                        else riskCls = 'low';
+                        card.innerHTML = `
+                          <h3>${t.title}</h3>
+                          <div><span class='data-label'>Agent:</span> ${t.agent}</div>
+                          <div><span class='data-label'>Phase:</span> ${t.phase}</div>
+                          <div><span class='data-label'>Risk:</span> <span class='${riskCls}'>${t.risk.toUpperCase()}</span></div>
+                          <div style='margin-top:8px'><span class='data-label'>Affected:</span> ${t.affected.length? t.affected.join(', ') : '-'}</div>
+                          <div style='margin-top:8px'><a href='./logs/${t.agent}.log' target='_blank'>Open ${t.agent} log</a></div>
+                        `;
+                        ul.appendChild(card);
+                    })
+                    workEl.appendChild(ul);
+                }
+            }catch(e){
+                document.getElementById('last-updated').innerHTML = `<span style='color:red;'>Error loading status.json: Check server configuration.</span>`;
+                console.error("Dashboard error:", e);
+            }
+        }
+        fetchStatus(); setInterval(fetchStatus, 5000);
+    </script>
+</body>
+</html>

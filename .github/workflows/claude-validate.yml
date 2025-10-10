@@ -1,0 +1,22 @@
+name: claude-validate
+
+on:
+  push:
+    paths:
+      - '.claude/**'
+      - '.github/workflows/claude-validate.yml'
+  pull_request:
+    paths:
+      - '.claude/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run PowerShell validator
+        uses: pwsh/setup-pwsh@v2
+        with:
+          version: '7.4'
+      - name: Execute validator
+        run: pwsh -NoProfile -Command "& './.claude/tools/validate-claude.ps1'"

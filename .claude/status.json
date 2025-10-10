@@ -1,0 +1,89 @@
+{
+  "last_updated": "2024-12-20T12:00:00Z",
+  "agents": {
+    "technical-project-manager": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:50:44Z"
+    },
+    "solution-architect": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "senior-backend-engineer": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "principal-database-architect": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "lead-qa-engineer": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "devops-lead": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "senior-ui-ux-designer": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "senior-frontend-engineer": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "senior-mobile-developer": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "scrum-master": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "product-strategist": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "ux-psychology-specialist": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "game-theory-analyst": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    },
+    "legal-compliance-advisor": {
+      "status": "idle",
+      "emotion": "neutral",
+      "current_task": null,
+      "last_activity": "2024-12-20T11:58:05Z"
+    }
+  }
+}
