@@ -5,12 +5,13 @@
   "type": "frontend",
   "status": "pending",
   "priority": "CRITICAL",
-  "assigned_to": "frontend-engineer",
-  "created_at": "2025-01-10T10:00:00Z",
-  "updated_at": "2025-01-10T10:00:00Z",
+  "assigned_to": "web-dev-master",
+  "support_agents": ["ui-designer", "senior-backend-engineer"],
+  "created_at": "2025-10-10T10:00:00Z",
+  "updated_at": "2025-10-10T10:54:00Z",
   "started_at": null,
   "completed_at": null,
-  "due_date": "2025-01-15T18:00:00Z",
+  "due_date": "2025-10-17T18:00:00Z",
   "story_points": 13,
   "tags": ["frontend", "development", "mvp"],
   "dependencies": {
@@ -24,7 +25,7 @@
     "Authentication flow integrated",
     "API client configured"
   ],
-  "sprint": "SPRINT-2025-01",
+  "sprint": "SPRINT-2025-10",
   "technical_notes": {
     "affected_files": [],
     "test_coverage_target": "80%",
