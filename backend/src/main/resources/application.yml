@@ -110,9 +110,28 @@ management:
       show-details: when-authorized
   health:
     redis:
-      enabled: false
+      enabled: true
     db:
       enabled: true
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    filter: true
+    try-it-out-enabled: true
+  show-actuator: false
+  packages-to-scan: com.thechain.controller
+  paths-to-match: /**
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
 
 ---
 # Docker Profile
