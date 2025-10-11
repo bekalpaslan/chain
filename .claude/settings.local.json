@@ -56,7 +56,8 @@
       "Bash(timeout:*)",
       "Bash(docker ps:*)",
       "Bash(./.claude/tools/orchestrator-log:*)",
-      "Bash(do wc:*)"
+      "Bash(do wc:*)",
+      "Bash(powershell.exe:*)"
     ],
     "deny": [],
     "ask": []

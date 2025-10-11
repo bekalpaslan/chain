@@ -26,97 +26,88 @@
                        },
     "agents":  {
                    "project-manager":  {
-                                           "status":  "blocked",
+                                           "status":  "idle",
                                            "emotion":  "neutral",
                                            "current_task":  null,
-                                           "last_activity":  "2025-10-10T11:15:00Z"
+                                           "last_activity":  "2025-10-11T03:40:37Z"
                                        },
                    "solution-architect":  {
                                               "status":  "idle",
                                               "emotion":  "neutral",
                                               "current_task":  null,
-                                              "last_activity":  "2025-10-10T11:15:00Z"
+                                              "last_activity":  "2025-10-11T03:40:43Z"
                                           },
                    "senior-backend-engineer":  {
-                                                   "status":  "in_progress",
-                                                   "emotion":  "focused",
-                                                   "current_task":  {
-                                                                        "id":  "\"TASK-003\"",
-                                                                        "title":  "Unknown Task"
-                                                                    },
-                                                   "last_activity":  "2025-10-11T02:40:57Z"
+                                                   "status":  "idle",
+                                                   "emotion":  "neutral",
+                                                   "current_task":  null,
+                                                   "last_activity":  "2025-10-11T03:41:00Z"
                                                },
                    "principal-database-architect":  {
-                                                        "status":  "blocked",
+                                                        "status":  "idle",
                                                         "emotion":  "neutral",
                                                         "current_task":  null,
-                                                        "last_activity":  "2025-10-10T11:15:00Z"
+                                                        "last_activity":  "2025-10-11T03:41:41Z"
                                                     },
                    "test-master":  {
-                                       "status":  "in_progress",
+                                       "status":  "idle",
                                        "emotion":  "neutral",
                                        "current_task":  null,
-                                       "last_activity":  "2025-10-10T11:15:00Z"
+                                       "last_activity":  "2025-10-11T03:41:42Z"
                                    },
                    "devops-lead":  {
-                                       "status":  "in_progress",
+                                       "status":  "idle",
                                        "emotion":  "neutral",
                                        "current_task":  null,
-                                       "last_activity":  "2025-10-10T11:15:00Z"
+                                       "last_activity":  "2025-10-11T03:41:43Z"
                                    },
                    "ui-designer":  {
-                                       "status":  "done",
-                                       "emotion":  "satisfied",
-                                       "current_task":  {
-                                                            "id":  "\"TASK-012\"",
-                                                            "title":  "Unknown Task"
-                                                        },
-                                       "last_activity":  "2025-10-11T02:41:54Z"
+                                       "status":  "idle",
+                                       "emotion":  "neutral",
+                                       "current_task":  null,
+                                       "last_activity":  "2025-10-11T03:41:54Z"
                                    },
                    "web-dev-master":  {
-                                          "status":  "in_progress",
+                                          "status":  "idle",
                                           "emotion":  "neutral",
                                           "current_task":  null,
-                                          "last_activity":  "2025-10-10T11:15:00Z"
+                                          "last_activity":  "2025-10-11T03:41:55Z"
                                       },
                    "senior-mobile-developer":  {
                                                    "status":  "idle",
                                                    "emotion":  "neutral",
                                                    "current_task":  null,
-                                                   "last_activity":  "2025-10-10T11:15:00Z"
+                                                   "last_activity":  "2025-10-11T03:41:57Z"
                                                },
                    "scrum-master":  {
-                                        "status":  "done",
-                                        "emotion":  "satisfied",
-                                        "current_task":  {
-                                                             "id":  "\"PHASE-2-FIX\"",
-                                                             "title":  "Unknown Task"
-                                                         },
-                                        "last_activity":  "2025-10-11T03:20:27Z"
+                                        "status":  "idle",
+                                        "emotion":  "neutral",
+                                        "current_task":  null,
+                                        "last_activity":  "2025-10-11T03:42:02Z"
                                     },
                    "opportunist-strategist":  {
                                                   "status":  "idle",
                                                   "emotion":  "neutral",
                                                   "current_task":  null,
-                                                  "last_activity":  "2025-10-10T11:15:00Z"
+                                                  "last_activity":  "2025-10-11T03:42:04Z"
                                               },
                    "psychologist-game-dynamics":  {
                                                       "status":  "idle",
                                                       "emotion":  "neutral",
                                                       "current_task":  null,
-                                                      "last_activity":  "2025-10-10T11:15:00Z"
+                                                      "last_activity":  "2025-10-11T03:42:05Z"
                                                   },
                    "game-theory-master":  {
                                               "status":  "idle",
                                               "emotion":  "neutral",
                                               "current_task":  null,
-                                              "last_activity":  "2025-10-10T11:15:00Z"
+                                              "last_activity":  "2025-10-11T03:42:07Z"
                                           },
                    "legal-software-advisor":  {
                                                   "status":  "idle",
                                                   "emotion":  "neutral",
                                                   "current_task":  null,
-                                                  "last_activity":  "2025-10-10T11:15:00Z"
+                                                  "last_activity":  "2025-10-11T03:42:09Z"
                                               }
                }
 }
