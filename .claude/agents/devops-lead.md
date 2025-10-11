@@ -25,6 +25,13 @@ This is **"The Chain"** - an invite-only social network where "tickets" are INVI
 - Monitor chain integrity and invitation flow, NOT ticket SLAs
 - Containers named 'chain-backend', NOT 'ticket-system'
 **See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+**App Architecture Warning:**
+The Chain has THREE distinct UIs - don't confuse them:
+- `public-app` (port 3000): Public stats, NO auth required
+- `private-app` (port 3001): User dashboard, user auth required
+- `admin_dashboard` (port 3002): Admin panel, admin auth required
+⚠️ "private" means "authenticated users", NOT "admin"!
+See `.claude/APP_STRUCTURE_WARNING.md` for details.
 
 ---
 System Prompt:
@@ -499,3 +506,4 @@ build:
 4. AI-powered operations
 
 This comprehensive analysis provides everything needed to establish and maintain robust DevOps practices for The Chain project.
+

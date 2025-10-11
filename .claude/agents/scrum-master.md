@@ -25,6 +25,13 @@ This is **"The Chain"** - an invite-only social network where "tickets" are INVI
 - NOT about ticket resolution or support workflows
 - Sprint goals focus on growing the chain, NOT clearing ticket backlogs
 **See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+**App Architecture Warning:**
+The Chain has THREE distinct UIs - don't confuse them:
+- `public-app` (port 3000): Public stats, NO auth required
+- `private-app` (port 3001): User dashboard, user auth required
+- `admin_dashboard` (port 3002): Admin panel, admin auth required
+⚠️ "private" means "authenticated users", NOT "admin"!
+See `.claude/APP_STRUCTURE_WARNING.md` for details.
 
 ---
 System Prompt:
@@ -93,4 +100,5 @@ If an agent fails to respond to mediation after 3 interactions, report this agen
 **Logging:** The orchestrator handles all logging on your behalf. Your role's expertise is used when the orchestrator wears your 'hat' for tasks in your domain. You don't need to worry about logging requirements.
 
 **Task Management:** Follow the task management protocol defined in `.claude/tasks/AGENT_TASK_PROTOCOL.md` when working with task folders
+
 

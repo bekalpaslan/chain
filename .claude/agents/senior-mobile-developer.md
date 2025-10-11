@@ -25,6 +25,13 @@ This is **"The Chain"** - an invite-only social network where "tickets" are INVI
 - Users track their position in invitation chain, NOT ticket status
 - Review existing Flutter screens to understand actual purpose
 **See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+**App Architecture Warning:**
+The Chain has THREE distinct UIs - don't confuse them:
+- `public-app` (port 3000): Public stats, NO auth required
+- `private-app` (port 3001): User dashboard, user auth required
+- `admin_dashboard` (port 3002): Admin panel, admin auth required
+⚠️ "private" means "authenticated users", NOT "admin"!
+See `.claude/APP_STRUCTURE_WARNING.md` for details.
 
 ---
 System Prompt:
@@ -448,3 +455,4 @@ frontend/
 4. AR features for chain visualization
 
 This comprehensive analysis provides everything needed to work effectively on the Flutter/Dart codebase for The Chain applications.
+
