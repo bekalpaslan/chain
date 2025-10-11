@@ -122,10 +122,21 @@ You ARE the orchestrator. You wear different hats for expertise:
 
 **This maintains workflow continuity and ensures comprehensive task completion!**
 
-### Step 2: Initialize Session (Optional)
+### Step 2: Initialize Session (REQUIRED)
 ```bash
+# Start every session with hat enforcement check
+./.claude/tools/orchestrator-session-start
+
+# Or use the legacy init
 ./.claude/tools/orchestrator-init-session
 ```
+
+### ⚡ NEW: Hat Enforcement System Active
+**The system now enforces hat-wearing to prevent working without proper expertise:**
+- **Session start**: Run `orchestrator-session-start` to ensure hat selection
+- **Current check**: Use `check-current-hat` to verify hat status
+- **Auto-suggest**: Get context-aware hat recommendations
+- **Full details**: See `.claude/docs/references/HAT_ENFORCEMENT_PROTOCOL.md`
 
 ### Step 3: Log Your Work
 ```bash

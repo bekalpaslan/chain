@@ -218,7 +218,12 @@ if [ -n "$TASK" ]; then
   fi
 fi
 
-# 5. Update status.json if role specified (call PowerShell helper)
+# 5. Update current role file if role specified
+if [ -n "$ROLE" ] && [ "$ROLE" != "null" ]; then
+  echo "$ROLE" > .claude/.current_role
+fi
+
+# 6. Update status.json if role specified (call PowerShell helper)
 if [ -n "$ROLE" ] && [ "$ROLE" != "null" ] && [ -f ".claude/tools/update-status-for-role.ps1" ]; then
   # Check if we're on Windows (has powershell)
   if command -v powershell.exe &> /dev/null; then
@@ -232,7 +237,7 @@ if [ -n "$ROLE" ] && [ "$ROLE" != "null" ] && [ -f ".claude/tools/update-status-
   fi
 fi
 
-# 6. Update hat usage statistics
+# 7. Update hat usage statistics
 if [ -f ".claude/tools/update-hat-usage.ps1" ]; then
   # Determine execution mode
   EXECUTION_MODE="orchestrator"

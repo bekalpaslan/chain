@@ -28,14 +28,17 @@
                    "project-manager":  {
                                            "status":  "done",
                                            "emotion":  "satisfied",
-                                           "current_task":  null,
-                                           "last_activity":  "2025-10-11T04:36:14Z"
+                                           "current_task":  {
+                                                                "id":  "\"FRAMEWORK-SUMMARY\"",
+                                                                "title":  "Unknown Task"
+                                                            },
+                                           "last_activity":  "2025-10-11T06:12:11Z"
                                        },
                    "solution-architect":  {
-                                              "status":  "idle",
-                                              "emotion":  "neutral",
+                                              "status":  "in_progress",
+                                              "emotion":  "focused",
                                               "current_task":  null,
-                                              "last_activity":  "2025-10-11T03:40:43Z"
+                                              "last_activity":  "2025-10-11T05:58:59Z"
                                           },
                    "senior-backend-engineer":  {
                                                    "status":  "idle",
@@ -50,34 +53,40 @@
                                                         "last_activity":  "2025-10-11T03:41:41Z"
                                                     },
                    "test-master":  {
-                                       "status":  "idle",
-                                       "emotion":  "neutral",
+                                       "status":  "done",
+                                       "emotion":  "satisfied",
                                        "current_task":  null,
-                                       "last_activity":  "2025-10-11T03:41:42Z"
+                                       "last_activity":  "2025-10-11T05:29:13Z"
                                    },
                    "devops-lead":  {
-                                       "status":  "idle",
-                                       "emotion":  "neutral",
-                                       "current_task":  null,
-                                       "last_activity":  "2025-10-11T03:41:43Z"
-                                   },
-                   "ui-designer":  {
                                        "status":  "in_progress",
                                        "emotion":  "focused",
+                                       "current_task":  {
+                                                            "id":  "\"GIT-OPS\"",
+                                                            "title":  "Unknown Task"
+                                                        },
+                                       "last_activity":  "2025-10-11T06:45:20Z"
+                                   },
+                   "ui-designer":  {
+                                       "status":  "done",
+                                       "emotion":  "satisfied",
                                        "current_task":  null,
-                                       "last_activity":  "2025-10-11T04:21:43Z"
+                                       "last_activity":  "2025-10-11T05:57:01Z"
                                    },
                    "web-dev-master":  {
-                                          "status":  "idle",
-                                          "emotion":  "neutral",
-                                          "current_task":  null,
-                                          "last_activity":  "2025-10-11T03:41:55Z"
+                                          "status":  "done",
+                                          "emotion":  "satisfied",
+                                          "current_task":  {
+                                                               "id":  "\"DEBUG-ADMIN\"",
+                                                               "title":  "Unknown Task"
+                                                           },
+                                          "last_activity":  "2025-10-11T06:31:23Z"
                                       },
                    "senior-mobile-developer":  {
-                                                   "status":  "idle",
-                                                   "emotion":  "neutral",
+                                                   "status":  "done",
+                                                   "emotion":  "satisfied",
                                                    "current_task":  null,
-                                                   "last_activity":  "2025-10-11T03:41:57Z"
+                                                   "last_activity":  "2025-10-11T06:12:48Z"
                                                },
                    "scrum-master":  {
                                         "status":  "idle",

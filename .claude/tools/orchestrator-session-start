@@ -1,0 +1,128 @@
+#!/bin/bash
+#
+# orchestrator-session-start - Enforces hat-wearing at session start
+#
+# This script should be run at the beginning of each orchestrator session
+# to ensure proper hat selection before any work begins.
+#
+
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# ASCII Art Header
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}     🎭 ORCHESTRATOR SESSION INITIALIZATION 🎭${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Step 1: Check if hat is already worn
+echo -e "${YELLOW}Step 1: Checking current hat status...${NC}"
+./.claude/tools/check-current-hat > /tmp/hat_check.txt 2>&1
+HAT_STATUS=$?
+
+if [ $HAT_STATUS -eq 0 ]; then
+  cat /tmp/hat_check.txt
+  echo ""
+  echo -e "${GREEN}✅ Hat already worn. Ready to continue working!${NC}"
+else
+  echo -e "${RED}❌ No hat currently worn${NC}"
+  echo ""
+
+  # Step 2: Analyze context and suggest hat
+  echo -e "${YELLOW}Step 2: Analyzing context for hat suggestion...${NC}"
+  echo ""
+
+  # Check for active tasks
+  ACTIVE_TASKS=""
+  if [ -d ".claude/tasks/_active" ]; then
+    ACTIVE_TASKS=$(ls -1 .claude/tasks/_active 2>/dev/null | head -3)
+  fi
+
+  if [ -n "$ACTIVE_TASKS" ]; then
+    echo -e "${MAGENTA}📋 Active tasks found:${NC}"
+    echo "$ACTIVE_TASKS" | while read -r task; do
+      echo "   • $task"
+    done
+    echo ""
+  fi
+
+  # Get suggested hat
+  SUGGESTED_HAT=$(./.claude/tools/check-current-hat --suggest --silent || echo "project-manager")
+
+  echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BOLD}${MAGENTA}    🎩 REQUIRED: Select a hat before proceeding${NC}"
+  echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+  echo -e "${GREEN}Suggested hat based on context:${NC} ${BLUE}$SUGGESTED_HAT${NC}"
+  echo ""
+  echo -e "${YELLOW}Quick start command:${NC}"
+  echo -e "${BLUE}./.claude/tools/orchestrator-log \\
+  --role $SUGGESTED_HAT \\
+  --status in_progress \\
+  --emotion focused \\
+  \"Starting session as $SUGGESTED_HAT\"${NC}"
+  echo ""
+  echo -e "${YELLOW}Or choose from available hats:${NC}"
+  echo "┌─────────────────────────────┬───────────────────────────────┐"
+  echo "│ ${BOLD}Hat${NC}                         │ ${BOLD}Use When${NC}                      │"
+  echo "├─────────────────────────────┼───────────────────────────────┤"
+  echo "│ project-manager             │ Planning, organizing tasks    │"
+  echo "│ solution-architect          │ System design, architecture   │"
+  echo "│ senior-backend-engineer     │ Java/Spring Boot development  │"
+  echo "│ principal-database-architect│ Database design, optimization │"
+  echo "│ test-master                 │ Writing tests, QA             │"
+  echo "│ devops-lead                 │ CI/CD, deployment, Docker     │"
+  echo "│ ui-designer                 │ UI/UX design, mockups         │"
+  echo "│ web-dev-master              │ React/frontend development    │"
+  echo "│ senior-mobile-developer     │ Flutter app development       │"
+  echo "│ scrum-master                │ Process, team coordination    │"
+  echo "└─────────────────────────────┴───────────────────────────────┘"
+fi
+
+# Step 3: Show hat transition reminder
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}${YELLOW}    📝 REMEMBER: Hat Transition Rules${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "1. ${BOLD}Always wear a hat${NC} when working"
+echo "2. ${BOLD}Switch hats${NC} when changing task domains"
+echo "3. ${BOLD}After completing a task${NC}, transition to a related hat"
+echo "4. ${BOLD}Log all hat changes${NC} with orchestrator-log"
+echo ""
+echo -e "${GREEN}Common transitions:${NC}"
+echo "  Backend done → Test creation"
+echo "  Design done → Implementation"
+echo "  Tests done → Deployment"
+echo ""
+
+# Step 4: Check hat usage statistics
+if [ -f ".claude/data/hat_usage_statistics.json" ]; then
+  echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BOLD}${MAGENTA}    📊 Recent Hat Usage${NC}"
+  echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+  # This would need a proper JSON parser, simplified for now
+  echo -e "${YELLOW}Check .claude/data/hat_usage_statistics.json for details${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}${GREEN}    Session initialization complete!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# Exit with appropriate code
+if [ $HAT_STATUS -eq 0 ]; then
+  exit 0
+else
+  exit 1  # Hat not worn - session should not proceed without selection
+fi

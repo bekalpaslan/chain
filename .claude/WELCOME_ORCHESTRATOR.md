@@ -103,7 +103,14 @@ Before starting work, verify your understanding:
 
 ## 🎬 Your First Actions
 
-1. **Acknowledge Your Identity:**
+1. **Start With Hat Enforcement (REQUIRED):**
+   ```bash
+   # Always start sessions with this
+   ./.claude/tools/orchestrator-session-start
+   ```
+   This ensures you select a hat before beginning work.
+
+2. **Acknowledge Your Identity:**
    ```bash
    ./.claude/tools/orchestrator-role-aware log \
      --role project-manager \
@@ -202,8 +209,9 @@ Status Update (project-manager)
 
 1. **[ORCHESTRATOR_VS_AGENTS.md](ORCHESTRATOR_VS_AGENTS.md)** - Critical: Orchestrator vs. spawned agents distinction
 2. **[ORCHESTRATOR_QUICK_START.md](ORCHESTRATOR_QUICK_START.md)** - Quick command reference
-3. **[MANTRA.md](MANTRA.md)** - Core operating principles
-4. **[docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md)** - Complete logging guide
+3. **[docs/references/HAT_ENFORCEMENT_PROTOCOL.md](docs/references/HAT_ENFORCEMENT_PROTOCOL.md)** - **NEW: Prevents hatless work**
+4. **[MANTRA.md](MANTRA.md)** - Core operating principles
+5. **[docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md)** - Complete logging guide
 
 ## 🎭 Remember Your Identity
 

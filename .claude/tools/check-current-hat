@@ -1,0 +1,179 @@
+#!/bin/bash
+#
+# check-current-hat - Verifies orchestrator is wearing a hat before proceeding
+#
+# This tool checks if the orchestrator has an active hat (role) and blocks
+# work if no hat is being worn. It suggests appropriate hats based on context.
+#
+# Usage:
+#   check-current-hat [--suggest] [--enforce]
+#
+# Options:
+#   --suggest   Suggest an appropriate hat based on current context
+#   --enforce   Exit with error if no hat is worn (for pre-commit hooks)
+#   --silent    Suppress output (only return exit code)
+#
+
+set -euo pipefail
+
+# Parse arguments
+SUGGEST=false
+ENFORCE=false
+SILENT=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --suggest)
+      SUGGEST=true
+      shift
+      ;;
+    --enforce)
+      ENFORCE=true
+      shift
+      ;;
+    --silent)
+      SILENT=true
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+NC='\033[0m' # No Color
+
+# Check current role from status.json
+CURRENT_HAT=""
+CURRENT_STATUS=""
+LAST_ACTIVITY=""
+
+if [ -f ".claude/status.json" ]; then
+  # Find the role that's currently in_progress or was most recently active
+  ACTIVE_ROLE=$(cat .claude/status.json | grep -B2 '"status": "in_progress"' | grep '"' | head -1 | cut -d'"' -f2 || echo "")
+
+  if [ -z "$ACTIVE_ROLE" ]; then
+    # No active role, check .current_role file
+    if [ -f ".claude/.current_role" ]; then
+      CURRENT_HAT=$(cat .claude/.current_role | tr -d '\n\r')
+    fi
+  else
+    CURRENT_HAT="$ACTIVE_ROLE"
+    CURRENT_STATUS="in_progress"
+  fi
+fi
+
+# Function to suggest a hat based on context
+suggest_hat() {
+  local suggested_hat=""
+
+  # Check recent git changes to infer work type
+  if command -v git &> /dev/null && git rev-parse --git-dir > /dev/null 2>&1; then
+    local changed_files=$(git diff --name-only 2>/dev/null | head -20)
+
+    # Analyze file patterns
+    if echo "$changed_files" | grep -q "backend/.*\.java"; then
+      suggested_hat="senior-backend-engineer"
+    elif echo "$changed_files" | grep -q "frontend/.*\.dart"; then
+      suggested_hat="senior-mobile-developer"
+    elif echo "$changed_files" | grep -q "frontend/.*\.tsx\|frontend/.*\.jsx"; then
+      suggested_hat="web-dev-master"
+    elif echo "$changed_files" | grep -q "\.claude/"; then
+      suggested_hat="project-manager"
+    elif echo "$changed_files" | grep -q "test/\|spec/\|__tests__/"; then
+      suggested_hat="test-master"
+    elif echo "$changed_files" | grep -q "docker\|k8s/\|\.yml\|\.yaml"; then
+      suggested_hat="devops-lead"
+    elif echo "$changed_files" | grep -q "migrations/\|schema\."; then
+      suggested_hat="principal-database-architect"
+    elif echo "$changed_files" | grep -q "\.md$"; then
+      suggested_hat="project-manager"
+    elif echo "$changed_files" | grep -q "design/\|mockup/\|\.fig"; then
+      suggested_hat="ui-designer"
+    fi
+  fi
+
+  # Check current directory for context
+  if [ -z "$suggested_hat" ]; then
+    local current_dir=$(pwd)
+    if [[ "$current_dir" == *"/backend"* ]]; then
+      suggested_hat="senior-backend-engineer"
+    elif [[ "$current_dir" == *"/frontend"* ]]; then
+      suggested_hat="senior-mobile-developer"
+    elif [[ "$current_dir" == *"/.claude"* ]]; then
+      suggested_hat="project-manager"
+    fi
+  fi
+
+  # Default suggestion
+  if [ -z "$suggested_hat" ]; then
+    suggested_hat="project-manager"
+  fi
+
+  echo "$suggested_hat"
+}
+
+# Main logic
+if [ -n "$CURRENT_HAT" ]; then
+  if [ "$SILENT" = false ]; then
+    echo -e "${GREEN}✅ Currently wearing hat:${NC} ${BLUE}$CURRENT_HAT${NC}"
+    if [ "$CURRENT_STATUS" = "in_progress" ]; then
+      echo -e "${GREEN}   Status:${NC} Actively working"
+    fi
+  fi
+  exit 0
+else
+  # No hat is being worn
+  if [ "$SILENT" = false ]; then
+    echo -e "${YELLOW}⚠️  WARNING: No hat currently worn!${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}The orchestrator must wear a hat to work!${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  fi
+
+  if [ "$SUGGEST" = true ] && [ "$SILENT" = false ]; then
+    SUGGESTED=$(suggest_hat)
+    echo ""
+    echo -e "${MAGENTA}🎩 Suggested hat based on context:${NC} ${BLUE}$SUGGESTED${NC}"
+    echo ""
+    echo -e "${GREEN}To wear this hat, run:${NC}"
+    echo -e "  ${BLUE}./.claude/tools/orchestrator-log \\
+    --role $SUGGESTED \\
+    --status in_progress \\
+    --emotion focused \\
+    \"Starting work as $SUGGESTED\"${NC}"
+  elif [ "$SILENT" = false ]; then
+    echo ""
+    echo -e "${YELLOW}Available hats:${NC}"
+    echo "  • project-manager"
+    echo "  • solution-architect"
+    echo "  • senior-backend-engineer"
+    echo "  • principal-database-architect"
+    echo "  • test-master"
+    echo "  • devops-lead"
+    echo "  • ui-designer"
+    echo "  • web-dev-master"
+    echo "  • senior-mobile-developer"
+    echo "  • scrum-master"
+    echo ""
+    echo -e "${GREEN}Choose a hat with:${NC}"
+    echo -e "  ${BLUE}./.claude/tools/orchestrator-log --role [HAT-NAME] --status in_progress \"Starting work\"${NC}"
+  fi
+
+  if [ "$ENFORCE" = true ]; then
+    if [ "$SILENT" = false ]; then
+      echo ""
+      echo -e "${RED}❌ BLOCKED: Cannot proceed without wearing a hat!${NC}"
+      echo -e "${YELLOW}This is enforced to maintain orchestrator discipline.${NC}"
+    fi
+    exit 1
+  fi
+
+  exit 2  # Different exit code to indicate no hat worn
+fi

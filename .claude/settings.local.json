@@ -59,7 +59,10 @@
       "Bash(do wc:*)",
       "Bash(powershell.exe:*)",
       "Bash(./.claude/tools/orchestrator-role-aware show-role:*)",
-      "Bash(./.claude/tools/orchestrator-role-aware log:*)"
+      "Bash(./.claude/tools/orchestrator-role-aware log:*)",
+      "Bash(docker rmi:*)",
+      "Bash(./.claude/tools/check-current-hat:*)",
+      "Bash(docker-compose:*)"
     ],
     "deny": [],
     "ask": []

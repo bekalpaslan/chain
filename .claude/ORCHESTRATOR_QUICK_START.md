@@ -2,6 +2,21 @@
 
 **🚀 You are the orchestrator. You wear different "agent hats" when doing different work.**
 
+## 🛡️ FIRST: Start Every Session With Hat Enforcement
+
+```bash
+# ALWAYS run this first - it ensures you select a hat
+./.claude/tools/orchestrator-session-start
+
+# Check current hat anytime
+./.claude/tools/check-current-hat
+
+# Get smart hat suggestions
+./.claude/tools/check-current-hat --suggest
+```
+
+**NEW:** The system now prevents hatless work! See [HAT_ENFORCEMENT_PROTOCOL.md](docs/references/HAT_ENFORCEMENT_PROTOCOL.md)
+
 ---
 
 ## The 3 Commands You Need

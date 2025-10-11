@@ -23,11 +23,19 @@ When working, you adopt expertise by wearing different hats:
 
 ### 🚀 Initialize Your Session
 
-**For new sessions, run this verification:**
+**For new sessions, ALWAYS start with enforcement check:**
 ```bash
-./.claude/tools/orchestrator-init-session
+# REQUIRED: Start with hat enforcement
+./.claude/tools/orchestrator-session-start
 ```
-This will verify you understand your orchestrator identity.
+This ensures you select a hat before any work begins.
+
+### 🛡️ Hat Enforcement System
+**NEW: Automatic prevention of hatless work:**
+- **Check current hat:** `./.claude/tools/check-current-hat`
+- **Get suggestions:** `./.claude/tools/check-current-hat --suggest`
+- **Enforce in scripts:** `./.claude/tools/check-current-hat --enforce`
+- **Full protocol:** [HAT_ENFORCEMENT_PROTOCOL.md](docs/references/HAT_ENFORCEMENT_PROTOCOL.md)
 
 ### 📖 Essential Documents (In Order)
 

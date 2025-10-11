@@ -1,0 +1,211 @@
+{
+  "name": "orchestrator-framework",
+  "version": "1.0.0",
+  "description": "A comprehensive AI orchestrator system for managing complex software projects through specialized agent roles",
+  "author": "Orchestrator Framework Team",
+  "license": "MIT",
+  "homepage": "https://github.com/your-org/orchestrator-framework",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/orchestrator-framework.git"
+  },
+  "keywords": [
+    "orchestrator",
+    "ai-agents",
+    "project-management",
+    "automation",
+    "devops",
+    "software-engineering"
+  ],
+  "engines": {
+    "powershell": ">=5.1",
+    "bash": ">=4.0",
+    "python": ">=3.6"
+  },
+  "platforms": [
+    "windows",
+    "linux",
+    "darwin"
+  ],
+  "components": {
+    "core": {
+      "description": "Core orchestrator system files",
+      "files": [
+        ".claude/README.md",
+        ".claude/WELCOME_ORCHESTRATOR.md",
+        ".claude/ORCHESTRATOR_QUICK_START.md",
+        ".claude/status.json"
+      ]
+    },
+    "agents": {
+      "description": "Agent role definitions",
+      "count": 14,
+      "roles": [
+        "project-manager",
+        "solution-architect",
+        "senior-backend-engineer",
+        "principal-database-architect",
+        "test-master",
+        "devops-lead",
+        "ui-designer",
+        "web-dev-master",
+        "senior-mobile-developer",
+        "scrum-master",
+        "opportunist-strategist",
+        "psychologist-game-dynamics",
+        "game-theory-master",
+        "legal-software-advisor"
+      ]
+    },
+    "tools": {
+      "description": "Orchestrator management tools",
+      "executables": [
+        "orchestrator-log",
+        "check-current-hat",
+        "orchestrator-session-start",
+        "update-hat-usage"
+      ]
+    },
+    "tracking": {
+      "description": "Usage tracking and analytics",
+      "files": [
+        ".claude/data/hat_usage_statistics.json",
+        ".claude/tools/update-hat-usage.ps1",
+        ".claude/tools/update-hat-usage.sh"
+      ]
+    },
+    "documentation": {
+      "description": "Framework documentation",
+      "files": [
+        "ORCHESTRATOR_START_HERE.md",
+        "framework/ORCHESTRATOR_FRAMEWORK_CREATION_GUIDE.md",
+        "framework/README.md"
+      ]
+    },
+    "initialization": {
+      "description": "Setup and installation scripts",
+      "scripts": [
+        "framework/init-orchestrator.ps1",
+        "framework/init-orchestrator.sh"
+      ]
+    }
+  },
+  "installation": {
+    "windows": {
+      "command": "powershell.exe -ExecutionPolicy Bypass -File framework/init-orchestrator.ps1",
+      "requirements": [
+        "PowerShell 5.1 or higher",
+        "Administrator privileges (optional)"
+      ]
+    },
+    "unix": {
+      "command": "bash framework/init-orchestrator.sh",
+      "requirements": [
+        "Bash 4.0 or higher",
+        "Python 3.6+ (for JSON manipulation)"
+      ]
+    }
+  },
+  "configuration": {
+    "environment_variables": {
+      "ORCHESTRATOR_PROJECT_PATH": {
+        "description": "Root path of the project",
+        "default": "current directory"
+      },
+      "ORCHESTRATOR_DEFAULT_HAT": {
+        "description": "Default hat to wear when starting",
+        "default": "project-manager"
+      },
+      "ORCHESTRATOR_LOG_LEVEL": {
+        "description": "Logging verbosity",
+        "default": "info",
+        "options": ["debug", "info", "warn", "error"]
+      }
+    },
+    "files": {
+      ".claude/.current_role": {
+        "description": "Tracks currently worn hat",
+        "format": "plain text"
+      },
+      ".claude/status.json": {
+        "description": "System and agent status tracking",
+        "format": "JSON"
+      },
+      ".claude/data/hat_usage_statistics.json": {
+        "description": "Usage analytics and metrics",
+        "format": "JSON"
+      }
+    }
+  },
+  "dependencies": {
+    "required": [],
+    "optional": [
+      {
+        "name": "jq",
+        "description": "JSON processor for advanced status updates",
+        "platforms": ["linux", "darwin"]
+      },
+      {
+        "name": "git",
+        "description": "Version control integration and hooks",
+        "platforms": ["all"]
+      }
+    ]
+  },
+  "features": {
+    "hat_enforcement": {
+      "description": "Prevents work without wearing appropriate expertise hat",
+      "enabled": true
+    },
+    "usage_tracking": {
+      "description": "Tracks hat usage statistics and patterns",
+      "enabled": true
+    },
+    "session_initialization": {
+      "description": "Enforces hat selection at session start",
+      "enabled": true
+    },
+    "natural_transitions": {
+      "description": "Suggests logical hat transitions based on current work",
+      "enabled": true
+    },
+    "git_hooks": {
+      "description": "Integrates with git for commit validation",
+      "enabled": false,
+      "configurable": true
+    }
+  },
+  "compatibility": {
+    "ai_assistants": [
+      "Claude",
+      "GPT-4",
+      "Other LLMs with tool usage capabilities"
+    ],
+    "project_types": [
+      "Web applications",
+      "Mobile applications",
+      "Microservices",
+      "Monolithic applications",
+      "Data pipelines",
+      "Infrastructure as Code"
+    ]
+  },
+  "support": {
+    "documentation": "framework/ORCHESTRATOR_FRAMEWORK_CREATION_GUIDE.md",
+    "issues": "https://github.com/your-org/orchestrator-framework/issues",
+    "community": "https://discord.gg/orchestrator-framework"
+  },
+  "changelog": {
+    "1.0.0": {
+      "date": "2025-10-11",
+      "changes": [
+        "Initial release",
+        "14 specialized agent roles",
+        "Hat enforcement system",
+        "Usage tracking and analytics",
+        "Cross-platform initialization scripts",
+        "Comprehensive documentation"
+      ]
+    }
+  }
+}

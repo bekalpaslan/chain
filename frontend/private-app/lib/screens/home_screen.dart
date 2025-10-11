@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:thechain_shared/api/api_client.dart';
 import 'package:thechain_shared/models/user.dart';
 import 'package:thechain_shared/utils/storage_helper.dart';
-import '../widgets/person_card.dart';
+import '../widgets/chain_member_card.dart';
+import '../widgets/chain_ellipsis_link.dart';
 import 'login_screen.dart';
+import 'dart:math' as math;
 
 /// Home screen showing the user's chain with 5 members displayed vertically
 /// with connecting arrows. Uses Dark Mystique theme.
@@ -22,6 +24,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Mock chain data - Replace with real API data later
   List<ChainMember> _chainMembers = [];
+  int _totalChainLength = 0;
+  int _hiddenMembersAbove = 0;
+  int _hiddenMembersBelow = 0;
 
   @override
   void initState() {
@@ -51,50 +56,149 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Generate mock chain data with the current user in the middle (position 3)
+  /// Generate adaptive chain data: Genesis + 3-member window + TIP
+  /// Shows: Position 1 ... Parent-YOU-Child ... Position N
   List<ChainMember> _getMockChainData(User currentUser) {
-    return [
-      // Grandparent (2 levels up)
-      ChainMember(
-        displayName: 'Sarah Johnson',
+    // Simulate different chain lengths for testing
+    // In production, this would come from the API
+    _totalChainLength = 100; // Simulate a chain with 100 members
+
+    // For demo, let's test with user at position 37 as requested
+    final userPosition = 37; // currentUser.position;
+
+    List<ChainMember> visibleMembers = [];
+
+    // Always add Genesis (Position 1) if chain has multiple members
+    if (_totalChainLength > 1 && userPosition > 1) {
+      visibleMembers.add(ChainMember(
+        displayName: 'Genesis',
         chainKey: 'CHAIN0000001',
-        position: currentUser.position - 2,
+        position: 1,
         status: 'seed',
         isCurrentUser: false,
-      ),
-      // Parent (1 level up)
-      ChainMember(
-        displayName: 'Michael Chen',
-        chainKey: 'CHAIN0000045',
-        position: currentUser.position - 1,
+      ));
+    }
+
+    // Calculate if we need ellipsis above
+    final parentPosition = math.max(1, userPosition - 1);
+    _hiddenMembersAbove = math.max(0, parentPosition - 2); // -2 because we show position 1 separately
+
+    // Add parent (if exists and not already shown as Genesis)
+    if (userPosition > 1 && parentPosition != 1) {
+      visibleMembers.add(ChainMember(
+        displayName: 'Member #$parentPosition',
+        chainKey: 'CHAIN${parentPosition.toString().padLeft(7, '0')}',
+        position: parentPosition,
         status: 'active',
         isCurrentUser: false,
-      ),
-      // Current user (middle - position 3)
-      ChainMember(
-        displayName: currentUser.displayName,
-        chainKey: currentUser.chainKey,
-        position: currentUser.position,
-        status: currentUser.status,
-        isCurrentUser: true,
-      ),
-      // Child (1 level down)
-      ChainMember(
-        displayName: 'Emma Rodriguez',
-        chainKey: 'CHAIN0000127',
-        position: currentUser.position + 1,
+      ));
+    }
+
+    // Add current user
+    visibleMembers.add(ChainMember(
+      displayName: currentUser.displayName,
+      chainKey: currentUser.chainKey,
+      position: userPosition,
+      status: userPosition == _totalChainLength ? 'tip' : currentUser.status,
+      isCurrentUser: true,
+    ));
+
+    // Add child (if exists and not the TIP)
+    final childPosition = userPosition + 1;
+    if (childPosition <= _totalChainLength && childPosition != _totalChainLength) {
+      visibleMembers.add(ChainMember(
+        displayName: 'Member #$childPosition',
+        chainKey: 'CHAIN${childPosition.toString().padLeft(7, '0')}',
+        position: childPosition,
         status: 'active',
         isCurrentUser: false,
-      ),
-      // Grandchild (2 levels down)
-      ChainMember(
-        displayName: 'James Wilson',
-        chainKey: 'CHAIN0000231',
-        position: currentUser.position + 2,
-        status: 'active',
+      ));
+    }
+
+    // Calculate if we need ellipsis below
+    _hiddenMembersBelow = math.max(0, _totalChainLength - childPosition - 1); // -1 because we show TIP separately
+
+    // Always add the TIP if it's not the user or child
+    if (_totalChainLength > userPosition + 1) {
+      visibleMembers.add(ChainMember(
+        displayName: 'Current TIP',
+        chainKey: 'CHAIN${_totalChainLength.toString().padLeft(7, '0')}',
+        position: _totalChainLength,
+        status: 'tip',
         isCurrentUser: false,
-      ),
-    ];
+      ));
+    }
+
+    // Add ghost slot if user is near the tip
+    if (userPosition >= _totalChainLength - 1) {
+      visibleMembers.add(ChainMember(
+        displayName: 'Waiting for invitation...',
+        chainKey: '---',
+        position: _totalChainLength + 1,
+        status: 'ghost',
+        isCurrentUser: false,
+      ));
+    }
+
+    return visibleMembers;
+  }
+
+  /// Calculate which members should be visible in the 5-member window
+  Map<String, int> _calculateVisibleWindow(int userPosition, int totalLength) {
+    const int WINDOW_SIZE = 5;
+
+    int startPos, endPos;
+    int hiddenAbove = 0;
+    int hiddenBelow = 0;
+
+    // Special cases for small chains
+    if (totalLength <= WINDOW_SIZE) {
+      startPos = 1;
+      endPos = totalLength;
+
+      // Add ghost slot if chain is small
+      if (totalLength < WINDOW_SIZE) {
+        endPos = totalLength + 1; // Include ghost position
+      }
+    } else {
+      // Calculate optimal window for larger chains
+
+      // Try to center user (position 3 of 5)
+      int idealStart = userPosition - 2;
+      int idealEnd = userPosition + 2;
+
+      // Adjust for boundaries
+      if (idealStart < 1) {
+        // User near beginning
+        startPos = 1;
+        endPos = WINDOW_SIZE;
+      } else if (idealEnd > totalLength) {
+        // User near end
+        startPos = math.max(1, totalLength - WINDOW_SIZE + 1);
+        endPos = totalLength;
+
+        // Include ghost if user is very close to the tip
+        if (userPosition >= totalLength - 1) {
+          endPos = totalLength + 1; // Show ghost slot
+          startPos = math.max(1, endPos - WINDOW_SIZE + 1);
+        }
+      } else {
+        // User in middle - perfect centering
+        startPos = idealStart;
+        endPos = idealEnd;
+      }
+
+      // Calculate hidden members
+      hiddenAbove = math.max(0, startPos - 1);
+      hiddenBelow = math.max(0, totalLength - endPos);
+    }
+
+    return {
+      'startPos': startPos,
+      'endPos': endPos,
+      'hiddenAbove': hiddenAbove,
+      'hiddenBelow': hiddenBelow,
+    };
   }
 
   Future<void> _logout() async {
@@ -263,26 +367,90 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Build chain members with connecting arrows
+  /// Build chain members with connecting arrows and ellipsis for hidden sections
   List<Widget> _buildChainWithArrows() {
     final List<Widget> widgets = [];
 
+    // Build visible chain members with ellipsis inserted at the right position
     for (int i = 0; i < _chainMembers.length; i++) {
       final member = _chainMembers[i];
 
-      // Add person card
+      // Determine the card type based on status and properties
+      ChainCardType cardType = _determineCardType(member);
+
+      // Add the unified ChainMemberCard
       widgets.add(
-        PersonCard(
+        ChainMemberCard(
+          type: cardType,
           displayName: member.displayName,
           chainKey: member.chainKey,
           position: member.position,
           isCurrentUser: member.isCurrentUser,
-          status: member.status,
+          pendingTimeRemaining: member.status == 'pending'
+              ? const Duration(hours: 23) // Mock countdown
+              : null,
+          milestoneNumber: _isMilestonePosition(member.position)
+              ? member.position
+              : null,
+          onTap: () {
+            _handleCardTap(member);
+          },
         ),
       );
 
-      // Add arrow between cards (except after the last one)
+      // Add arrow or ellipsis between cards
       if (i < _chainMembers.length - 1) {
+        final nextMember = _chainMembers[i + 1];
+
+        // Check if we need ellipsis after Genesis (position 1) and before next member
+        if (member.position == 1 && _hiddenMembersAbove > 0) {
+          widgets.add(_buildArrow()); // Arrow after Genesis
+
+          final int startOfHidden = 2; // Start after Genesis
+          final int endOfHidden = nextMember.position - 1; // End before next member
+
+          widgets.add(
+            ChainEllipsisLink(
+              memberCount: _hiddenMembersAbove,
+              isAbove: true,
+              startPosition: startOfHidden,
+              endPosition: endOfHidden,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$_hiddenMembersAbove members (#$startOfHidden - #$endOfHidden)'),
+                    backgroundColor: const Color(0xFF7C3AED),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+        // Check if we need ellipsis between current member and TIP
+        else if (_hiddenMembersBelow > 0 && nextMember.status == 'tip') {
+          widgets.add(_buildArrow()); // Arrow after current member
+
+          final int startOfHidden = member.position + 1;
+          final int endOfHidden = nextMember.position - 1;
+
+          widgets.add(
+            ChainEllipsisLink(
+              memberCount: _hiddenMembersBelow,
+              isAbove: false,
+              startPosition: startOfHidden,
+              endPosition: endOfHidden,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$_hiddenMembersBelow members (#$startOfHidden - #$endOfHidden)'),
+                    backgroundColor: const Color(0xFF7C3AED),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+
         widgets.add(_buildArrow());
       }
     }
@@ -334,6 +502,95 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Determine the appropriate card type based on member status and properties
+  ChainCardType _determineCardType(ChainMember member) {
+    // Check for special positions first
+    if (member.position == 1 || member.status == 'seed') {
+      return ChainCardType.genesis;
+    }
+
+    // Check for milestone positions (100, 1000, 10000)
+    if (_isMilestonePosition(member.position)) {
+      return ChainCardType.milestone;
+    }
+
+    // Current user gets special treatment
+    if (member.isCurrentUser) {
+      return ChainCardType.currentUser;
+    }
+
+    // Check status-based types
+    switch (member.status) {
+      case 'tip':
+        return ChainCardType.tip;
+      case 'pending':
+        return ChainCardType.pending;
+      case 'ghost':
+        return ChainCardType.ghost;
+      case 'wasted':
+        return ChainCardType.wasted;
+      case 'active':
+      default:
+        return ChainCardType.active;
+    }
+  }
+
+  /// Check if a position is a milestone (100, 1000, 10000, etc.)
+  bool _isMilestonePosition(int position) {
+    return position == 100 ||
+           position == 1000 ||
+           position == 10000 ||
+           position == 100000;
+  }
+
+  /// Handle tap events on chain member cards
+  void _handleCardTap(ChainMember member) {
+    String message;
+    Color snackBarColor;
+
+    switch (member.status) {
+      case 'tip':
+        message = 'This is the chain TIP - they can invite the next member';
+        snackBarColor = const Color(0xFF10B981);
+        break;
+      case 'pending':
+        message = 'Invitation pending for position #${member.position}';
+        snackBarColor = const Color(0xFFF59E0B);
+        break;
+      case 'ghost':
+        message = 'Waiting for the TIP to send an invitation';
+        snackBarColor = const Color(0xFF6B7280);
+        break;
+      case 'wasted':
+        message = 'Invitation expired at position #${member.position}';
+        snackBarColor = const Color(0xFFEF4444);
+        break;
+      case 'seed':
+        message = 'Genesis member - the beginning of The Chain';
+        snackBarColor = const Color(0xFFFFD700);
+        break;
+      default:
+        if (member.isCurrentUser) {
+          message = 'This is you! Position #${member.position} in The Chain';
+          snackBarColor = const Color(0xFF7C3AED);
+        } else {
+          message = 'Member #${member.position} - ${member.displayName}';
+          snackBarColor = const Color(0xFF374151);
+        }
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: snackBarColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }
