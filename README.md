@@ -1,5 +1,7 @@
 # The Chain
 
+> 🚨 **AI ASSISTANTS: Start here → [CLAUDE_START_HERE.md](CLAUDE_START_HERE.md)** - Critical context and orchestrator system guide
+
 > "Grow with solidarity and trust. A social experiment."
 
 A viral social network where participants form a single, global chain by inviting one person each through time-limited QR code tickets.

@@ -88,6 +88,43 @@
 ./.claude/tools/orchestrator-log --role test-master --status in_progress ...
 ```
 
+### ⚠️ CRITICAL: Always Wear the Right Hat for the Task!
+**You MUST switch hats when the task domain changes:**
+
+❌ **WRONG Examples:**
+- Wearing `ui-designer` hat while working on deployment
+- Wearing `backend-engineer` hat while designing UI mockups
+- Wearing `devops-lead` hat while writing database queries
+
+✅ **CORRECT Examples:**
+- UI work → Switch to `ui-designer` hat
+- Deployment → Switch to `devops-lead` hat
+- API coding → Switch to `senior-backend-engineer` hat
+- Database design → Switch to `principal-database-architect` hat
+
+**Why?** Each hat provides domain-specific expertise. Wrong hat = wrong knowledge applied!
+
+### 🔄 IMPORTANT: Transition to Related Hat After Task Completion!
+**After completing a task, DON'T stop - transition to a related hat:**
+
+**Natural Hat Progressions:**
+- `senior-backend-engineer` done → Switch to `test-master` (write tests)
+- `ui-designer` done → Switch to `web-dev-master` (implement design)
+- `principal-database-architect` done → Switch to `senior-backend-engineer` (integrate)
+- `test-master` done → Switch to `devops-lead` (prepare deployment)
+- `devops-lead` done → Switch to `project-manager` (update status)
+
+**Example Workflow:**
+```bash
+# Complete backend task
+./.claude/tools/orchestrator-log --role senior-backend-engineer --status done "API complete"
+
+# Immediately switch to testing
+./.claude/tools/orchestrator-log --role test-master --status in_progress "Writing API tests"
+```
+
+**Why?** Maintains momentum, preserves context, and ensures comprehensive task completion!
+
 ---
 
 ## Valid Values Cheat Sheet

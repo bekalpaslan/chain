@@ -232,6 +232,62 @@ if [ -n "$ROLE" ] && [ "$ROLE" != "null" ] && [ -f ".claude/tools/update-status-
   fi
 fi
 
+# 6. Update hat usage statistics
+if [ -f ".claude/tools/update-hat-usage.ps1" ]; then
+  # Determine execution mode
+  EXECUTION_MODE="orchestrator"
+  if [ "$DELEGATION" = true ]; then
+    EXECUTION_MODE="spawned_agent"
+  fi
+
+  # Check if we're on Windows (has powershell)
+  if command -v powershell.exe &> /dev/null; then
+    # Handle session tracking based on status
+    if [ -n "$ROLE" ] && [ "$ROLE" != "null" ]; then
+      TASK_PARAM=""
+      [ -n "$TASK" ] && TASK_PARAM="-Task \"$TASK\""
+
+      # Check if this is the first log for this role (start session)
+      # Simple heuristic: if status is in_progress and we haven't seen this role recently
+      if [ "$STATUS" = "in_progress" ] || [ "$STATUS" = "working" ]; then
+        # Try to start a session (script will handle if already started)
+        powershell.exe -ExecutionPolicy Bypass -File .claude/tools/update-hat-usage.ps1 \
+          -Role "$ROLE" \
+          -Status "$STATUS" \
+          -ExecutionMode "$EXECUTION_MODE" \
+          -StartSession \
+          $TASK_PARAM 2>/dev/null || true
+      elif [ "$STATUS" = "done" ]; then
+        # End session and mark task complete
+        powershell.exe -ExecutionPolicy Bypass -File .claude/tools/update-hat-usage.ps1 \
+          -Role "$ROLE" \
+          -Status "$STATUS" \
+          -ExecutionMode "$EXECUTION_MODE" \
+          -EndSession \
+          $TASK_PARAM 2>/dev/null || true
+      else
+        # Just update without session changes
+        powershell.exe -ExecutionPolicy Bypass -File .claude/tools/update-hat-usage.ps1 \
+          -Role "$ROLE" \
+          -Status "$STATUS" \
+          -ExecutionMode "$EXECUTION_MODE" \
+          $TASK_PARAM 2>/dev/null || true
+      fi
+    elif [ "$DELEGATION" = true ] && [ -n "$DELEGATED_TO" ]; then
+      # Track delegation to spawned agent
+      TASK_PARAM=""
+      [ -n "$TASK" ] && TASK_PARAM="-Task \"$TASK\""
+
+      powershell.exe -ExecutionPolicy Bypass -File .claude/tools/update-hat-usage.ps1 \
+        -Role "$DELEGATED_TO" \
+        -Status "$STATUS" \
+        -ExecutionMode "spawned_agent" \
+        -StartSession \
+        $TASK_PARAM 2>/dev/null || true
+    fi
+  fi
+fi
+
 # Success output with emoji and color
 if [ "$DELEGATION" = true ]; then
   echo -e "${BLUE}📤 Delegation logged:${NC} $MESSAGE"

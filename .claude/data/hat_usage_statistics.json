@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created_at": "2025-10-11T00:00:00Z",
+    "last_updated": "2025-10-11T00:00:00Z",
+    "description": "Tracks usage statistics for each orchestrator agent hat"
+  },
+  "hat_statistics": {
+    "project-manager": {
+      "display_name": "Project Manager",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#9b59b6"
+    },
+    "solution-architect": {
+      "display_name": "Solution Architect",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#34495e"
+    },
+    "senior-backend-engineer": {
+      "display_name": "Senior Backend Engineer",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#2ecc71"
+    },
+    "principal-database-architect": {
+      "display_name": "Principal Database Architect",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#3498db"
+    },
+    "test-master": {
+      "display_name": "Test Master",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#e74c3c"
+    },
+    "devops-lead": {
+      "display_name": "DevOps Lead",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#f39c12"
+    },
+    "ui-designer": {
+      "display_name": "UI Designer",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#e91e63"
+    },
+    "web-dev-master": {
+      "display_name": "Web Dev Master",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#00bcd4"
+    },
+    "senior-mobile-developer": {
+      "display_name": "Senior Mobile Developer",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#4caf50"
+    },
+    "scrum-master": {
+      "display_name": "Scrum Master",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#ff9800"
+    },
+    "opportunist-strategist": {
+      "display_name": "Opportunist Strategist",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#795548"
+    },
+    "psychologist-game-dynamics": {
+      "display_name": "Psychologist Game Dynamics",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#9c27b0"
+    },
+    "game-theory-master": {
+      "display_name": "Game Theory Master",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#673ab7"
+    },
+    "legal-software-advisor": {
+      "display_name": "Legal Software Advisor",
+      "total_sessions": 0,
+      "total_duration_minutes": 0,
+      "last_worn": null,
+      "tasks_completed": 0,
+      "average_session_minutes": 0,
+      "color": "#607d8b"
+    }
+  },
+  "daily_breakdown": {},
+  "task_associations": {},
+  "session_history": [],
+  "execution_mode_stats": {
+    "orchestrator_wearing_hat": {
+      "total_sessions": 0,
+      "total_tasks": 0,
+      "description": "Work done by orchestrator wearing different expertise hats"
+    },
+    "spawned_agent": {
+      "total_sessions": 0,
+      "total_tasks": 0,
+      "description": "Work delegated to sandboxed agents via Task tool"
+    }
+  }
+}

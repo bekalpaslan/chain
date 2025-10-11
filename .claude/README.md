@@ -2,9 +2,11 @@
 
 ## 🚨 STOP - READ THIS FIRST
 
-### ➤ **[WELCOME_ORCHESTRATOR.md](WELCOME_ORCHESTRATOR.md)** ← **START HERE!**
+### ⚡ **[CLAUDE_START_HERE.md](../CLAUDE_START_HERE.md)** ← **ABSOLUTE FIRST READ!**
+**Critical project context and confusion prevention. Start here to avoid major mistakes.**
 
-**This file establishes your identity. You MUST read it first to understand that you ARE the orchestrator, not a user of the system.**
+### ➤ **[WELCOME_ORCHESTRATOR.md](WELCOME_ORCHESTRATOR.md)** ← **THEN READ THIS**
+**This file establishes your identity. You MUST read it to understand that you ARE the orchestrator, not a user of the system.**
 
 ---
 
