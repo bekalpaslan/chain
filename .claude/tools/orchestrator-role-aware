@@ -1,0 +1,199 @@
+#!/bin/bash
+#
+# orchestrator-role-aware - Enhanced orchestrator that READS agent descriptions
+#
+# This version actually loads and displays agent role information when wearing a hat,
+# making it a true "role adoption" system rather than just logging labels.
+#
+# Usage:
+#   orchestrator-role-aware log --role <agent> [options] "message"
+#   orchestrator-role-aware show-role <agent>
+#
+
+set -euo pipefail
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+# Paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENTS_DIR="$(dirname "$SCRIPT_DIR")/agents"
+ORCHESTRATOR_LOG="$SCRIPT_DIR/orchestrator-log"
+
+# Function: Read agent description from .md file
+read_agent_role() {
+    local role="$1"
+    local agent_file="$AGENTS_DIR/${role}.md"
+
+    if [ ! -f "$agent_file" ]; then
+        echo -e "${RED}Warning: Agent file not found: ${agent_file}${NC}" >&2
+        return 1
+    fi
+
+    # Extract key information from agent file
+    local description=$(grep "^description:" "$agent_file" 2>/dev/null | cut -d'"' -f2)
+    local tools=$(grep "^tools:" "$agent_file" 2>/dev/null | sed 's/tools: //')
+    local expertise=$(grep "^expertise_tags:" "$agent_file" 2>/dev/null | sed 's/expertise_tags: //')
+
+    # Extract responsibilities section (between ### Responsibilities and next ###)
+    local responsibilities=$(awk '/### Responsibilities:/,/^###/{if (!/^###/) print}' "$agent_file" | tail -n +2 | head -n -1)
+
+    echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}   🎭 WEARING HAT: ${role}${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
+
+    if [ -n "$description" ]; then
+        echo -e "${YELLOW}Description:${NC}"
+        echo "  $description"
+        echo ""
+    fi
+
+    if [ -n "$responsibilities" ]; then
+        echo -e "${YELLOW}Responsibilities:${NC}"
+        echo "$responsibilities" | sed 's/^/  /'
+        echo ""
+    fi
+
+    if [ -n "$tools" ]; then
+        echo -e "${YELLOW}Required Tools:${NC}"
+        echo "  $tools"
+        echo ""
+    fi
+
+    if [ -n "$expertise" ]; then
+        echo -e "${YELLOW}Expertise:${NC}"
+        echo "  $expertise"
+        echo ""
+    fi
+
+    echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
+    echo ""
+}
+
+# Function: Enhanced logging with role awareness
+log_with_role() {
+    local role=""
+    local show_role_info=true
+    local prev_arg=""
+
+    # Extract role from arguments
+    for arg in "$@"; do
+        if [ "$prev_arg" = "--role" ]; then
+            role="$arg"
+            break
+        fi
+        prev_arg="$arg"
+    done
+
+    # If a role is specified, show role information
+    if [ -n "$role" ]; then
+        # Check if we should suppress role info (for repeated logs)
+        if [ "${ORCHESTRATOR_SUPPRESS_ROLE_INFO:-}" != "true" ]; then
+            read_agent_role "$role"
+
+            echo -e "${MAGENTA}💡 Role Reminder:${NC}"
+            echo -e "   You are now operating as ${GREEN}$role${NC}"
+            echo -e "   Review the responsibilities above before proceeding."
+            echo ""
+
+            # Check if this is a context switch
+            if [ -f "$SCRIPT_DIR/../.current_role" ]; then
+                current_role=$(cat "$SCRIPT_DIR/../.current_role")
+                if [ "$current_role" != "$role" ]; then
+                    echo -e "${YELLOW}⚠️  Context Switch:${NC} Previous role was ${current_role}"
+                    echo -e "   Ensure you've completed or handed off previous work."
+                    echo ""
+                fi
+            fi
+
+            # Save current role
+            echo "$role" > "$SCRIPT_DIR/../.current_role"
+        fi
+    fi
+
+    # Pass through to original orchestrator-log
+    "$ORCHESTRATOR_LOG" "$@"
+}
+
+# Function: Show role details
+show_role() {
+    local role="$1"
+
+    if [ -z "$role" ]; then
+        echo -e "${RED}Error: Please specify a role${NC}" >&2
+        echo "Usage: orchestrator-role-aware show-role <agent-name>" >&2
+        exit 1
+    fi
+
+    read_agent_role "$role"
+
+    echo -e "${GREEN}To adopt this role, use:${NC}"
+    echo "  ./orchestrator-role-aware log --role $role --status in_progress \"Your message\""
+    echo ""
+}
+
+# Function: List all available roles
+list_roles() {
+    echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}   Available Agent Roles${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
+    echo ""
+
+    for agent_file in "$AGENTS_DIR"/*.md; do
+        if [ -f "$agent_file" ]; then
+            basename=$(basename "$agent_file" .md)
+            description=$(grep "^description:" "$agent_file" 2>/dev/null | cut -d'"' -f2)
+
+            # Format and truncate description to fit in terminal
+            if [ -n "$description" ]; then
+                description="${description:0:50}..."
+            else
+                description="No description available"
+            fi
+
+            printf "  ${GREEN}%-30s${NC} %s\n" "$basename" "$description"
+        fi
+    done
+
+    echo ""
+    echo -e "${YELLOW}Use 'show-role <name>' to see full details of any role${NC}"
+}
+
+# Main command handler
+main() {
+    if [ $# -eq 0 ]; then
+        echo -e "${RED}Error: No command provided${NC}" >&2
+        echo "Usage:" >&2
+        echo "  orchestrator-role-aware log --role <agent> [options] \"message\"" >&2
+        echo "  orchestrator-role-aware show-role <agent>" >&2
+        echo "  orchestrator-role-aware list-roles" >&2
+        exit 1
+    fi
+
+    command="$1"
+    shift
+
+    case "$command" in
+        log)
+            log_with_role "$@"
+            ;;
+        show-role)
+            show_role "$@"
+            ;;
+        list-roles)
+            list_roles
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown command '$command'${NC}" >&2
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

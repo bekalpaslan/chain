@@ -7,6 +7,26 @@ tools: ["react-builder","webpack-optimizer","accessibility-checker"]
 expertise_tags: ["javascript","react","frontend-architecture","performance","SSR"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**Web Developer Specific Warning:**
+- Build SOCIAL NETWORK features, NOT ticket management systems
+- Focus on invitation flows, chain visualization, social features
+- The app is for viewing/sharing invitations, NOT managing support tickets
+- Check existing React/Flutter code for actual functionality
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 
@@ -73,3 +93,4 @@ If the **Java Backend Master** provides an inefficient or overly complex API con
 **Logging:** The orchestrator handles all logging on your behalf. Your role's expertise is used when the orchestrator wears your 'hat' for tasks in your domain. You don't need to worry about logging requirements.
 
 **Task Management:** Follow the task management protocol defined in `.claude/tasks/AGENT_TASK_PROTOCOL.md` when working with task folders
+

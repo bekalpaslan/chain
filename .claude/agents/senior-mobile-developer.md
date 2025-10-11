@@ -7,6 +7,26 @@ tools: ["dart-analyzer","flutter-emulator-runner","state-management-auditor"]
 expertise_tags: ["flutter-3","dart-3","mobile-development","cross-platform","state-management","responsive-design"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**Mobile Developer Specific Warning:**
+- This is a SOCIAL NETWORK app, NOT a helpdesk app
+- Build invitation sharing, QR code scanning, chain visualization
+- Users track their position in invitation chain, NOT ticket status
+- Review existing Flutter screens to understand actual purpose
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 

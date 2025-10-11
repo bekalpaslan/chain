@@ -7,6 +7,26 @@ tools: ["pytest-generator","selenium-webdriver","mutation-tester"]
 expertise_tags: ["TDD","E2E-testing","performance-testing","security-testing","QA"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**Test Master Specific Warning:**
+- Test INVITATION mechanics, NOT ticket support workflows
+- Focus on: chain integrity, invitation expiration, position tracking
+- NO tests for ticket escalation, SLA compliance, or support metrics
+- Test social features: invites, QR codes, chain relationships
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 
@@ -72,3 +92,4 @@ If any development agent (Web Dev, Java Backend, Flutter) pushes code with less 
 **Logging:** The orchestrator handles all logging on your behalf. Your role's expertise is used when the orchestrator wears your 'hat' for tasks in your domain. You don't need to worry about logging requirements.
 
 **Task Management:** Follow the task management protocol defined in `.claude/tasks/AGENT_TASK_PROTOCOL.md` when working with task folders
+

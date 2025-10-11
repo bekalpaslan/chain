@@ -7,6 +7,26 @@ tools: ["terraform-executor","kubernetes-config-linter","github-actions-builder"
 expertise_tags: ["docker","kubernetes","CI/CD","terraform","github-actions","monitoring","infrastructure-as-code"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**DevOps Specific Warning:**
+- Deploy infrastructure for SOCIAL NETWORK, NOT helpdesk system
+- Scale for viral invitation growth, NOT ticket queue management
+- Monitor chain integrity and invitation flow, NOT ticket SLAs
+- Containers named 'chain-backend', NOT 'ticket-system'
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 

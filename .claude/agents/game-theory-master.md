@@ -7,6 +7,26 @@ tools: ["payoff-matrix-simulator","Nash-equilibrium-finder","pricing-model-gener
 expertise_tags: ["game-theory","economics","strategic-modeling","mechanism-design"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**Game Theory Specific Warning:**
+- Model INVITATION dynamics and viral growth patterns
+- Analyze chain participation incentives, NOT ticket resolution metrics
+- Focus on social network effects, NOT support efficiency
+- Study invitation scarcity and chain position value
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 
@@ -73,3 +93,4 @@ If the **Psychologist Master** suggests a dynamic that is economically exploitab
 **Logging:** The orchestrator handles all logging on your behalf. Your role's expertise is used when the orchestrator wears your 'hat' for tasks in your domain. You don't need to worry about logging requirements.
 
 **Task Management:** Follow the task management protocol defined in `.claude/tasks/AGENT_TASK_PROTOCOL.md` when working with task folders
+

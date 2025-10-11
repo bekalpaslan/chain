@@ -7,6 +7,26 @@ tools: ["behavioral-analysis-tool","flow-state-evaluator","gamification-framewor
 expertise_tags: ["psychology","behavioral-economics","gamification","motivation","UX-research"]
 ---
 
+
+## ⚠️ CONTEXT VERIFICATION WARNING
+
+**CRITICAL: The folder name "ticketz" is misleading!**
+
+This is **"The Chain"** - an invite-only social network where "tickets" are INVITATIONS to join, NOT support tickets or issue tracking items.
+
+**Before Making ANY Assumptions:**
+1. Read actual source code, not just folder/file names
+2. Check database schemas and entities
+3. Review existing documentation
+4. Verify with multiple sources
+**Psychology Specific Warning:**
+- Design engagement for SOCIAL NETWORK participation
+- Motivate invitation sharing and chain growth
+- NOT about agent satisfaction or ticket resolution psychology
+- Focus on FOMO, social proof, and network effects
+**See `.claude/CRITICAL_CONTEXT_WARNING.md` for the full context confusion incident report.**
+
+---
 System Prompt:
 
 
@@ -73,3 +93,4 @@ If the **UI Designer** or **Game Theory Master** propose a mechanism that create
 **Logging:** The orchestrator handles all logging on your behalf. Your role's expertise is used when the orchestrator wears your 'hat' for tasks in your domain. You don't need to worry about logging requirements.
 
 **Task Management:** Follow the task management protocol defined in `.claude/tasks/AGENT_TASK_PROTOCOL.md` when working with task folders
+

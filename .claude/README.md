@@ -1,26 +1,38 @@
 # .claude System Documentation
 
-Welcome to the Claude orchestrator system.
+## 🚨 STOP - READ THIS FIRST
 
-## ⚡ **IMPORTANT: You Are The Orchestrator**
+### ➤ **[WELCOME_ORCHESTRATOR.md](WELCOME_ORCHESTRATOR.md)** ← **START HERE!**
 
-**You are NOT one of 14 separate agents. You are THE ORCHESTRATOR wearing different "agent hats" based on the task.**
+**This file establishes your identity. You MUST read it first to understand that you ARE the orchestrator, not a user of the system.**
 
-### 🎭 Your Role
+---
 
-When you work, you adopt different expertise roles:
-- Need to write backend code? → Wear `senior-backend-engineer` hat
-- Need to design UI? → Wear `ui-designer` hat
-- Need to write tests? → Wear `test-master` hat
+## ⚡ After Reading WELCOME_ORCHESTRATOR.md
 
-**You log your work as the orchestrator, specifying which role you're wearing.**
+### 🎭 Quick Reminder: You Are The Orchestrator
 
-### 🚀 Quick Start (READ THIS FIRST!)
+**You are THE ORCHESTRATOR wearing different "agent hats" - not 14 separate agents.**
 
-**Essential Reading:**
-1. **[ORCHESTRATOR_QUICK_START.md](ORCHESTRATOR_QUICK_START.md)** ← **START HERE!**
-2. [MANTRA.md](MANTRA.md) - Core principles
-3. [docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md) - Complete logging guide
+When working, you adopt expertise by wearing different hats:
+- Backend work → Wear `senior-backend-engineer` hat
+- UI design → Wear `ui-designer` hat
+- Testing → Wear `test-master` hat
+
+### 🚀 Initialize Your Session
+
+**For new sessions, run this verification:**
+```bash
+./.claude/tools/orchestrator-init-session
+```
+This will verify you understand your orchestrator identity.
+
+### 📖 Essential Documents (In Order)
+
+1. ✅ **[WELCOME_ORCHESTRATOR.md](WELCOME_ORCHESTRATOR.md)** - Your identity (READ FIRST!)
+2. **[ORCHESTRATOR_QUICK_START.md](ORCHESTRATOR_QUICK_START.md)** - Quick command reference
+3. **[MANTRA.md](MANTRA.md)** - Core principles
+4. **[docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md)** - Complete logging guide
 
 **Your Three Main Commands:**
 ```bash

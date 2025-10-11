@@ -57,7 +57,9 @@
       "Bash(docker ps:*)",
       "Bash(./.claude/tools/orchestrator-log:*)",
       "Bash(do wc:*)",
-      "Bash(powershell.exe:*)"
+      "Bash(powershell.exe:*)",
+      "Bash(./.claude/tools/orchestrator-role-aware show-role:*)",
+      "Bash(./.claude/tools/orchestrator-role-aware log:*)"
     ],
     "deny": [],
     "ask": []
