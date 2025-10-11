@@ -143,13 +143,14 @@ services:
   admin-dashboard:
     build:
       context: ./frontend/admin_dashboard
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.multistage
     container_name: chain-admin-dashboard
     ports:
       - "${ADMIN_DASHBOARD_PORT:-3002}:8080"
     environment:
       - API_BASE_URL=${API_BASE_URL:-http://backend:8080}
     volumes:
+      - ./.claude/data/project_health.json:/usr/share/nginx/html/assets/data/project_health.json:ro
       - ./.claude/status.json:/usr/share/nginx/html/status.json:ro
     depends_on:
       backend:

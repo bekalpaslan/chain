@@ -1,6 +1,6 @@
 # The Chain
 
-> "Keep the Chain Alive."
+> "Grow with solidarity and trust. A social experiment."
 
 A viral social network where participants form a single, global chain by inviting one person each through time-limited QR code tickets.
 

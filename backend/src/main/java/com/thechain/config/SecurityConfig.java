@@ -71,6 +71,9 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
 
+                // Temporary password endpoint for development
+                .requestMatchers("/temp/**").permitAll()
+
                 // OpenAPI documentation endpoints
                 .requestMatchers("/api-docs/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()

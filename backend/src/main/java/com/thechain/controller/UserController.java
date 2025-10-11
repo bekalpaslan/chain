@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,10 +53,9 @@ public class UserController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    public ResponseEntity<UserProfileResponse> getCurrentUser(
-        @Parameter(description = "User ID from JWT token", required = true, hidden = true)
-        @RequestHeader("X-User-Id") UUID userId
-    ) {
+    public ResponseEntity<UserProfileResponse> getCurrentUser(Authentication authentication) {
+        // Get user ID from SecurityContext (set by JwtAuthenticationFilter)
+        UUID userId = (UUID) authentication.getPrincipal();
         UserProfileResponse profile = userService.getUserProfile(userId);
         return ResponseEntity.ok(profile);
     }
@@ -83,10 +83,9 @@ public class UserController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    public ResponseEntity<List<UserChainResponse>> getMyChain(
-        @Parameter(description = "User ID from JWT token", required = true, hidden = true)
-        @RequestHeader("X-User-Id") UUID userId
-    ) {
+    public ResponseEntity<List<UserChainResponse>> getMyChain(Authentication authentication) {
+        // Get user ID from SecurityContext (set by JwtAuthenticationFilter)
+        UUID userId = (UUID) authentication.getPrincipal();
         List<UserChainResponse> chain = userService.getUserChain(userId);
         return ResponseEntity.ok(chain);
     }

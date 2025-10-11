@@ -36,6 +36,12 @@ class DarkMystiqueTheme {
   static const Color warningAura = Color(0xFFF59E0B);
   static const Color errorPulse = Color(0xFFEF4444);
 
+  // Aliases for common usage
+  static const Color success = successGlow;
+  static const Color warning = warningAura;
+  static const Color error = errorPulse;
+  static const Color primary = mysticViolet;
+
   // ============================================================================
   // AGENT STATUS COLORS - Material Design Palette
   // For visual status indicators with high contrast and accessibility

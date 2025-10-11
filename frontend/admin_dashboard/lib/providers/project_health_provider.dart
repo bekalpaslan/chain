@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import '../models/project_health.dart';
@@ -100,11 +101,11 @@ class ProjectHealthProvider with ChangeNotifier {
   /// Get color for completion score
   Color getScoreColor(double score) {
     if (score >= 7.0) {
-      return const Color(0xFF4CAF50); // Green
+      return Color(0xFF4CAF50); // Green
     } else if (score >= 5.0) {
-      return const Color(0xFFFFC107); // Yellow/Amber
+      return Color(0xFFFFC107); // Yellow/Amber
     } else {
-      return const Color(0xFFF44336); // Red
+      return Color(0xFFF44336); // Red
     }
   }
 

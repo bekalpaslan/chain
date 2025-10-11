@@ -258,4 +258,78 @@ class UserRepositoryTest {
         assertThat(tip.get().getPosition()).isEqualTo(3);
         assertThat(tip.get().getStatus()).isIn("active", "seed");
     }
+
+    @Test
+    void findCurrentTipOptimized_ReturnsUserWithHighestPositionAndNoActiveChild() {
+        // When
+        Optional<User> tip = userRepository.findCurrentTipOptimized();
+
+        // Then
+        assertThat(tip).isPresent();
+        assertThat(tip.get().getPosition()).isEqualTo(3);
+        assertThat(tip.get().getChainKey()).isEqualTo("TEST00000003");
+        assertThat(tip.get().getActiveChildId()).isNull(); // No child yet
+    }
+
+    @Test
+    void findCurrentTipOptimized_OnlyConsidersActiveSeedStatus() {
+        // Given - Create a deleted user with higher position
+        User deletedUser = User.builder()
+                .chainKey("TEST00000004")
+                .displayName("Deleted User")
+                .position(4)
+                .username("deleteduser")
+                .passwordHash("$2a$10$hashedPassword4")
+                .status("removed")
+                .createdAt(Instant.now())
+                .deletedAt(Instant.now())
+                .build();
+        entityManager.persistAndFlush(deletedUser);
+
+        // When
+        Optional<User> tip = userRepository.findCurrentTipOptimized();
+
+        // Then - Should still return position 3, not the deleted user
+        assertThat(tip).isPresent();
+        assertThat(tip.get().getPosition()).isEqualTo(3);
+        assertThat(tip.get().getStatus()).isIn("active", "seed");
+    }
+
+    @Test
+    void findCurrentTipOptimized_PerformanceTest_DoesNotLoadAllUsers() {
+        // Given - Create many additional users (simulate large chain)
+        for (int i = 4; i <= 100; i++) {
+            User user = User.builder()
+                    .chainKey("TEST" + String.format("%08d", i))
+                    .displayName("Test User " + i)
+                    .position(i)
+                    .username("testuser" + i)
+                    .passwordHash("$2a$10$hashedPassword" + i)
+                    .status(i % 10 == 0 ? "removed" : "active")
+                    .createdAt(Instant.now())
+                    .build();
+            entityManager.persist(user);
+
+            if (i % 20 == 0) {
+                entityManager.flush();
+                entityManager.clear(); // Clear to avoid memory issues
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+
+        // When - This should execute a single query, not load all 100 users
+        long startTime = System.currentTimeMillis();
+        Optional<User> tip = userRepository.findCurrentTipOptimized();
+        long queryTime = System.currentTimeMillis() - startTime;
+
+        // Then
+        assertThat(tip).isPresent();
+        assertThat(tip.get().getPosition()).isGreaterThanOrEqualTo(90); // Should be near position 100
+        assertThat(tip.get().getStatus()).isIn("active", "seed");
+
+        // Query should be fast (< 100ms even with 100 users)
+        // In production with proper indexes, this should be < 10ms even with 100K users
+        assertThat(queryTime).isLessThan(100L);
+    }
 }

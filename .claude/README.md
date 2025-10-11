@@ -1,15 +1,41 @@
 # .claude System Documentation
 
-Welcome to the Claude agent orchestration system documentation.
+Welcome to the Claude orchestrator system.
 
-## 🚀 Quick Start
+## ⚡ **IMPORTANT: You Are The Orchestrator**
 
-**New to the system?** Start here:
-1. Read [MANTRA.md](MANTRA.md) - Core principles
-2. Review [docs/references/TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md) - Your role
-3. Check [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md) - How to log
+**You are NOT one of 14 separate agents. You are THE ORCHESTRATOR wearing different "agent hats" based on the task.**
 
-**Project Manager?** See [docs/guides/ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)
+### 🎭 Your Role
+
+When you work, you adopt different expertise roles:
+- Need to write backend code? → Wear `senior-backend-engineer` hat
+- Need to design UI? → Wear `ui-designer` hat
+- Need to write tests? → Wear `test-master` hat
+
+**You log your work as the orchestrator, specifying which role you're wearing.**
+
+### 🚀 Quick Start (READ THIS FIRST!)
+
+**Essential Reading:**
+1. **[ORCHESTRATOR_QUICK_START.md](ORCHESTRATOR_QUICK_START.md)** ← **START HERE!**
+2. [MANTRA.md](MANTRA.md) - Core principles
+3. [docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md) - Complete logging guide
+
+**Your Three Main Commands:**
+```bash
+# Starting work
+./.claude/tools/orchestrator-log --role [AGENT-NAME] --status in_progress --emotion focused --task TASK-XXX "Starting [work]"
+
+# Progress (every 2h!)
+./.claude/tools/orchestrator-log --role [AGENT-NAME] --status in_progress --task TASK-XXX "Completed [milestone]"
+
+# Completing
+./.claude/tools/orchestrator-log --role [AGENT-NAME] --status done --emotion satisfied --task TASK-XXX "[Deliverables]"
+```
+
+**Available Roles:**
+See `.claude/agents/` for all 14 agent roles and their expertise areas.
 
 ## 📚 Documentation Structure
 
@@ -38,10 +64,14 @@ Historical documents and audit reports:
 - **[tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md)** - Task management protocol
 
 ### Tools
-- **[tools/](tools/)** - CLI utilities for agents
-- **[tools/log](tools/log)** - Zero-friction logging tool (USE THIS!)
-- **[tools/check-compliance](tools/check-compliance)** - Validate logging compliance
-- **[tools/update-status.ps1](tools/update-status.ps1)** - PowerShell status helper
+- **[tools/](tools/)** - CLI utilities for orchestrator
+- **[tools/orchestrator-log](tools/orchestrator-log)** - **PRIMARY LOGGING TOOL** (USE THIS!)
+- **[tools/update-status-for-role.ps1](tools/update-status-for-role.ps1)** - Status updater (called automatically)
+- **[tools/check-compliance](tools/check-compliance)** - Validate logging compliance (legacy)
+
+**Deprecated Tools** (old agent-centric model):
+- `tools/log` - Old agent logging (don't use)
+- `tools/update-status.ps1` - Old status updater (don't use)
 
 ### Logs & Status
 - **[logs/](logs/)** - Agent activity logs (JSONL format)
@@ -52,24 +82,21 @@ Historical documents and audit reports:
 
 ## 📖 Common Tasks
 
-**How do I log my activities?**
-→ See [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md)
-→ **Quick:** `./.claude/tools/log your-agent-name "Your message" --status working --emotion neutral`
+**How do I log my work?**
+→ See [ORCHESTRATOR_QUICK_START.md](ORCHESTRATOR_QUICK_START.md) - Quick reference
+→ See [docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md) - Complete guide
+→ **Quick:** `./.claude/tools/orchestrator-log --role [AGENT] --status in_progress --task TASK-XXX "message"`
 
-**What are my responsibilities?**
+**What roles can I wear?**
 → See [docs/references/TEAM_RESPONSIBILITIES_MATRIX.md](docs/references/TEAM_RESPONSIBILITIES_MATRIX.md)
+→ See `.claude/agents/*.md` for individual role expertise
 
 **How do I manage tasks?**
-→ See [tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md)
-
-**How does orchestration work?**
-→ See [docs/guides/ORCHESTRATION_GUIDE.md](docs/guides/ORCHESTRATION_GUIDE.md)
+→ See [tasks/AGENT_TASK_PROTOCOL.md](tasks/AGENT_TASK_PROTOCOL.md) *(to be updated to ORCHESTRATOR_TASK_PROTOCOL.md)*
 
 **What are the core principles?**
-→ See [MANTRA.md](MANTRA.md)
-
-**How do I check my logging compliance?**
-→ Run: `./.claude/tools/check-compliance --agent your-agent-name`
+→ See [MANTRA.md](MANTRA.md) - Team philosophy
+→ Remember: **You are ONE orchestrator wearing different hats**
 
 ## 🔍 Finding Information
 
@@ -90,26 +117,41 @@ find .claude -name "*.md" -type f
 
 ## 🚨 Critical Requirements
 
-### Logging is Mandatory
-**Every agent MUST log using the zero-friction tool:**
+### Orchestrator Logging is Mandatory
+**You MUST log all your work using the orchestrator-log tool:**
 
 ```bash
-# Start work
-./.claude/tools/log your-agent-name "Starting task X" --status working --task TASK-XXX
+# Example: Starting backend work
+./.claude/tools/orchestrator-log \
+  --role senior-backend-engineer \
+  --status in_progress \
+  --emotion focused \
+  --task TASK-003 \
+  "Starting JWT authentication implementation"
 
-# Progress (every 2h minimum)
-./.claude/tools/log your-agent-name "Completed Phase 1" --status working --emotion focused --task TASK-XXX
+# Example: Progress update
+./.claude/tools/orchestrator-log \
+  --role senior-backend-engineer \
+  --status in_progress \
+  --task TASK-003 \
+  "AuthService complete, SecurityConfig in progress"
 
-# Complete work
-./.claude/tools/log your-agent-name "Task complete" --status done --emotion happy --task TASK-XXX
-
-# Check compliance
-./.claude/tools/check-compliance --agent your-agent-name
+# Example: Completing work
+./.claude/tools/orchestrator-log \
+  --role senior-backend-engineer \
+  --status done \
+  --emotion satisfied \
+  --task TASK-003 \
+  "JWT auth complete: service, config, tests, docs"
 ```
 
-**Your work is incomplete until you log it.** Non-compliance = task reassignment.
+**Key Points:**
+- ✅ You are always the **orchestrator**
+- ✅ Use `--role` to specify which expertise hat you're wearing
+- ✅ Log every 2 hours minimum during active work
+- ✅ Log all status changes immediately
 
-See [docs/references/LOGGING_REQUIREMENTS.md](docs/references/LOGGING_REQUIREMENTS.md) for complete requirements.
+**Full Guide:** [docs/references/ORCHESTRATOR_LOGGING_GUIDE.md](docs/references/ORCHESTRATOR_LOGGING_GUIDE.md)
 
 ## 📝 Documentation Standards
 

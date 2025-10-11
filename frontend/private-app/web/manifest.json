@@ -1,11 +1,11 @@
 {
-    "name": "thechain_private",
-    "short_name": "thechain_private",
+    "name": "The Chain - My Dashboard",
+    "short_name": "The Chain",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "The Chain - Your personal dashboard. Grow with solidarity and trust. A social experiment.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

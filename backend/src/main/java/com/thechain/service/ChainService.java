@@ -48,24 +48,13 @@ public class ChainService {
     /**
      * Get the current tip of the chain (FR-3.2)
      * The tip is the last active user who has not successfully invited anyone
+     *
+     * OPTIMIZED: Uses database query instead of loading all users into memory
      */
     @Transactional(readOnly = true)
     public User getCurrentTip() {
-        // Find user with highest position who is active and has no active invitee
-        Optional<User> tipUser = getTipUser();
-
-        return tipUser.orElseThrow(() ->
-            new BusinessException("NO_TIP_FOUND", "Unable to identify chain tip"));
-    }
-
-    private Optional<User> getTipUser() {
-        return userRepository.findAll().stream()
-            .filter(u -> "active".equals(u.getStatus()) || "seed".equals(u.getStatus()))
-            .filter(u -> u.getActiveChildId() == null ||
-                        !invitationRepository.existsByChildIdAndStatus(
-                            u.getActiveChildId(),
-                            Invitation.InvitationStatus.ACTIVE))
-            .max(Comparator.comparing(User::getPosition));
+        return userRepository.findCurrentTipOptimized()
+            .orElseThrow(() -> new BusinessException("NO_TIP_FOUND", "Unable to identify chain tip"));
     }
     
     @Transactional(readOnly = true)

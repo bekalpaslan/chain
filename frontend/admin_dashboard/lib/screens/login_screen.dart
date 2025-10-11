@@ -240,12 +240,15 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
 
                             // Login Button
-                            MystiqueButton(
-                              text: _isLoading ? 'Signing In...' : 'Sign In',
-                              onPressed: _isLoading ? null : _handleLogin,
-                              variant: MystiqueButtonVariant.primary,
-                              minimumSize: const Size(double.infinity, 56),
-                              icon: _isLoading ? null : Icons.login,
+                            SizedBox(
+                              width: double.infinity,
+                              child: MystiqueButton(
+                                text: _isLoading ? 'Signing In...' : 'Sign In',
+                                onPressed: _isLoading ? null : _handleLogin,
+                                variant: MystiqueButtonVariant.primary,
+                                minimumSize: const Size(double.infinity, 56),
+                                icon: _isLoading ? null : Icons.login,
+                              ),
                             ),
 
                             const SizedBox(height: 24),
@@ -296,14 +299,17 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 24),
 
                             // SSO Button (Demo)
-                            MystiqueButton(
-                              text: 'Sign in with SSO',
-                              onPressed: _isLoading ? null : () {
-                                // TODO: Implement SSO
-                              },
-                              variant: MystiqueButtonVariant.secondary,
-                              minimumSize: const Size(double.infinity, 56),
-                              icon: Icons.business,
+                            SizedBox(
+                              width: double.infinity,
+                              child: MystiqueButton(
+                                text: 'Sign in with SSO',
+                                onPressed: _isLoading ? null : () {
+                                  // TODO: Implement SSO
+                                },
+                                variant: MystiqueButtonVariant.secondary,
+                                minimumSize: const Size(double.infinity, 56),
+                                icon: Icons.business,
+                              ),
                             ),
                           ],
                         ),

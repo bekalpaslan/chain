@@ -44,7 +44,19 @@
       "Bash(dart analyze:*)",
       "Bash(do if [ -f \"$file\" ])",
       "Bash(then echo \"=== $file ===\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(git log:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(./mvnw:*)",
+      "Bash(mvnw.cmd test-compile:*)",
+      "Bash(timeout 30 bash -c 'until docker exec chain-backend wget -q --spider http://localhost:8080/api/v1/actuator/health; do sleep 2; done')",
+      "Bash(timeout:*)",
+      "Bash(docker ps:*)",
+      "Bash(./.claude/tools/orchestrator-log:*)",
+      "Bash(do wc:*)"
     ],
     "deny": [],
     "ask": []

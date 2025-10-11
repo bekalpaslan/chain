@@ -3,7 +3,7 @@
 **Project Name:** *The Chain*
 **Core Idea:** A single, global, ever-growing social chain where every participant is visibly connected to one another through a transparent, gamified attachment system.
 
-**Tagline:** “Keep the Chain Alive.”
+**Tagline:** "Grow with solidarity and trust. A social experiment."
 
 The Chain is a minimalist mobile experience that combines social curiosity, viral dynamics, and collective accountability. A single chain connects everyone — starting from one seed — and every new participant must be attached through a one-time, time-limited invitation ticket.
 

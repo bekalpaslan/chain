@@ -12,8 +12,10 @@ RUN flutter pub get
 # Copy the rest of the application
 COPY . .
 
-# Build for web (release mode)
-RUN flutter build web --release
+# Clean any cached build artifacts and rebuild
+RUN flutter clean && \
+    flutter pub get --no-precompile && \
+    flutter build web --release --no-tree-shake-icons
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine

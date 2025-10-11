@@ -39,6 +39,34 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT COUNT(DISTINCT u.associatedWith) FROM User u WHERE u.associatedWith IS NOT NULL")
     long countDistinctCountries();
 
+    /**
+     * OPTIMIZED: Find current tip without loading all users
+     * The tip is the highest-position active/seed user who either:
+     * 1. Has no activeChildId (hasn't invited anyone yet), OR
+     * 2. Their activeChild's invitation is not ACTIVE (child was removed/wasted)
+     *
+     * This replaces the inefficient findAll().stream() approach
+     */
+    @Query("""
+        SELECT u FROM User u
+        WHERE u.status IN ('active', 'seed')
+        AND (
+            u.activeChildId IS NULL
+            OR NOT EXISTS (
+                SELECT 1 FROM Invitation i
+                WHERE i.childId = u.activeChildId
+                AND i.status = 'ACTIVE'
+            )
+        )
+        ORDER BY u.position DESC
+        LIMIT 1
+        """)
+    Optional<User> findCurrentTipOptimized();
+
+    /**
+     * @deprecated Use findCurrentTipOptimized() instead. This method loads all users into memory.
+     */
+    @Deprecated
     @Query("SELECT u FROM User u WHERE u.status IN ('active', 'seed') ORDER BY u.position DESC LIMIT 1")
     Optional<User> findCurrentTip();
 }

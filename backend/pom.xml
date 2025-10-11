@@ -16,7 +16,7 @@
     <artifactId>chain-backend</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>The Chain Backend</name>
-    <description>Backend services for The Chain social network</description>
+    <description>Backend services for The Chain - Grow with solidarity and trust. A social experiment.</description>
 
     <properties>
         <java.version>17</java.version>

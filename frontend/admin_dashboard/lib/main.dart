@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'screens/login_screen.dart';
 import 'screens/project_board_screen.dart';
+import 'screens/project_health_screen.dart';
 import 'theme/dark_mystique_theme.dart';
 
 void main() {
@@ -18,7 +20,7 @@ class TheChainAdminDashboard extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
       child: MaterialApp(
-        title: 'The Chain - Project Board',
+        title: 'The Chain - Admin Dashboard',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.dark,
@@ -32,7 +34,12 @@ class TheChainAdminDashboard extends StatelessWidget {
           ),
           fontFamily: 'Roboto',
         ),
-        home: const ProjectBoardScreen(),
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/dashboard': (context) => const ProjectBoardScreen(),
+          '/health': (context) => const ProjectHealthScreen(),
+        },
       ),
     );
   }

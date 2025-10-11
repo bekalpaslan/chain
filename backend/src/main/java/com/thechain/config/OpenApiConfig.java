@@ -26,7 +26,7 @@ public class OpenApiConfig {
             .info(new Info()
                 .title("The Chain API")
                 .version("1.0.0")
-                .description("Viral social chain ticketing system API. " +
+                .description("Grow with solidarity and trust. A social experiment. " +
                     "The Chain is a unique social network where users can only join through " +
                     "time-limited invite tickets, creating an exclusive and viral growth mechanism.")
                 .contact(new Contact()

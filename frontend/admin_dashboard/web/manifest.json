@@ -1,11 +1,11 @@
 {
-    "name": "admin_dashboard",
-    "short_name": "admin_dashboard",
+    "name": "The Chain - Admin Dashboard",
+    "short_name": "Chain Admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "The Chain Admin Dashboard - Grow with solidarity and trust. A social experiment.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

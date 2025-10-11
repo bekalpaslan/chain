@@ -105,6 +105,11 @@ public class User {
     @Column
     private Integer totalTicketsGenerated = 0;
 
+    // Admin role
+    @Builder.Default
+    @Column(name = "is_admin")
+    private Boolean isAdmin = false;
+
     @PrePersist
     public void prePersist() {
         if (chainKey == null) {

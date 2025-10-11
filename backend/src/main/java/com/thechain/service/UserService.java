@@ -28,8 +28,9 @@ public class UserService {
 
     /**
      * Get user profile by ID
+     * TODO: Re-enable caching after fixing GenericJackson2JsonRedisSerializer deserialization issue
      */
-    @Cacheable(value = CacheConfig.USER_PROFILE_CACHE, key = "#userId")
+    // @Cacheable(value = CacheConfig.USER_PROFILE_CACHE, key = "#userId")
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(UUID userId) {
         User user = userRepository.findById(userId)
