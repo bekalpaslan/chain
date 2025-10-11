@@ -1,12 +1,11 @@
-/// Example Integration Guide for Dark Mystique Theme
-///
-/// This file demonstrates how to integrate the Dark Mystique design system
-/// into your existing Flutter apps (private-app and public-app).
+// Example Integration Guide for Dark Mystique Theme
+//
+// This file demonstrates how to integrate the Dark Mystique design system
+// into your existing Flutter apps (private-app and public-app).
 
 import 'package:flutter/material.dart';
 import 'theme/dark_mystique_theme.dart';
 import 'widgets/mystique_components.dart';
-import 'screens/mystique_login_screen.dart';
 import 'screens/mystique_stats_screen.dart';
 
 // ============================================================================

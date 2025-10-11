@@ -37,6 +37,35 @@ class DarkMystiqueTheme {
   static const Color errorPulse = Color(0xFFEF4444);
 
   // ============================================================================
+  // AGENT STATUS COLORS - Material Design Palette
+  // For visual status indicators with high contrast and accessibility
+  // ============================================================================
+
+  /// Agent Status: In Progress (Active Work)
+  /// Material Green 500 - Semantic "go" signal
+  static const Color statusInProgress = Color(0xFF4CAF50);
+
+  /// Agent Status: Focused (Deep Concentration)
+  /// Material Amber 500 - Attention/caution signal
+  static const Color statusFocused = Color(0xFFFFC107);
+
+  /// Agent Status: Idle (No Active Work)
+  /// Material Gray 700 - Neutral inactive state
+  static const Color statusIdle = Color(0xFF616161);
+
+  /// Agent Status: Blocked (Cannot Proceed)
+  /// Material Red 500 - Error/stop signal
+  static const Color statusBlocked = Color(0xFFF44336);
+
+  /// Agent Status: Satisfied (Recently Completed)
+  /// Material Light Blue 500 - Success/completion
+  static const Color statusSatisfied = Color(0xFF03A9F4);
+
+  /// Agent Status: Happy (Milestone/Success)
+  /// Material Light Green 500 - Positive achievement
+  static const Color statusHappy = Color(0xFF8BC34A);
+
+  // ============================================================================
   // GRADIENTS
   // ============================================================================
 

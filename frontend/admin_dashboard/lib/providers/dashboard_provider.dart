@@ -65,19 +65,27 @@ class DashboardProvider extends ChangeNotifier {
 
   Future<void> _loadFromLocalFile() async {
     try {
-      // Try to fetch from a local server endpoint
+      // Try to fetch from the same origin (nginx serves it)
+      debugPrint('[Dashboard] Fetching /api/status...');
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/status'),
+        Uri.parse('/api/status'),
       ).timeout(const Duration(seconds: 2));
 
+      debugPrint('[Dashboard] Response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
+        debugPrint('[Dashboard] Response body length: ${response.body.length}');
         final data = json.decode(response.body);
+        debugPrint('[Dashboard] Parsed data: agents=${data['agents']?.length ?? 0}');
         _parseStatusData(data);
+        debugPrint('[Dashboard] Data parsed successfully. Agents: ${_agents.length}');
       } else {
         throw Exception('Server returned ${response.statusCode}');
       }
     } catch (e) {
       // Fallback to mock data
+      debugPrint('[Dashboard] Error loading data: $e');
+      debugPrint('[Dashboard] Falling back to mock data');
       _loadMockData();
     }
   }

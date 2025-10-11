@@ -31,7 +31,7 @@ class MystiqueCard extends StatelessWidget {
           color: DarkMystiqueTheme.shadowPurple,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: DarkMystiqueTheme.mysticViolet.withValues(alpha: 0.3),
+            color: DarkMystiqueTheme.mysticViolet.withOpacity( 0.3),
             width: 1,
           ),
           boxShadow: elevated
@@ -104,7 +104,7 @@ class _MystiqueButtonState extends State<MystiqueButton>
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: shadowColor.withValues(alpha: _glowAnimation.value),
+                color: shadowColor.withOpacity( _glowAnimation.value),
                 blurRadius: 20,
                 spreadRadius: 0,
               ),
@@ -272,7 +272,7 @@ class _MystiqueTextFieldState extends State<MystiqueTextField>
                 ? [
                     BoxShadow(
                       color: DarkMystiqueTheme.ghostCyan
-                          .withValues(alpha: _focusGlowAnimation.value),
+                          .withOpacity( _focusGlowAnimation.value),
                       blurRadius: 20,
                       spreadRadius: 0,
                     ),
@@ -314,14 +314,14 @@ class _MystiqueTextFieldState extends State<MystiqueTextField>
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: DarkMystiqueTheme.mysticViolet.withValues(alpha: 0.2),
+                  color: DarkMystiqueTheme.mysticViolet.withOpacity( 0.2),
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: DarkMystiqueTheme.mysticViolet.withValues(alpha: 0.2),
+                  color: DarkMystiqueTheme.mysticViolet.withOpacity( 0.2),
                   width: 1,
                 ),
               ),
@@ -388,7 +388,7 @@ class MystiqueStatCard extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  color.withValues(alpha: 0.3),
+                  color.withOpacity( 0.3),
                   Colors.transparent,
                 ],
               ),
@@ -403,7 +403,7 @@ class MystiqueStatCard extends StatelessWidget {
           // Value
           ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
-              colors: [color, color.withValues(alpha: 0.7)],
+              colors: [color, color.withOpacity( 0.7)],
             ).createShader(bounds),
             child: Text(
               value,
@@ -473,7 +473,7 @@ class MystiqueAlert extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: config.color.withValues(alpha: 0.2),
+            color: config.color.withOpacity( 0.2),
             blurRadius: 15,
             spreadRadius: 0,
           ),
@@ -566,7 +566,7 @@ class ChainLinkDecoration extends StatelessWidget {
     return CustomPaint(
       size: Size(size, size),
       painter: _ChainLinkPainter(
-        color: linkColor.withValues(alpha: opacity),
+        color: linkColor.withOpacity( opacity),
       ),
     );
   }
@@ -657,7 +657,7 @@ class _MystiqueLoadingIndicatorState extends State<MystiqueLoadingIndicator>
                 boxShadow: [
                   BoxShadow(
                     color: DarkMystiqueTheme.etherealPurple
-                        .withValues(alpha: 0.5),
+                        .withOpacity(0.5),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),

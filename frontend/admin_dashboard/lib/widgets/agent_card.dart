@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/agent_status.dart';
 import '../theme/dark_mystique_theme.dart';
-import 'mystique_components.dart';
+import 'mystique_agent_components/mystique_agent_components.dart';
 
+/// Enhanced Agent Card with prominent visual status indicators
+/// TASK-012: 4px border, top-right badge, enhanced animation, improved glow
 class AgentCard extends StatefulWidget {
   final AgentStatus agent;
   final VoidCallback? onTap;
@@ -27,20 +29,21 @@ class _AgentCardState extends State<AgentCard>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1500), // TASK-012: 1.5s smooth animation
       vsync: this,
     );
 
+    // TASK-012: Enhanced pulse animation (0.5 → 1.0 instead of 0.3 → 0.6)
     _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 0.6,
+      begin: 0.5,
+      end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
 
-    // Only animate if agent is active or working
-    if (widget.agent.status == 'active' || widget.agent.status == 'working') {
+    // TASK-012: Use shouldPulse helper method from AgentStatus
+    if (widget.agent.shouldPulse) {
       _animationController.repeat(reverse: true);
     }
   }
@@ -48,12 +51,14 @@ class _AgentCardState extends State<AgentCard>
   @override
   void didUpdateWidget(AgentCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.agent.status == 'active' || widget.agent.status == 'working') {
-      if (!_animationController.isAnimating) {
+    // TASK-012: Use shouldPulse helper and reset to full opacity when stopped
+    if (widget.agent.shouldPulse != oldWidget.agent.shouldPulse) {
+      if (widget.agent.shouldPulse) {
         _animationController.repeat(reverse: true);
+      } else {
+        _animationController.stop();
+        _animationController.value = 1.0; // Reset to full opacity
       }
-    } else {
-      _animationController.stop();
     }
   }
 
@@ -65,50 +70,57 @@ class _AgentCardState extends State<AgentCard>
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return GestureDetector(
-            onTap: widget.onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 220,
-              height: 280,
-              transform: Matrix4.identity()
-                ..scale(_isHovered ? 1.02 : 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: DarkMystiqueTheme.shadowPurple,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: widget.agent.statusColor.withOpacity(
-                      widget.agent.status == 'active' || widget.agent.status == 'working'
-                          ? _glowAnimation.value
-                          : 0.3,
-                    ),
-                    width: widget.agent.status == 'blocked' ? 2 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.agent.statusColor.withOpacity(
-                        widget.agent.status == 'active' || widget.agent.status == 'working'
-                            ? _glowAnimation.value * 0.5
-                            : 0.2,
+    return Semantics(
+      label: 'Agent ${widget.agent.name}, status: ${widget.agent.statusText}',
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedBuilder(
+          animation: _glowAnimation,
+          builder: (context, child) {
+            // TASK-012: Improved glow effects
+            final glowOpacity = widget.agent.shouldPulse
+                ? _glowAnimation.value * 0.3
+                : 0.2;
+            final blurRadius = widget.agent.shouldPulse ? 30.0 : 20.0;
+            final spreadRadius = widget.agent.shouldPulse ? 4.0 : 2.0;
+
+            return GestureDetector(
+              onTap: widget.onTap,
+              child: AnimatedScale(
+                scale: _isHovered ? 1.02 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  width: 220,
+                  height: 280,
+                  child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: DarkMystiqueTheme.shadowPurple,
+                        borderRadius: BorderRadius.circular(16),
+                        // TASK-012: Enhanced 4px border (primary indicator)
+                        border: Border.all(
+                          color: widget.agent.statusColor.withValues(
+                            alpha: widget.agent.shouldPulse ? _glowAnimation.value : 1.0,
+                          ),
+                          width: 4.0, // Increased from 1-2px to 4px
+                        ),
+                        // TASK-012: Improved glow effects
+                        boxShadow: [
+                          BoxShadow(
+                            color: widget.agent.statusColor.withValues(alpha: glowOpacity),
+                            blurRadius: blurRadius,
+                            spreadRadius: spreadRadius,
+                          ),
+                        ],
                       ),
-                      blurRadius: 20,
-                      spreadRadius: widget.agent.status == 'blocked' ? 5 : 2,
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Avatar and Emotion
+                    // Avatar with Status and Emotion indicators
                     Stack(
                       alignment: Alignment.bottomRight,
                       children: [
@@ -119,8 +131,8 @@ class _AgentCardState extends State<AgentCard>
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
                               colors: [
-                                widget.agent.statusColor.withOpacity(0.3),
-                                widget.agent.statusColor.withOpacity(0.1),
+                                widget.agent.statusColor.withValues(alpha: 0.3),
+                                widget.agent.statusColor.withValues(alpha: 0.1),
                               ],
                             ),
                           ),
@@ -130,16 +142,16 @@ class _AgentCardState extends State<AgentCard>
                             color: widget.agent.statusColor,
                           ),
                         ),
-                        // Emotion indicator
+                        // Emotion indicator using new component
                         Container(
                           padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: DarkMystiqueTheme.deepVoid,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
-                            widget.agent.emotionEmoji,
-                            style: const TextStyle(fontSize: 16),
+                          child: CompactEmotionIndicator(
+                            emotion: widget.agent.emotion,
+                            size: 16,
                           ),
                         ),
                       ],
@@ -177,47 +189,18 @@ class _AgentCardState extends State<AgentCard>
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            DarkMystiqueTheme.etherealPurple.withOpacity(0.3),
+                            DarkMystiqueTheme.etherealPurple.withValues(alpha: 0.3),
                             Colors.transparent,
                           ],
                         ),
                       ),
                     ),
 
-                    // Status Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: widget.agent.statusColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: widget.agent.statusColor.withOpacity(0.5),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            widget.agent.statusIcon,
-                            size: 12,
-                            color: widget.agent.statusColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            widget.agent.status.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: widget.agent.statusColor,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
-                      ),
+                    // Status Badge using new component
+                    MystiqueStatusBadge(
+                      status: widget.agent.status,
+                      animated: widget.agent.shouldPulse,
+                      size: 14.0,
                     ),
 
                     // Current Task
@@ -297,12 +280,38 @@ class _AgentCardState extends State<AgentCard>
                         ),
                       ],
                     ),
+                    ],
+                      ),
+                    ),
+                    // TASK-012: Top-right status badge (secondary indicator)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: widget.agent.statusColor.withValues(alpha: 0.2),
+                          border: Border.all(
+                            color: widget.agent.statusColor,
+                            width: 2.0,
+                          ),
+                        ),
+                        child: Icon(
+                          widget.agent.statusIcon,
+                          size: 16,
+                          color: widget.agent.statusColor,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }

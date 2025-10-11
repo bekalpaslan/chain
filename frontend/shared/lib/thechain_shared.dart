@@ -1,4 +1,4 @@
-library thechain_shared;
+library;
 
 // API
 export 'api/api_client.dart';

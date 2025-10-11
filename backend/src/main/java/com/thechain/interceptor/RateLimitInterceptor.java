@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Rate Limiting Interceptor using Redis
@@ -31,7 +30,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private static final int TICKET_REQUESTS_PER_MINUTE = 10;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@org.springframework.lang.NonNull HttpServletRequest request,
+                             @org.springframework.lang.NonNull HttpServletResponse response,
+                             @org.springframework.lang.NonNull Object handler) throws Exception {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
 
@@ -55,7 +56,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         Long requests = redisTemplate.opsForValue().increment(key);
 
-        if (requests == 1) {
+        if (requests != null && requests == 1) {
             // First request in this window, set expiration
             redisTemplate.expire(key, Duration.ofSeconds(config.windowSeconds));
         }

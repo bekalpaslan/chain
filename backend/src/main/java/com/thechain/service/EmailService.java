@@ -323,19 +323,4 @@ public class EmailService {
         return DATE_TIME_FORMATTER.format(instant);
     }
 
-    /**
-     * Calculate time remaining until expiration
-     */
-    private String calculateTimeRemaining(Instant expiresAt) {
-        Duration duration = Duration.between(Instant.now(), expiresAt);
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
-
-        if (hours > 0) {
-            return hours + " hour" + (hours != 1 ? "s" : "") + " and " +
-                   minutes + " minute" + (minutes != 1 ? "s" : "");
-        } else {
-            return minutes + " minute" + (minutes != 1 ? "s" : "");
-        }
-    }
 }

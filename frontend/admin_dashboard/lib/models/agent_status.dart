@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../theme/dark_mystique_theme.dart';
 
 class AgentStatus {
   final String id;
   final String name;
   final String role;
-  final String status; // active, idle, blocked, working
-  final String emotion; // happy, sad, neutral, frustrated, satisfied
+  final String status; // in_progress, focused, idle, blocked
+  final String emotion; // happy, sad, neutral, frustrated, satisfied, focused
   final String? currentTask;
   final DateTime lastActivity;
   final double? progress;
@@ -26,13 +27,23 @@ class AgentStatus {
     final displayName = _getDisplayName(id);
     final role = _getRole(id);
 
+    // Parse current_task which can be null or an object with id/title
+    String? currentTask;
+    if (json['current_task'] != null) {
+      if (json['current_task'] is String) {
+        currentTask = json['current_task'];
+      } else if (json['current_task'] is Map) {
+        currentTask = json['current_task']['title'] ?? json['current_task']['id'];
+      }
+    }
+
     return AgentStatus(
       id: id,
       name: displayName,
       role: role,
       status: json['status'] ?? 'idle',
       emotion: json['emotion'] ?? 'neutral',
-      currentTask: json['current_task'],
+      currentTask: currentTask,
       lastActivity: json['last_activity'] != null
           ? DateTime.parse(json['last_activity'])
           : DateTime.now(),
@@ -77,38 +88,100 @@ class AgentStatus {
         return '😤';
       case 'satisfied':
         return '😌';
+      case 'focused':
+        return '🎯';
       case 'neutral':
       default:
         return '😐';
     }
   }
 
+  /// Get status color using Material Design palette
+  /// Designed for accessibility (4.5:1 contrast ratio minimum)
   Color get statusColor {
     switch (status) {
+      case 'in_progress':
       case 'active':
-        return const Color(0xFF00E5FF); // Ghost Cyan
       case 'working':
-        return const Color(0xFF4CAF50); // Green Glow
+        return DarkMystiqueTheme.statusInProgress; // Green - active work
+      case 'focused':
+        return DarkMystiqueTheme.statusFocused; // Amber - concentration
       case 'blocked':
-        return const Color(0xFFF44336); // Red Pulse
+        return DarkMystiqueTheme.statusBlocked; // Red - cannot proceed
+      case 'satisfied':
+        return DarkMystiqueTheme.statusSatisfied; // Light Blue - completed
       case 'idle':
       default:
-        return const Color(0xFF9B59B6); // Mystic Violet
+        return DarkMystiqueTheme.statusIdle; // Gray - no active work
     }
   }
 
+  /// Get emotion-based color overlay (for cards with emotion indicators)
+  Color get emotionColor {
+    switch (emotion) {
+      case 'happy':
+        return DarkMystiqueTheme.statusHappy; // Light Green
+      case 'satisfied':
+        return DarkMystiqueTheme.statusSatisfied; // Light Blue
+      case 'frustrated':
+        return DarkMystiqueTheme.statusBlocked; // Red
+      case 'focused':
+        return DarkMystiqueTheme.statusFocused; // Amber
+      case 'sad':
+        return DarkMystiqueTheme.textMuted; // Muted gray
+      case 'neutral':
+      default:
+        return DarkMystiqueTheme.statusIdle; // Neutral gray
+    }
+  }
+
+  /// Get status icon with semantic meaning
+  /// Ensures accessibility for color-blind users
   IconData get statusIcon {
     switch (status) {
+      case 'in_progress':
       case 'active':
-        return Icons.flash_on;
       case 'working':
-        return Icons.engineering;
+        return Icons.bolt; // ⚡ Lightning bolt - active
+      case 'focused':
+        return Icons.center_focus_strong; // 🎯 Target - focused
       case 'blocked':
-        return Icons.block;
+        return Icons.warning_amber_rounded; // ⚠ Warning - blocked
+      case 'satisfied':
+        return Icons.check_circle; // ✓ Checkmark - satisfied
       case 'idle':
       default:
-        return Icons.schedule;
+        return Icons.pause_circle_outline; // ⏸ Pause - idle
     }
+  }
+
+  /// Get human-readable status text
+  String get statusText {
+    switch (status) {
+      case 'in_progress':
+        return 'IN PROGRESS';
+      case 'active':
+        return 'ACTIVE';
+      case 'working':
+        return 'WORKING';
+      case 'focused':
+        return 'FOCUSED';
+      case 'blocked':
+        return 'BLOCKED';
+      case 'satisfied':
+        return 'SATISFIED';
+      case 'idle':
+      default:
+        return 'IDLE';
+    }
+  }
+
+  /// Check if agent should have pulse animation
+  bool get shouldPulse {
+    return status == 'in_progress' ||
+        status == 'active' ||
+        status == 'working' ||
+        status == 'focused';
   }
 
   String get timeSinceLastActivity {
