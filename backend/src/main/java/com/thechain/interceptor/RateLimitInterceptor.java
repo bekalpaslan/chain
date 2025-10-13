@@ -2,8 +2,8 @@ package com.thechain.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -16,13 +16,36 @@ import java.time.Duration;
 /**
  * Rate Limiting Interceptor using Redis
  * Implements sliding window rate limiting per endpoint and user
+ *
+ * NOTE: RedisTemplate is optional - if Redis is not available (e.g., in tests),
+ * rate limiting will be skipped gracefully.
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * Default constructor for when Redis is not available
+     * Rate limiting will be disabled
+     */
+    public RateLimitInterceptor() {
+        this.redisTemplate = null;
+        log.warn("RedisTemplate not available - rate limiting will be disabled");
+    }
+
+    /**
+     * Constructor with RedisTemplate
+     * Enables rate limiting with Redis backend
+     */
+    @Autowired(required = false)
+    public RateLimitInterceptor(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        if (redisTemplate == null) {
+            log.warn("RedisTemplate not available - rate limiting will be disabled");
+        }
+    }
 
     // Rate limit configurations
     private static final int AUTH_REQUESTS_PER_MINUTE = 5;
@@ -49,6 +72,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         if (config == null) {
             return true; // No rate limiting for this endpoint
+        }
+
+        // Skip rate limiting if Redis is not available (e.g., in tests)
+        if (redisTemplate == null) {
+            return true;
         }
 
         // Check rate limit

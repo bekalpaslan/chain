@@ -1,6 +1,7 @@
 package com.thechain.repository;
 
 import com.thechain.entity.Ticket;
+import com.thechain.entity.Ticket.TicketStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,19 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
     @Query("SELECT t FROM Ticket t WHERE t.ownerId = :ownerId ORDER BY t.issuedAt DESC")
     List<Ticket> findTicketHistoryByOwnerId(@Param("ownerId") UUID ownerId);
+
+    /**
+     * Count tickets by owner and status
+     */
+    long countByOwnerIdAndStatus(UUID ownerId, TicketStatus status);
+
+    /**
+     * Find most recent ticket for owner with specific status
+     */
+    Optional<Ticket> findTopByOwnerIdAndStatusOrderByIssuedAtDesc(UUID ownerId, TicketStatus status);
+
+    /**
+     * Find tickets by owner ordered by issued date
+     */
+    List<Ticket> findByOwnerIdOrderByIssuedAtDesc(UUID ownerId);
 }

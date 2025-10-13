@@ -3,6 +3,7 @@ package com.thechain.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,12 @@ import java.util.Map;
 /**
  * Redis Cache Configuration
  * Configures different cache regions with appropriate TTLs
+ *
+ * NOTE: This configuration is only active when Redis caching is enabled.
+ * It will be disabled in tests where spring.cache.type=none.
  */
 @Configuration
+@ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis", matchIfMissing = true)
 public class CacheConfig implements CachingConfigurer {
 
     // Cache names
