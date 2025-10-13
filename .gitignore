@@ -45,3 +45,5 @@ docker-compose.override.yml
 # Dependencies
 node_modules/
 .claude/settings.local.json
+*.nul
+nul
