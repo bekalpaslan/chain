@@ -20,10 +20,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.yml")
-class ChainControllerTest {
+
+
+
+class ChainControllerTest extends com.thechain.config.BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

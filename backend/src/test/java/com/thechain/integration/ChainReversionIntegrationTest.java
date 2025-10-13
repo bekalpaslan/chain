@@ -22,14 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration test for chain reversion logic.
  * Tests how the chain recovers when users are removed.
  */
-@SpringBootTest
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-    "spring.flyway.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
 @Transactional
-class ChainReversionIntegrationTest {
+class ChainReversionIntegrationTest extends com.thechain.config.BaseIntegrationTest {
 
     @Autowired
     private ChainService chainService;

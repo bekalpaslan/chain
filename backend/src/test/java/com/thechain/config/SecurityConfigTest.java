@@ -14,10 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles("test")
-class SecurityConfigTest {
+class SecurityConfigTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

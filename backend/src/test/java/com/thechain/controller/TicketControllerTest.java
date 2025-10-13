@@ -21,10 +21,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-test.yml")
-class TicketControllerTest {
+
+
+
+class TicketControllerTest extends com.thechain.config.BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

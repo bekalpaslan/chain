@@ -25,14 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration test for ticket expiration flow.
  * Tests the complete lifecycle from ticket creation to expiration and user removal.
  */
-@SpringBootTest
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-    "spring.flyway.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
 @Transactional
-class TicketExpirationIntegrationTest {
+class TicketExpirationIntegrationTest extends com.thechain.config.BaseIntegrationTest {
 
     @Autowired
     private TicketService ticketService;

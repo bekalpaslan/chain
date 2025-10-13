@@ -29,14 +29,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Integration test for JWT authentication flow.
  * Tests complete lifecycle: registration → login → token validation
  */
-@SpringBootTest
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-    "spring.flyway.enabled=false",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
-})
 @Transactional
-class JwtAuthenticationIntegrationTest {
+class JwtAuthenticationIntegrationTest extends com.thechain.config.BaseIntegrationTest {
 
     @Autowired
     private AuthService authService;

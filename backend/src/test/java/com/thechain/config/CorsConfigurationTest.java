@@ -27,10 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - Flutter Public App: http://localhost:3000
  * - Flutter Private App: http://localhost:3001
  */
-@SpringBootTest
-@AutoConfigureMockMvc
 @ActiveProfiles("test")
-class CorsConfigurationTest {
+class CorsConfigurationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
