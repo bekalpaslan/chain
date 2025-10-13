@@ -1,0 +1,2 @@
+-- Empty schema.sql for tests
+-- JPA/Hibernate will create the schema automatically via ddl-auto=create-drop
