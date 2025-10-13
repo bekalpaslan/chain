@@ -89,13 +89,11 @@ void main() {
         ),
       );
 
-      // Find BackdropFilter widget
-      final backdropFilter = tester.widget<BackdropFilter>(
-        find.byType(BackdropFilter),
-      );
+      // Find BackdropFilter widgets (there may be multiple)
+      final backdropFilters = find.byType(BackdropFilter);
 
-      // Verify blur filter is applied
-      expect(backdropFilter.filter, isNotNull);
+      // Verify blur filter exists
+      expect(backdropFilters, findsWidgets);
     });
 
     testWidgets('Empty data shows placeholder UI', (WidgetTester tester) async {

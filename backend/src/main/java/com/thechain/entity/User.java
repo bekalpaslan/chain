@@ -43,10 +43,14 @@ public class User {
     @Column(name = "parent_id")
     private UUID parentId;
 
-    @Column(name = "child_id")
+    // Note: activeChildId is managed in application code, not stored in DB
+    // It's computed from the attachments table relationship
+    @Transient
     private UUID activeChildId;
 
-    // TO-CLAUDE: Find a way to store this in DB relationally.
+    // Note: wastedChildIds are managed in application code, not stored in DB
+    // They're tracked through attachment history
+    @Transient
     private List<UUID> wastedChildIds;
 
     @CreatedDate

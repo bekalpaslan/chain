@@ -42,19 +42,24 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     /**
      * OPTIMIZED: Find current tip without loading all users
      * The tip is the highest-position active/seed user who either:
-     * 1. Has no activeChildId (hasn't invited anyone yet), OR
-     * 2. Their activeChild's invitation is not ACTIVE (child was removed/wasted)
+     * 1. Has no active child attachment (hasn't invited anyone yet), OR
+     * 2. Their child's invitation is not ACTIVE (child was removed/wasted)
      *
      * This replaces the inefficient findAll().stream() approach
+     * Note: Since activeChildId is transient, we check the attachments table directly
      */
     @Query("""
         SELECT u FROM User u
         WHERE u.status IN ('active', 'seed')
         AND (
-            u.activeChildId IS NULL
+            NOT EXISTS (
+                SELECT 1 FROM Attachment a
+                WHERE a.parentId = u.id
+            )
             OR NOT EXISTS (
-                SELECT 1 FROM Invitation i
-                WHERE i.childId = u.activeChildId
+                SELECT 1 FROM Attachment a
+                JOIN Invitation i ON i.childId = a.childId
+                WHERE a.parentId = u.id
                 AND i.status = 'ACTIVE'
             )
         )
@@ -69,4 +74,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Deprecated
     @Query("SELECT u FROM User u WHERE u.status IN ('active', 'seed') ORDER BY u.position DESC LIMIT 1")
     Optional<User> findCurrentTip();
+
+    /**
+     * Find the user with the highest position (current tip)
+     */
+    Optional<User> findTopByOrderByPositionDesc();
+
+    /**
+     * Count active children of a parent user
+     */
+    Integer countByParentIdAndStatus(UUID parentId, String status);
 }

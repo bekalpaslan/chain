@@ -1,24 +1,15 @@
 package com.thechain;
 
+import com.thechain.config.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = {
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.flyway.enabled=false",
-    "spring.datasource.url=jdbc:h2:mem:testdb",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
-})
-@TestPropertySource(locations = "classpath:application-test.yml")
-class ChainApplicationTest {
+class ChainApplicationTest extends BaseIntegrationTest {
 
     @Autowired
     private ApplicationContext context;
