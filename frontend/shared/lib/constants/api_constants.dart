@@ -11,6 +11,7 @@ class ApiConstants {
   // User endpoints
   static const String usersMe = '/users/me';
   static const String usersMeChain = '/users/me/chain';
+  static const String usersMeDashboard = '/users/me/dashboard';
 
   // Ticket endpoints
   static const String ticketsGenerate = '/tickets/generate';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 
 /// Enum defining all possible card types in The Chain
 enum ChainCardType {

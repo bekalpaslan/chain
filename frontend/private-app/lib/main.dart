@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thechain_shared/thechain_shared.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/home_screen.dart'; // Keep for backward compatibility
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const ProviderScope(child: PrivateApp()));
@@ -15,14 +17,21 @@ class PrivateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'The Chain - Dashboard',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const LoginScreen(), // Direct to login screen for now
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const AuthCheckPage(), // Use auth check on startup
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => const DashboardScreen(), // Use new dashboard
+        '/dashboard': (context) => const DashboardScreen(),
+        '/chain': (context) => const HomeScreen(), // Keep old chain view
+        '/notifications': (context) => const Scaffold(body: Center(child: Text('Notifications'))),
+        '/settings': (context) => const Scaffold(body: Center(child: Text('Settings'))),
+        '/profile': (context) => const Scaffold(body: Center(child: Text('Profile'))),
+        '/achievements': (context) => const Scaffold(body: Center(child: Text('Achievements'))),
+        '/generate-ticket': (context) => const Scaffold(body: Center(child: Text('Generate Ticket'))),
+        '/active-ticket': (context) => const Scaffold(body: Center(child: Text('Active Ticket'))),
       },
     );
   }
@@ -53,9 +62,9 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
 
     if (mounted) {
       if (accessToken != null && userId != null) {
-        // User has a session, go to home screen
+        // User has a session, go to dashboard
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
       } else {
         // No session, go to login

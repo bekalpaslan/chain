@@ -145,19 +145,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Calculate which members should be visible in the 5-member window
   Map<String, int> _calculateVisibleWindow(int userPosition, int totalLength) {
-    const int WINDOW_SIZE = 5;
+    const int windowSize = 5;
 
     int startPos, endPos;
     int hiddenAbove = 0;
     int hiddenBelow = 0;
 
     // Special cases for small chains
-    if (totalLength <= WINDOW_SIZE) {
+    if (totalLength <= windowSize) {
       startPos = 1;
       endPos = totalLength;
 
       // Add ghost slot if chain is small
-      if (totalLength < WINDOW_SIZE) {
+      if (totalLength < windowSize) {
         endPos = totalLength + 1; // Include ghost position
       }
     } else {
@@ -171,16 +171,16 @@ class _HomeScreenState extends State<HomeScreen> {
       if (idealStart < 1) {
         // User near beginning
         startPos = 1;
-        endPos = WINDOW_SIZE;
+        endPos = windowSize;
       } else if (idealEnd > totalLength) {
         // User near end
-        startPos = math.max(1, totalLength - WINDOW_SIZE + 1);
+        startPos = math.max(1, totalLength - windowSize + 1);
         endPos = totalLength;
 
         // Include ghost if user is very close to the tip
         if (userPosition >= totalLength - 1) {
           endPos = totalLength + 1; // Show ghost slot
-          startPos = math.max(1, endPos - WINDOW_SIZE + 1);
+          startPos = math.max(1, endPos - windowSize + 1);
         }
       } else {
         // User in middle - perfect centering
@@ -385,11 +385,10 @@ class _HomeScreenState extends State<HomeScreen> {
           displayName: member.displayName,
           chainKey: member.chainKey,
           position: member.position,
-          isCurrentUser: member.isCurrentUser,
-          pendingTimeRemaining: member.status == 'pending'
-              ? const Duration(hours: 23) // Mock countdown
+          expiresAt: member.status == 'pending'
+              ? DateTime.now().add(const Duration(hours: 23)) // Mock countdown
               : null,
-          milestoneNumber: _isMilestonePosition(member.position)
+          milestoneValue: _isMilestonePosition(member.position)
               ? member.position
               : null,
           onTap: () {
@@ -460,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Build connecting arrow between cards
   Widget _buildArrow() {
-    return Container(
+    return SizedBox(
       height: 50,
       child: Stack(
         alignment: Alignment.center,

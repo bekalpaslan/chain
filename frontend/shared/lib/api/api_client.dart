@@ -174,6 +174,16 @@ class ApiClient {
     }
   }
 
+  /// Get comprehensive dashboard data
+  Future<Map<String, dynamic>> getDashboard() async {
+    try {
+      final response = await _dio.get(ApiConstants.usersMeDashboard);
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ========== Ticket endpoints (auth required) ==========
 
   /// Generate a new invitation ticket

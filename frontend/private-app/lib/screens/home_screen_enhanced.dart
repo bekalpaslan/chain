@@ -23,7 +23,7 @@ class _HomeScreenEnhancedState extends ConsumerState<HomeScreenEnhanced>
   User? _currentUser;
   List<ChainMember> _chainMembers = [];
   List<Activity> _recentActivities = [];
-  ChainStats _stats = ChainStats.empty();
+  final ChainStats _stats = ChainStats.empty();
 
   // Loading States
   bool _isLoading = true;

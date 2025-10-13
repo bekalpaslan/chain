@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// Represents the overall project health data
 class ProjectHealth {
