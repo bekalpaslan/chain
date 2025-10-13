@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Chain - Visualization Demo</title>
+
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Base Styles -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0A0A0F;
+      color: white;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .demo-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .demo-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .demo-title {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #A891C6, #5FAF7A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .demo-subtitle {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .demo-info {
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+    }
+
+    .demo-info h3 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #A891C6;
+    }
+
+    .demo-info ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .demo-info li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .color-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .badge-purple { background: #A891C6; }
+    .badge-blue { background: linear-gradient(135deg, #3D5A80, #2C4563); }
+    .badge-green { background: linear-gradient(135deg, #4A7C59, #3A5F47); }
+    .badge-orange { background: #FF8C42; }
+  </style>
+
+  <!-- Chain Visualization Styles -->
+  <link rel="stylesheet" href="../shared/web/css/chain-visualization.css">
+</head>
+<body>
+  <div class="demo-container">
+    <!-- Header -->
+    <div class="demo-header">
+      <h1 class="demo-title">The Chain Visualization</h1>
+      <p class="demo-subtitle">Interactive mockup recreation with color-coded member cards</p>
+    </div>
+
+    <!-- Color Legend -->
+    <div class="demo-info">
+      <h3>Color Coding Legend</h3>
+      <ul>
+        <li>
+          <span class="color-badge badge-purple"></span>
+          <span><strong>Purple:</strong> Distant/collapsed members</span>
+        </li>
+        <li>
+          <span class="color-badge badge-blue"></span>
+          <span><strong>Blue:</strong> Standard active members</span>
+        </li>
+        <li>
+          <span class="color-badge badge-green"></span>
+          <span><strong>Green:</strong> Current user (YOU)</span>
+        </li>
+        <li>
+          <span class="color-badge badge-orange"></span>
+          <span><strong>Orange:</strong> TIP user / Action zone</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Chain Visualization -->
+    <div class="chain-visualization">
+      <div class="chain-viewport">
+
+        <!-- Purple Card: Collapsed Section Header -->
+        <div class="person-card-v2 person-card-purple" role="button" tabindex="0" aria-label="Expand to see earlier chain members">
+          <div class="person-avatar-v2 empty"></div>
+          <div class="person-content-v2">
+            <!-- Empty content - just visual indicator -->
+          </div>
+        </div>
+
+        <!-- Connector with dashed line -->
+        <div class="ellipsis-connector-top"></div>
+
+        <!-- Collapsed Chain Indicator: 1432 members -->
+        <div class="chain-ellipsis" role="region" aria-label="1432 members collapsed">
+          <div class="ellipsis-line">
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+          </div>
+
+          <div class="ellipsis-count" aria-label="1432 members not shown">
+            1432
+          </div>
+
+          <div class="ellipsis-line">
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+            <div class="ellipsis-dot"></div>
+          </div>
+        </div>
+
+        <!-- Connector with dashed line -->
+        <div class="ellipsis-connector-bottom"></div>
+
+        <!-- Blue Card: @suzi #345 (Inviter - position before current user) -->
+        <div class="person-card-v2 person-card-blue card-clickable" role="button" tabindex="0" aria-label="View suzi's profile, position 345">
+          <div class="person-avatar-v2 empty"></div>
+          <div class="person-content-v2">
+            <div class="person-username">@suzi</div>
+          </div>
+          <div class="person-position"># 345</div>
+        </div>
+
+        <!-- Connector -->
+        <div class="ellipsis-connector-top"></div>
+
+        <!-- Green Card: @jack #346 (Current User - YOU) -->
+        <div class="person-card-v2 person-card-green card-clickable" role="button" tabindex="0" aria-label="You, jack, position 346" aria-current="true">
+          <div class="person-avatar-v2 filled"></div>
+          <div class="person-content-v2">
+            <div class="person-username">@jack</div>
+          </div>
+          <div class="person-position"># 346</div>
+        </div>
+
+        <!-- Connector -->
+        <div class="ellipsis-connector-bottom"></div>
+
+        <!-- Blue Card: @danny #347 (Invitee - position after current user) -->
+        <div class="person-card-v2 person-card-blue card-clickable" role="button" tabindex="0" aria-label="View danny's profile, position 347">
+          <div class="person-avatar-v2 empty"></div>
+          <div class="person-content-v2">
+            <div class="person-username">@danny</div>
+          </div>
+          <div class="person-position"># 347</div>
+        </div>
+
+        <!-- Connector -->
+        <div class="ellipsis-connector-bottom"></div>
+
+        <!-- More ellipsis dots (implied continuation) -->
+        <div class="ellipsis-line" style="padding: 20px 0;">
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+          <div class="ellipsis-dot"></div>
+        </div>
+
+        <!-- Orange Card: Action Zone / TIP User -->
+        <div class="person-card-v2 person-card-orange card-clickable" role="button" tabindex="0" aria-label="Generate invitation or view TIP user">
+          <div class="person-avatar-v2 empty"></div>
+          <div class="person-content-v2">
+            <!-- Empty - could be CTA text like "Generate Ticket" -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Demo Controls (Optional - for interactive demo) -->
+    <div class="demo-info" style="margin-top: 60px;">
+      <h3>Interactive Features</h3>
+      <ul style="grid-template-columns: 1fr;">
+        <li>
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+          </svg>
+          <span><strong>±1 Visibility:</strong> Current user (@jack #346) can see inviter (@suzi #345) and invitee (@danny #347)</span>
+        </li>
+        <li>
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+          </svg>
+          <span><strong>Collapsed Members:</strong> 1,432 members between genesis and visible section (click purple card to expand)</span>
+        </li>
+        <li>
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+          </svg>
+          <span><strong>Green Highlight:</strong> Breathing animation on current user card (@jack) for emphasis</span>
+        </li>
+        <li>
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+          </svg>
+          <span><strong>Hover Effects:</strong> Cards lift slightly on hover with enhanced shadows</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Optional: JavaScript for interactive features -->
+  <script>
+    // Add click handlers for cards
+    document.querySelectorAll('.card-clickable').forEach(card => {
+      card.addEventListener('click', function() {
+        console.log('Card clicked:', this.querySelector('.person-username')?.textContent || 'Action card');
+        // Add your interaction logic here
+      });
+
+      // Keyboard accessibility
+      card.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    });
+
+    // Purple card - expand/collapse functionality
+    const purpleCard = document.querySelector('.person-card-purple');
+    if (purpleCard) {
+      purpleCard.addEventListener('click', function() {
+        console.log('Expand earlier chain members');
+        alert('In production: This would expand to show earlier chain members (positions 1-344)');
+      });
+    }
+
+    // Add ripple effect on click
+    document.querySelectorAll('.person-card-v2').forEach(card => {
+      card.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          left: ${x}px;
+          top: ${y}px;
+          pointer-events: none;
+          animation: ripple 0.6s ease-out;
+        `;
+
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        from {
+          transform: scale(0);
+          opacity: 1;
+        }
+        to {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

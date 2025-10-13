@@ -1,0 +1,361 @@
+/* ============================================
+   CHAIN VISUALIZATION - EXACT MOCKUP MATCH
+   ============================================
+   Based on design mockup with color-coded cards
+   ============================================ */
+
+:root {
+  /* Card Colors from Mockup */
+  --card-purple: #A891C6;
+  --card-blue-start: #3D5A80;
+  --card-blue-end: #2C4563;
+  --card-green-start: #4A7C59;
+  --card-green-end: #3A5F47;
+  --card-orange: #FF8C42;
+
+  /* Border colors */
+  --border-blue-glow: #5B8DBE;
+  --border-green-glow: #5FAF7A;
+
+  /* Text colors */
+  --text-white: #FFFFFF;
+  --text-light: rgba(255, 255, 255, 0.9);
+
+  /* Background */
+  --bg-dark: #1A1A1A;
+  --bg-black: #0A0A0F;
+
+  /* Spacing */
+  --card-spacing: 16px;
+  --card-padding: 20px 24px;
+  --avatar-size: 72px;
+  --avatar-size-sm: 56px;
+}
+
+/* ============================================
+   CHAIN CONTAINER
+   ============================================ */
+
+.chain-visualization {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background: var(--bg-black);
+  min-height: 100vh;
+  position: relative;
+}
+
+.chain-viewport {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* ============================================
+   PERSON CARD - BASE STYLES
+   ============================================ */
+
+.person-card-v2 {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: var(--card-padding);
+  border-radius: 24px;
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.person-card-v2:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   CARD VARIANTS - COLOR CODED
+   ============================================ */
+
+/* Purple Card - Distant/Collapsed Section */
+.person-card-purple {
+  background: var(--card-purple);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(168, 145, 198, 0.2);
+}
+
+/* Blue Card - Standard Active Member */
+.person-card-blue {
+  background: linear-gradient(135deg, var(--card-blue-start) 0%, var(--card-blue-end) 100%);
+  border: 2px solid var(--border-blue-glow);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Green Card - Current User (YOU) */
+.person-card-green {
+  background: linear-gradient(135deg, var(--card-green-start) 0%, var(--card-green-end) 100%);
+  border: 3px solid var(--border-green-glow);
+  box-shadow:
+    0 4px 20px rgba(74, 124, 89, 0.4),
+    0 0 40px rgba(95, 175, 122, 0.2);
+  animation: breathe-green 3s ease-in-out infinite;
+}
+
+/* Orange Card - Action/TIP User */
+.person-card-orange {
+  background: var(--card-orange);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 24px rgba(255, 140, 66, 0.4);
+}
+
+/* ============================================
+   AVATAR
+   ============================================ */
+
+.person-avatar-v2 {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Avatar with filled background (has profile pic or online) */
+.person-avatar-v2.filled {
+  background: linear-gradient(135deg, #4F7CAC 0%, #2E5984 100%);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Empty avatar (no profile pic) */
+.person-avatar-v2.empty {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================
+   CARD CONTENT
+   ============================================ */
+
+.person-content-v2 {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.person-username {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-white);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.person-position {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-white);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   CHAIN CONNECTORS
+   ============================================ */
+
+.chain-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 32px;
+  width: 100%;
+}
+
+.chain-connector::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.chain-connector-dashed {
+  border-left: 2px dashed rgba(255, 255, 255, 0.3);
+  height: 100%;
+  width: 2px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   COLLAPSED CHAIN INDICATOR
+   ============================================ */
+
+.chain-ellipsis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+/* Vertical dotted line */
+.ellipsis-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.ellipsis-dot {
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+}
+
+/* Member count badge */
+.ellipsis-count {
+  position: relative;
+  font-size: 40px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.03em;
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Dashed connectors to/from ellipsis */
+.ellipsis-connector-top,
+.ellipsis-connector-bottom {
+  width: 2px;
+  height: 40px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes breathe-green {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 4px 20px rgba(74, 124, 89, 0.4),
+      0 0 40px rgba(95, 175, 122, 0.2);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow:
+      0 6px 24px rgba(74, 124, 89, 0.5),
+      0 0 50px rgba(95, 175, 122, 0.3);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .chain-viewport {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .person-card-v2 {
+    padding: 16px 20px;
+    min-height: 100px;
+    gap: 16px;
+  }
+
+  .person-avatar-v2 {
+    width: var(--avatar-size-sm);
+    height: var(--avatar-size-sm);
+    font-size: 24px;
+  }
+
+  .person-username {
+    font-size: 24px;
+  }
+
+  .person-position {
+    font-size: 28px;
+    top: 16px;
+    right: 20px;
+  }
+
+  .ellipsis-count {
+    font-size: 32px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .person-card-v2,
+  .person-card-green {
+    animation: none;
+    transition: none;
+  }
+
+  .person-card-v2:hover {
+    transform: none;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.person-card-v2:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 4px;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-clickable:active {
+  transform: scale(0.98);
+}
+
+/* Hide content for screen readers but keep in DOM */
+.sr-only-v2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
