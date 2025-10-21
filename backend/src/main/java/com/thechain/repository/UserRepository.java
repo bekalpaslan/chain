@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -84,4 +85,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * Count active children of a parent user
      */
     Integer countByParentIdAndStatus(UUID parentId, String status);
+
+    /**
+     * Find users within a position range for pagination
+     */
+    List<User> findByPositionBetweenOrderByPositionAsc(Integer startPosition, Integer endPosition);
 }

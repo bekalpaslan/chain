@@ -29,10 +29,10 @@
                                            "status":  "done",
                                            "emotion":  "satisfied",
                                            "current_task":  {
-                                                                "id":  "\"FRAMEWORK-SUMMARY\"",
+                                                                "id":  "\"PROJECT-REVIEW\"",
                                                                 "title":  "Unknown Task"
                                                             },
-                                           "last_activity":  "2025-10-11T06:12:11Z"
+                                           "last_activity":  "2025-10-12T03:38:20Z"
                                        },
                    "solution-architect":  {
                                               "status":  "in_progress",
@@ -41,10 +41,13 @@
                                               "last_activity":  "2025-10-11T05:58:59Z"
                                           },
                    "senior-backend-engineer":  {
-                                                   "status":  "idle",
+                                                   "status":  "in_progress",
                                                    "emotion":  "neutral",
-                                                   "current_task":  null,
-                                                   "last_activity":  "2025-10-11T03:41:00Z"
+                                                   "current_task":  {
+                                                                        "id":  "\"DASHBOARD-IMPL\"",
+                                                                        "title":  "Unknown Task"
+                                                                    },
+                                                   "last_activity":  "2025-10-12T11:13:17Z"
                                                },
                    "principal-database-architect":  {
                                                         "status":  "idle",
@@ -53,40 +56,43 @@
                                                         "last_activity":  "2025-10-11T03:41:41Z"
                                                     },
                    "test-master":  {
-                                       "status":  "done",
-                                       "emotion":  "satisfied",
-                                       "current_task":  null,
-                                       "last_activity":  "2025-10-11T05:29:13Z"
-                                   },
-                   "devops-lead":  {
                                        "status":  "in_progress",
                                        "emotion":  "focused",
                                        "current_task":  {
-                                                            "id":  "\"GIT-OPS\"",
+                                                            "id":  "\"TASK-004\"",
                                                             "title":  "Unknown Task"
                                                         },
-                                       "last_activity":  "2025-10-11T06:45:20Z"
+                                       "last_activity":  "2025-10-12T04:04:18Z"
                                    },
-                   "ui-designer":  {
+                   "devops-lead":  {
                                        "status":  "done",
                                        "emotion":  "satisfied",
                                        "current_task":  null,
-                                       "last_activity":  "2025-10-11T05:57:01Z"
+                                       "last_activity":  "2025-10-12T02:34:47Z"
+                                   },
+                   "ui-designer":  {
+                                       "status":  "in_progress",
+                                       "emotion":  "focused",
+                                       "current_task":  {
+                                                            "id":  "\"DASHBOARD-DESIGN\"",
+                                                            "title":  "Unknown Task"
+                                                        },
+                                       "last_activity":  "2025-10-12T03:42:35Z"
                                    },
                    "web-dev-master":  {
                                           "status":  "done",
                                           "emotion":  "satisfied",
-                                          "current_task":  {
-                                                               "id":  "\"DEBUG-ADMIN\"",
-                                                               "title":  "Unknown Task"
-                                                           },
-                                          "last_activity":  "2025-10-11T06:31:23Z"
+                                          "current_task":  null,
+                                          "last_activity":  "2025-10-12T03:18:05Z"
                                       },
                    "senior-mobile-developer":  {
-                                                   "status":  "done",
-                                                   "emotion":  "satisfied",
-                                                   "current_task":  null,
-                                                   "last_activity":  "2025-10-11T06:12:48Z"
+                                                   "status":  "in_progress",
+                                                   "emotion":  "neutral",
+                                                   "current_task":  {
+                                                                        "id":  "\"DASHBOARD-IMPL\"",
+                                                                        "title":  "Unknown Task"
+                                                                    },
+                                                   "last_activity":  "2025-10-12T11:11:53Z"
                                                },
                    "scrum-master":  {
                                         "status":  "idle",

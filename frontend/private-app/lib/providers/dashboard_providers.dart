@@ -36,6 +36,32 @@ class DashboardDataNotifier extends StateNotifier<AsyncValue<DashboardData>> {
     }
   }
 
+  Future<List<ChainMember>> loadMoreChainMembers(int offset, int limit) async {
+    try {
+      // TODO: Replace with actual paginated API endpoint
+      // For now, simulate pagination with existing data
+      if (state.hasValue && state.value!.chainMembers.isNotEmpty) {
+        // Return empty if we've already loaded all members
+        if (offset >= state.value!.chainMembers.length) {
+          return [];
+        }
+
+        // Return a slice of existing members (simulating pagination)
+        final endIndex = (offset + limit).clamp(0, state.value!.chainMembers.length);
+        return state.value!.chainMembers.sublist(offset, endIndex);
+      }
+
+      // In production, this would be an API call like:
+      // final response = await _apiClient.getChainMembers(offset: offset, limit: limit);
+      // return response.map((json) => ChainMember.fromJson(json)).toList();
+
+      return [];
+    } catch (error) {
+      print('Error loading more chain members: $error');
+      return [];
+    }
+  }
+
   void markNotificationsRead() {
     if (state.hasValue) {
       state = AsyncValue.data(

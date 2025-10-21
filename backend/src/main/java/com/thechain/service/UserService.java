@@ -1,6 +1,5 @@
 package com.thechain.service;
 
-import com.thechain.config.CacheConfig;
 import com.thechain.dto.UserChainResponse;
 import com.thechain.dto.UserProfileResponse;
 import com.thechain.entity.Invitation;
@@ -10,7 +9,6 @@ import com.thechain.repository.InvitationRepository;
 import com.thechain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

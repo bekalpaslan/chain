@@ -80,39 +80,81 @@ public class DashboardService {
     }
 
     /**
-     * Get visible chain members (±1 from user's position)
-     * Shows: parent (position-1), user (position), and child (position+1)
+     * Get visible chain members based on user's admin status
+     * Admins: See entire chain with pagination (5 nodes starting from user's position)
+     * Non-admins: See only parent (position-1), user (position), and child (position+1)
      */
     private List<ChainMemberDto> getVisibleChainMembers(User user) {
         List<ChainMemberDto> members = new ArrayList<>();
 
-        // Add parent (position - 1)
-        if (user.getParentId() != null) {
-            userRepository.findById(user.getParentId()).ifPresent(parent -> {
-                members.add(createChainMemberDto(parent, false));
-            });
-        }
+        if (user.getIsAdmin() != null && user.getIsAdmin()) {
+            // Admin view: Show all chain members for initial load (up to 50)
+            log.info("Loading admin view for user: {} at position: {}", user.getChainKey(), user.getPosition());
 
-        // Add current user
-        members.add(createChainMemberDto(user, true));
+            // For dashboard initial load, show more members (up to 50)
+            int startPosition = 1;
+            Long totalUsers = userRepository.count();
+            int endPosition = Math.min(50, totalUsers.intValue()); // Show up to 50 members initially
 
-        // Add child (position + 1) if exists
-        if (user.getActiveChildId() != null) {
-            userRepository.findById(user.getActiveChildId()).ifPresent(child -> {
-                members.add(createChainMemberDto(child, false));
-            });
-        }
+            // Fetch users in the range
+            List<User> chainUsers = userRepository.findByPositionBetweenOrderByPositionAsc(startPosition, endPosition);
 
-        // If chain has more members, get the current tip
-        Optional<User> tip = userRepository.findTopByOrderByPositionDesc();
-        tip.ifPresent(tipUser -> {
-            if (!tipUser.getId().equals(user.getId()) &&
-                !members.stream().anyMatch(m -> m.getChainKey().equals(tipUser.getChainKey()))) {
-                ChainMemberDto tipDto = createChainMemberDto(tipUser, false);
-                tipDto.setStatus("tip");
-                members.add(tipDto);
+            for (User chainUser : chainUsers) {
+                boolean isCurrentUser = chainUser.getId().equals(user.getId());
+                ChainMemberDto memberDto = createChainMemberDto(chainUser, isCurrentUser);
+
+                // Admin sees full details - no censoring
+                members.add(memberDto);
             }
-        });
+
+            // Add chain metadata for pagination info
+            log.info("Admin view loaded: showing positions {} to {} of {} total (initial load)",
+                    startPosition, endPosition, totalUsers);
+
+        } else {
+            // Non-admin view: Only see parent, self, and child (with censoring for non-adjacent)
+            log.info("Loading standard view for user: {} at position: {}", user.getChainKey(), user.getPosition());
+
+            // Add parent (position - 1)
+            if (user.getParentId() != null) {
+                userRepository.findById(user.getParentId()).ifPresent(parent -> {
+                    ChainMemberDto parentDto = createChainMemberDto(parent, false);
+                    // No censoring for parent - they can see their direct parent
+                    members.add(parentDto);
+                });
+            }
+
+            // Add current user
+            members.add(createChainMemberDto(user, true));
+
+            // Add child (position + 1) if exists
+            if (user.getActiveChildId() != null) {
+                userRepository.findById(user.getActiveChildId()).ifPresent(child -> {
+                    ChainMemberDto childDto = createChainMemberDto(child, false);
+                    // No censoring for child - they can see their direct child
+                    members.add(childDto);
+                });
+            }
+
+            // Add censored tip information if user is not the tip
+            Optional<User> tip = userRepository.findTopByOrderByPositionDesc();
+            tip.ifPresent(tipUser -> {
+                if (!tipUser.getId().equals(user.getId()) &&
+                    !members.stream().anyMatch(m -> m.getChainKey().equals(tipUser.getChainKey()))) {
+                    ChainMemberDto tipDto = createChainMemberDto(tipUser, false);
+                    tipDto.setStatus("tip");
+
+                    // Censor the tip's name for non-admin users (show only first 2 letters)
+                    String displayName = tipUser.getDisplayName();
+                    if (displayName != null && displayName.length() > 2) {
+                        tipDto.setDisplayName(displayName.substring(0, 2).toUpperCase() + "***");
+                    }
+                    tipDto.setChainKey("TIP****"); // Censor chain key too
+
+                    members.add(tipDto);
+                }
+            });
+        }
 
         return members;
     }

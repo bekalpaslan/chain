@@ -657,7 +657,7 @@ INSERT INTO users (
     'US',
     'seed',
     'alpaslan',
-    '$2a$10$N9qo8uLOickgx2Z0J8s42O5P3Qh3vJGqOPXw3V8Cm0fxPX3kGPGxS'  -- bcrypt hash of "alpaslan"
+    '$2a$10$/0wR9/haE0/pMqSV5azSuOMV89edvBKATy3g/IYTW25OCdalTeAuO'  -- bcrypt hash of "alpaslan"
 ) ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
