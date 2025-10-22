@@ -11,7 +11,7 @@ import '../widgets/dashboard/activity_feed_section.dart';
 import '../widgets/dashboard/achievements_section.dart';
 import '../widgets/dashboard/seed_node_widget.dart';
 import '../widgets/dashboard/child_candidate_node_widget.dart';
-import '../widgets/dashboard/paginated_chain_widget.dart';
+import '../widgets/dashboard/enhanced_chain_widget.dart';
 import '../widgets/dashboard/system_notification_panel.dart';
 import '../widgets/dashboard/notification_popup_bar.dart';
 import '../widgets/bottom_panel/chain_stats_panel.dart';
@@ -41,9 +41,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   // Navigation
   int _selectedIndex = 0;
-
-  // Chain drag offset
-  double _chainVerticalOffset = 0.0;
 
   @override
   void initState() {
@@ -105,102 +102,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         // Background gradient
         _buildBackgroundGradient(),
 
-        // Main content
-        CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
+        // Main content - using Column instead of CustomScrollView for full-height chain
+        Column(
+          children: [
             // ====================================================================
             // CONTENT AREA - Building from scratch
             // ====================================================================
 
             // Notification popup bar at the very top
-            SliverToBoxAdapter(
-              child: NotificationPopupBar(
-                notifications: _getSampleNotifications(),
-                onDismiss: () {
-                  // Handle notification dismissal if needed
-                },
-              ),
+            NotificationPopupBar(
+              notifications: _getSampleNotifications(),
+              onDismiss: () {
+                // Handle notification dismissal if needed
+              },
             ),
 
             // Small padding after notification bar
-            const SliverPadding(
-              padding: EdgeInsets.only(top: 12),
-            ),
+            const SizedBox(height: 12),
 
-            // Chain visualization - shows all visible chain members (draggable)
-            SliverToBoxAdapter(
-              child: GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  setState(() {
-                    _chainVerticalOffset += details.delta.dy;
-                    // Clamp the offset to reasonable bounds
-                    _chainVerticalOffset = _chainVerticalOffset.clamp(-200.0, 200.0);
-                  });
-                },
-                onVerticalDragEnd: (details) {
-                  // Animate back to center if dragged too far
-                  if (_chainVerticalOffset.abs() > 150) {
-                    setState(() {
-                      _chainVerticalOffset = 0.0;
-                    });
-                  }
-                },
-                child: Transform.translate(
-                  offset: Offset(0, _chainVerticalOffset),
-                  child: AnimatedContainer(
-                    duration: _chainVerticalOffset == 0.0
-                        ? const Duration(milliseconds: 300)
-                        : Duration.zero,
-                    curve: Curves.easeOutCubic,
-                    height: 500, // Fixed height for the chain visualization
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: Stack(
-                      children: [
-                        // Drag indicator when dragging
-                        if (_chainVerticalOffset != 0)
-                          Positioned(
-                            top: 10,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.darkMystique.shadowDark.withOpacity(0.8),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppTheme.darkMystique.gold.withOpacity(0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  _chainVerticalOffset > 0 ? '↓ Dragging Down ↓' : '↑ Dragging Up ↑',
-                                  style: TextStyle(
-                                    color: AppTheme.darkMystique.gold,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        // The smart paginated chain visualization
-                        PaginatedChainWidget(
-                          initialMembers: data.chainMembers, // Pass all members from backend (now returns 50 for admin)
-                          onLoadMore: (offset, limit) async {
-                            // Load more members using the provider
-                            final notifier = ref.read(dashboardDataProvider.notifier);
-                            return notifier.loadMoreChainMembers(offset, limit);
-                          },
-                          onGenerateTicket: _generateNewTicket,
-                          bufferSize: 10, // Buffer 10 items above and below viewport
-                          pageSize: 20, // Load 20 items at a time
-                        ),
-                      ],
-                    ),
-                  ),
+            // Chain visualization - fills remaining space, static position
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: EnhancedChainWidget(
+                  members: data.chainMembers, // Pass all members from backend (now returns 50 for admin)
+                  scrollController: _scrollController, // Use the existing scroll controller for smooth scrolling
                 ),
               ),
             ),
@@ -270,10 +196,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               ),
             */
 
-            // Bottom padding
-            const SliverPadding(
-              padding: EdgeInsets.only(bottom: 24),
-            ),
+            // Bottom padding - smaller since we're not scrolling
+            const SizedBox(height: 16),
           ],
         ),
 
@@ -286,6 +210,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           left: 24,
           child: _buildFloatingLogoutButton(),
         ),
+
+        // Version indicator
+        _buildVersionIndicator(),
       ],
     );
   }
@@ -360,6 +287,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           onPressed: _openSettings,
         ),
       ],
+    );
+  }
+
+  Widget _buildVersionIndicator() {
+    return Positioned(
+      top: 8,
+      right: 8,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: AppTheme.darkMystique.mysticViolet.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          'v1.2.5', // Mouse drag scrolling fixed
+          style: TextStyle(
+            color: AppTheme.darkMystique.ghostCyan.withOpacity(0.7),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'monospace',
+          ),
+        ),
+      ),
     );
   }
 
