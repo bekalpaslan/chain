@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${DB_NAME:chaindb}
+    username: ${DB_USER:chain_user}
+    password: ${DB_PASSWORD:chain_password123}
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+
+  # Docker profile specific CORS settings
+  web:
+    cors:
+      allowed-origins: http://localhost:3000,http://localhost:3001,http://public-app:3000,http://private-app:3001
+
+# Logging configuration for Docker
+logging:
+  level:
+    com.thechain: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
