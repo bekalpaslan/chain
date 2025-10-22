@@ -55,4 +55,9 @@ public class ChainMemberDto {
      * Number of users this member has successfully invited
      */
     private Integer invitedCount;
+
+    /**
+     * User's country code (ISO 3166-1 alpha-2, e.g., "US", "GB", "DE")
+     */
+    private String countryCode;
 }

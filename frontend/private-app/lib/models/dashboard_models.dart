@@ -87,6 +87,7 @@ class ChainMember {
   final String? avatarEmoji;
   final DateTime? joinedAt;
   final int? invitedCount;
+  final String? countryCode;
 
   ChainMember({
     required this.displayName,
@@ -97,6 +98,7 @@ class ChainMember {
     this.avatarEmoji,
     this.joinedAt,
     this.invitedCount,
+    this.countryCode,
   });
 
   factory ChainMember.fromJson(Map<String, dynamic> json) {
@@ -109,6 +111,7 @@ class ChainMember {
       avatarEmoji: json['avatarEmoji'],
       joinedAt: json['joinedAt'] != null ? DateTime.parse(json['joinedAt']) : null,
       invitedCount: json['invitedCount'],
+      countryCode: json['countryCode'] ?? json['belongsTo'],
     );
   }
 

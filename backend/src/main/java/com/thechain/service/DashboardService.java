@@ -172,6 +172,7 @@ public class DashboardService {
                 .avatarEmoji("👤") // Default emoji, TODO: Add avatarEmoji field to User entity
                 .joinedAt(user.getCreatedAt())
                 .invitedCount(calculateInvitedCount(user.getId()))
+                .countryCode(user.getAssociatedWith()) // Country code from user's associatedWith field
                 .build();
     }
 
