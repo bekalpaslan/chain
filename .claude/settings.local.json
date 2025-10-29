@@ -81,7 +81,16 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjA5OTA4NjUsImV4cCI6MTc2MDk5NDQ2NX0.-xgw1QJD4I9bY6FuioJK33UkAGwwoZ_bl3XK-9zTfVc\")",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlVTRVIwMDAwMDAwMiIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJiMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDIiLCJpYXQiOjE3NjA5OTEzMjAsImV4cCI6MTc2MDk5NDkyMH0.UVLH0WdbovXLT31vjg-zqRG66VwTCOy9o6H9qiP-6Ds\")",
       "Bash(nc localhost 33587)",
-      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjEwMDY4NDIsImV4cCI6MTc2MTAxMDQ0Mn0.qIJCSueON4RkWLLU0AqA42Px_fsydxiJSc480Kc0l7s\")"
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjEwMDY4NDIsImV4cCI6MTc2MTAxMDQ0Mn0.qIJCSueON4RkWLLU0AqA42Px_fsydxiJSc480Kc0l7s\")",
+      "Bash(git restore:*)",
+      "Bash(docker system prune:*)",
+      "Bash(start http://localhost:3001)",
+      "Bash(open http://localhost:3001)",
+      "Bash(xdg-open:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjEwODU2MDAsImV4cCI6MTc2MTA4OTIwMH0.Z8wbWfNIz6Xfh4VJ0M91c2UslgS0pwSYF_MAR-1TwEE\" curl -s -X GET http://localhost:8080/api/v1/dashboard -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(docker restart:*)",
+      "Bash(docker images:*)",
+      "Bash(xcopy:*)"
     ],
     "deny": [],
     "ask": []

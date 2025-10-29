@@ -1,12 +1,12 @@
 # Runtime stage - just serve the pre-built app
 FROM nginx:alpine
 
-# Copy pre-built app
-COPY private-app/build/web /usr/share/nginx/html
+# Copy pre-built app (if exists, otherwise use placeholder)
+COPY build/web /usr/share/nginx/html
 
-# Copy nginx config
-COPY private-app/nginx.conf /etc/nginx/nginx.conf
+# Use default nginx config for now
+# Will add custom nginx.conf later if needed
 
-EXPOSE 3001
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]

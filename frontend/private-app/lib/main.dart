@@ -5,6 +5,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/home_screen.dart'; // Keep for backward compatibility
 import 'theme/app_theme.dart';
+import 'widgets/auth_guard.dart';
 
 void main() {
   runApp(const ProviderScope(child: PrivateApp()));
@@ -23,15 +24,42 @@ class PrivateApp extends StatelessWidget {
       home: const AuthCheckPage(), // Use auth check on startup
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const DashboardScreen(), // Use new dashboard
-        '/dashboard': (context) => const DashboardScreen(),
-        '/chain': (context) => const HomeScreen(), // Keep old chain view
-        '/notifications': (context) => const Scaffold(body: Center(child: Text('Notifications'))),
-        '/settings': (context) => const Scaffold(body: Center(child: Text('Settings'))),
-        '/profile': (context) => const Scaffold(body: Center(child: Text('Profile'))),
-        '/achievements': (context) => const Scaffold(body: Center(child: Text('Achievements'))),
-        '/generate-ticket': (context) => const Scaffold(body: Center(child: Text('Generate Ticket'))),
-        '/active-ticket': (context) => const Scaffold(body: Center(child: Text('Active Ticket'))),
+        '/home': (context) => const AuthGuard(
+          routeName: '/home',
+          child: DashboardScreen(),
+        ),
+        '/dashboard': (context) => const AuthGuard(
+          routeName: '/dashboard',
+          child: DashboardScreen(),
+        ),
+        '/chain': (context) => const AuthGuard(
+          routeName: '/chain',
+          child: HomeScreen(),
+        ),
+        '/notifications': (context) => const AuthGuard(
+          routeName: '/notifications',
+          child: Scaffold(body: Center(child: Text('Notifications'))),
+        ),
+        '/settings': (context) => const AuthGuard(
+          routeName: '/settings',
+          child: Scaffold(body: Center(child: Text('Settings'))),
+        ),
+        '/profile': (context) => const AuthGuard(
+          routeName: '/profile',
+          child: Scaffold(body: Center(child: Text('Profile'))),
+        ),
+        '/achievements': (context) => const AuthGuard(
+          routeName: '/achievements',
+          child: Scaffold(body: Center(child: Text('Achievements'))),
+        ),
+        '/generate-ticket': (context) => const AuthGuard(
+          routeName: '/generate-ticket',
+          child: Scaffold(body: Center(child: Text('Generate Ticket'))),
+        ),
+        '/active-ticket': (context) => const AuthGuard(
+          routeName: '/active-ticket',
+          child: Scaffold(body: Center(child: Text('Active Ticket'))),
+        ),
       },
     );
   }

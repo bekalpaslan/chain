@@ -1,4 +1,0 @@
-# Agent Activity Logs
-# Per-agent JSONL logs documenting work on this task
-# Format: {timestamp, agent, level, emotion, action, message}
-# Example: agent-name.jsonl

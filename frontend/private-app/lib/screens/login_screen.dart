@@ -132,9 +132,17 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         // TODO: Implement remember me functionality
       }
 
-      // Navigate to dashboard
+      // Navigate to intended route or dashboard
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        // Check if there's a redirect route in the arguments
+        final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        final redirectTo = args?['redirectTo'] as String?;
+
+        // Navigate to the intended route or default to home
+        Navigator.pushReplacementNamed(
+          context,
+          redirectTo ?? '/home',
+        );
       }
     } catch (e) {
       // Show error message

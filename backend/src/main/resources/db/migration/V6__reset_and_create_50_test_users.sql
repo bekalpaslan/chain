@@ -16,7 +16,7 @@ DECLARE
     ticket_uuid UUID;
     bcrypt_hash VARCHAR(255) := '$2a$10$N9qo8uLOickgx2ZMRZoMye7aQ3Jvp7n/VKxR4YmJZqKhJvFXg9vKi'; -- password123
 BEGIN
-    -- Create first user (admin, genesis)
+    -- Create first user (genesis)
     user_uuid := 'a0000000-0000-0000-0000-000000000001'::UUID;
     join_time := CURRENT_TIMESTAMP - INTERVAL '250 hours';
 
