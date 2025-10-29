@@ -1,14 +1,18 @@
 package com.thechain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Global chain statistics and metrics")
 public class ChainStatsResponse {
 
@@ -41,6 +45,8 @@ public class ChainStatsResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Recent user attachment to the chain")
     public static class RecentAttachment {
 
