@@ -1,14 +1,89 @@
 # 🚨 CLAUDE START HERE - Critical Project Context
 
-## ⚡ READ THIS FIRST - 2 Critical Things to Know
+> **📍 NEXT TASK:** See **[NEXT_STEPS_ROADMAP.md](NEXT_STEPS_ROADMAP.md)** for implementation plan
+>
+> **Phase 1 (IMMEDIATE):** Remove public-app, make dashboard accessible to all users
 
-### 1. ⚠️ PROJECT NAME CONFUSION WARNING
+---
+
+## ⚡ READ THIS FIRST - 4 Critical Things to Know
+
+### 1. 🔐 PASSWORD MANAGEMENT - RECURRING ISSUE ⚠️
+**CRITICAL: Manual password updates DON'T WORK!**
+
+**The Problem:**
+- Manually updating passwords in the database FAILS
+- Spring Security uses BCrypt hashing
+- Manual encryption uses different algorithms
+- Passwords set manually will NEVER authenticate
+
+**The Solution (ALWAYS USE THIS):**
+```bash
+# Use the set-password endpoint instead of manual DB updates
+curl -X POST http://localhost:8080/api/v1/users/set-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "newPassword": "yourpassword"
+  }'
+```
+
+**Quick Fix for Test Users:**
+```bash
+# Set password for testuser_50
+curl -X POST http://localhost:8080/api/v1/users/set-password \
+  -H "Content-Type: application/json" \
+  -d '{"email": "testuser_50@test.com", "newPassword": "password123"}'
+```
+
+**WHY THIS KEEPS HAPPENING:**
+- BCrypt generates unique salts per-password
+- Spring Security's `PasswordEncoder` handles this automatically
+- Manually hashed passwords lack proper salt generation
+- The `/set-password` endpoint uses Spring's encoder correctly
+
+**Remember:** NEVER update `password_hash` directly in the database!
+
+### 2. 🎟️ AUTOMATIC TICKET SYSTEM - CRITICAL CONCEPT ⚠️
+**CRITICAL: Tickets are NOT user-generated!**
+
+**The Correct Understanding:**
+- ✅ Tickets are **AUTOMATICALLY created** on user registration
+- ✅ Tickets **auto-renew** when they expire (if not used)
+- ✅ Users **VIEW** their active ticket (they don't "generate" it)
+- ✅ 3 expired tickets = 3 strikes = user removed
+- ✅ One successful invite = user is DONE (no more tickets needed)
+
+**What This Means for Code:**
+- ❌ NO "Generate Ticket" button
+- ❌ NO `POST /tickets/generate` endpoint
+- ✅ YES "View Ticket" FAB button (floating action button, bottom-right)
+- ✅ YES `GET /tickets/me/active` endpoint
+- ✅ YES Automatic ticket creation on registration/expiration
+
+**Ticket Lifecycle:**
+```
+User Joins → Ticket Auto-Created (24h)
+    ↓
+If Expired → New Ticket Auto-Created (Strike +1)
+    ↓
+If 3 Strikes → User Removed
+    ↓
+If Success → No More Tickets (User Done!)
+```
+
+**Key Files to Check:**
+- `backend/src/main/java/com/thechain/service/TicketService.java` - Automatic creation logic
+- `frontend/private-app/lib/screens/ticket_view_screen.dart` - View screen (NOT generate)
+- `docs/USER_FLOWS.md` - Flow 2 describes viewing, NOT generating
+
+### 3. ⚠️ PROJECT NAME CONFUSION WARNING
 **CRITICAL: The folder name "ticketz" is MISLEADING!**
 - **This is NOT a ticket/support system**
 - **This IS "The Chain" - a viral social network**
 - **"Tickets" are INVITATIONS to join the network (with QR codes)**
 
-### 2. 📱 TWO DISTINCT APPS (Don't Mix Them!)
+### 4. 📱 TWO DISTINCT APPS (Don't Mix Them!)
 - **public-app** (port 3000): Public stats page, NO authentication
 - **private-app** (port 3001): User dashboard, requires user login
 - **Warning:** "private" means "authenticated users" only!
@@ -182,5 +257,43 @@ These can be used to get specialized expertise for specific tasks.
 
 ---
 
-*Last Updated: 2025-10-21*
-*Simplified to focus on essential project context*
+## 🔧 Common Issues & Quick Fixes
+
+### Password Authentication Failing?
+→ **Use `/set-password` endpoint** (see Section 1 above)
+
+### "Generate Ticket" references in docs/code?
+→ **That's incorrect!** Tickets are automatic (see Section 2 above)
+
+### User can't login?
+```bash
+# Check if password is set correctly
+curl -X POST http://localhost:8080/api/v1/users/set-password \
+  -H "Content-Type: application/json" \
+  -d '{"email": "EMAIL_HERE", "newPassword": "password123"}'
+```
+
+### Frontend API calls failing?
+```bash
+# Check backend is running
+curl http://localhost:8080/api/v1/actuator/health
+
+# Check CORS is enabled (for local dev)
+# CORS should allow localhost:3000 and localhost:3001
+```
+
+### Docker container won't start?
+```bash
+# Check logs
+docker logs chain-backend -f
+
+# Rebuild from scratch
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+---
+
+*Last Updated: 2025-10-30*
+*Added password management and automatic ticket system warnings*

@@ -1,6 +1,9 @@
 # The Chain
 
-> 🚨 **AI ASSISTANTS: Start here → [CLAUDE_START_HERE.md](CLAUDE_START_HERE.md)** - Critical context and orchestrator system guide
+> 🚨 **AI ASSISTANTS: Read these FIRST:**
+> - **[CLAUDE_START_HERE.md](CLAUDE_START_HERE.md)** - Critical context & project overview
+> - **[NEXT_STEPS_ROADMAP.md](NEXT_STEPS_ROADMAP.md)** - ⭐ **NEXT TASK: Phase 1 - Remove public app**
+> - **[KNOWN_ISSUES.md](KNOWN_ISSUES.md)** - Recurring problems & solutions (saves hours!)
 
 > "Grow with solidarity and trust. A social experiment."
 
@@ -12,11 +15,12 @@ The Chain is a minimalist social experience that combines social curiosity, vira
 
 ## 🎯 Core Mechanics
 
-- Each user generates **one shareable QR code ticket**
+- Each user **automatically receives** one shareable QR code ticket upon joining
 - Tickets expire after **24 hours**
-- Unused tickets return to sender and are logged as "wasted attempts"
+- Unused tickets auto-renew and are logged as "strikes" (3 strikes = removal)
 - All attachments are **publicly visible**
 - Users receive a unique **Chain Key** upon joining
+- **One successful invite = Done!** (no more tickets needed)
 
 ## 🏗️ Architecture
 
