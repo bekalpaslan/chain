@@ -35,7 +35,7 @@ class InteractiveChainWidget extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.spacingM),
           // Simplified chain visualization for now
-          ...members.map((member) => _buildMemberCard(member, theme)).toList(),
+          ...members.map((member) => _buildMemberCard(member, theme)),
         ],
       ),
     );

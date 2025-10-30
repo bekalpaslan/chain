@@ -19,12 +19,10 @@ class AppTheme {
         primary: darkMystique.mysticViolet,
         secondary: darkMystique.ghostCyan,
         surface: darkMystique.shadowDark,
-        background: darkMystique.deepVoid,
         error: darkMystique.errorRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.white.withOpacity(0.9),
-        onBackground: Colors.white.withOpacity(0.9),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: darkMystique.shadowDark.withOpacity(0.95),

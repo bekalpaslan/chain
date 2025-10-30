@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thechain_shared/api/api_client.dart';
 import 'package:thechain_shared/models/user.dart';
-import 'package:thechain_shared/utils/storage_helper.dart';
 import 'dart:async';
 import 'dart:math' as math;
 

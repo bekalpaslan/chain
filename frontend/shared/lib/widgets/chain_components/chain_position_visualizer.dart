@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'chain_card.dart';
 
 /// A visual representation of the user's position in the chain

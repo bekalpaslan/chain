@@ -14,7 +14,7 @@ class ApiConstants {
   static const String usersMeDashboard = '/users/me/dashboard';
 
   // Ticket endpoints
-  static const String ticketsGenerate = '/tickets/generate';
+  static const String ticketsMyActive = '/tickets/me/active';
   static const String ticketsById = '/tickets';
 
   // Chain endpoints

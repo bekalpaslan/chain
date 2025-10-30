@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:thechain_shared/models/user.dart';
 import '../../theme/app_theme.dart';
-import 'dart:math' as math;
 
 /// Hero welcome section for the dashboard
 /// Displays personalized greeting, chain key, and status

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:thechain_shared/utils/storage_helper.dart';
-import '../screens/login_screen.dart';
 
 /// Authentication guard widget that protects routes
 /// Checks if user is authenticated before allowing access

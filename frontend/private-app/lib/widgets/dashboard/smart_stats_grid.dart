@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/dashboard_models.dart';
 import '../../theme/app_theme.dart';
-import 'dart:math' as math;
 
 /// Smart stats grid widget
 /// Displays key statistics in an adaptive grid layout

@@ -186,17 +186,17 @@ class ApiClient {
 
   // ========== Ticket endpoints (auth required) ==========
 
-  /// Generate a new invitation ticket
-  Future<Ticket> generateTicket() async {
+  /// Get current user's active ticket
+  Future<Ticket> getMyActiveTicket() async {
     try {
-      final response = await _dio.post(ApiConstants.ticketsGenerate);
+      final response = await _dio.get(ApiConstants.ticketsMyActive);
       return Ticket.fromJson(response.data);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Get ticket details by ID
+  /// Get ticket details by ID (public endpoint)
   Future<Ticket> getTicketById(String ticketId) async {
     try {
       final response = await _dio.get('${ApiConstants.ticketsById}/$ticketId');

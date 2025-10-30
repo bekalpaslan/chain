@@ -42,7 +42,7 @@ class ActivityFeedSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spacingM),
-          ...activities.map((activity) => _buildActivityTile(activity, theme)).toList(),
+          ...activities.map((activity) => _buildActivityTile(activity, theme)),
           if (activities.length >= 5)
             Center(
               child: TextButton(

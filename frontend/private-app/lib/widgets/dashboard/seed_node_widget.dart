@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thechain_shared/models/user.dart';
 import '../../theme/app_theme.dart';
-import 'dart:math' as math;
 
 /// Seed node widget - displays the genesis user at the top of the chain
 class SeedNodeWidget extends StatefulWidget {

@@ -135,7 +135,7 @@ class _CriticalActionsAreaState extends State<CriticalActionsArea>
                 );
               },
             );
-          }).toList(),
+          }),
         ],
       ),
     );
