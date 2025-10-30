@@ -90,7 +90,11 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjEwODU2MDAsImV4cCI6MTc2MTA4OTIwMH0.Z8wbWfNIz6Xfh4VJ0M91c2UslgS0pwSYF_MAR-1TwEE\" curl -s -X GET http://localhost:8080/api/v1/dashboard -H \"Authorization: Bearer $TOKEN\")",
       "Bash(docker restart:*)",
       "Bash(docker images:*)",
-      "Bash(xcopy:*)"
+      "Bash(xcopy:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjE3NzM2OTUsImV4cCI6MTc2MTc3NzI5NX0.FEYtQqaU0Xt2hx8R3r3DwTLcsfy57mHrPDL6g8QWvxw\")",
+      "Bash(Select-String -Pattern \"error -\")",
+      "Bash(Select-Object -First 10)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjE3NzgwODAsImV4cCI6MTc2MTc4MTY4MH0.zmCBdq4Fb2sRrhQddJhB3tS0vtrmbyGajghTDxJ2xn8\")"
     ],
     "deny": [],
     "ask": []
