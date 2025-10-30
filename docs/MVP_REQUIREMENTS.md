@@ -50,7 +50,7 @@ This document defines the **Minimum Viable Product** (MVP) scope for The Chain, 
 
 | Feature | Priority | MVP Scope | Notes |
 |---------|----------|-----------|-------|
-| Generate ticket (QR + deep link) | **P0** | ✅ Full implementation | Core viral mechanism |
+| Automatic ticket creation (QR + deep link) | **P0** | ✅ Full implementation | Auto-created on join/expiration |
 | 24-hour expiration | **P0** | ✅ Server-side enforcement | Core game mechanic |
 | Ticket validation | **P0** | ✅ Signature verification | Security critical |
 | One-time use enforcement | **P0** | ✅ Database constraint | Prevent double claims |
@@ -231,8 +231,8 @@ This document defines the **Minimum Viable Product** (MVP) scope for The Chain, 
 ### Must-Have User Stories (P0)
 
 1. **As a new user**, I can scan a QR code and join the chain.
-2. **As a user**, I can generate my own invitation ticket.
-3. **As a user**, I can see a countdown timer on my ticket.
+2. **As a user**, I automatically receive an invitation ticket to share.
+3. **As a user**, I can see a countdown timer on my active ticket.
 4. **As a user**, I see my position in the chain after joining.
 5. **As a user**, I can view global chain statistics.
 6. **As a user**, I receive a notification when my ticket expires.

@@ -170,7 +170,7 @@ users (
 
     -- Statistics
     wasted_tickets_count INTEGER DEFAULT 0
-    total_tickets_generated INTEGER DEFAULT 0
+    total_tickets_generated INTEGER DEFAULT 0  -- Counter of tickets system auto-created for user
 
     -- Location (optional)
     share_location BOOLEAN DEFAULT FALSE
@@ -455,9 +455,10 @@ POST   /auth/logout               ⏳ Session invalidation (pending)
 
 #### Tickets
 ```
-POST   /tickets/generate          ✅ Generate new invitation ticket
+GET    /tickets/me/active         ✅ Get user's active ticket (auto-created on registration)
 GET    /tickets/{id}              ✅ Get ticket details (with QR code)
 POST   /tickets/validate          ⏳ Validate ticket signature (pending)
+POST   /tickets/scan              ⏳ Scan and use ticket to join chain (pending)
 ```
 
 #### Chain

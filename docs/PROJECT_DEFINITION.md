@@ -11,12 +11,12 @@ The Chain is a minimalist mobile experience that combines social curiosity, vira
 
 ### **2. Concept Overview**
 
-Each user can:
+Each user:
 
-1. **Generate a ticket (QR code)** — shareable with one person.
-2. **Attach one new person** to the chain using that ticket.
+1. **Receives an automatic ticket (QR code)** upon joining — shareable with one person.
+2. **Must successfully invite one person** to the chain using that ticket to complete their obligation.
 
-Tickets expire after **24 hours**. If unused, they **return to the sender** and are recorded as a *wasted attempt* in the public chain history.
+Tickets expire after **24 hours**. If unused, a new ticket is **automatically created** and counted as a *wasted attempt*. After **3 wasted tickets**, the user is removed from the chain.
 
 Participants can view real-time stats about the chain’s size, growth, and global spread. Each participant receives a **unique Chain Key** — their immutable proof of being part of the chain.
 

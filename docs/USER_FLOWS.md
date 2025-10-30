@@ -86,34 +86,32 @@ This document outlines the detailed user journeys through The Chain application,
 
 8. **Home Screen** (first visit)
    - Shows onboarding tutorial overlay
-   - Points to "Generate Ticket" button
+   - Points to "View Ticket" FAB button (floating action button, bottom-right)
    - Shows chain stats
+   - **Active ticket banner** displayed at top if user has no child yet
 
 ### Postconditions
 - User registered and authenticated
 - Parent-child relationship established
-- User can now generate their own ticket
+- **User automatically has an active ticket** (created on registration)
 
 ---
 
-## Flow 2: Generate and Share Invitation Ticket
+## Flow 2: View and Share Active Invitation Ticket
 
 ### Preconditions
 - User is authenticated
-- User has NOT already attached a child
-- User does NOT have an active ticket (or previous ticket expired/cancelled)
+- User has NOT already attached a child (no activeChildId)
+- **User automatically has an active ticket** (system auto-creates on registration/expiration)
 
 ### Steps
 
-1. **Tap "Generate Ticket" Button**
-   - From home screen or dedicated "Invite" tab
+1. **Access Ticket**
+   - Tap "View Ticket" FAB button (bottom-right) OR
+   - Tap active ticket banner at top of dashboard
 
-2. **Ticket Generation Screen**
-   ```
-   [Loading spinner]
-   "Creating your invitation ticket..."
-   ```
-   - App sends `POST /tickets/generate`
+2. **Ticket View Screen** (full-screen)
+   - App sends `GET /tickets/me/active` (auto-fetches user's active ticket)
 
 3. **Ticket Display Screen**
    ```
@@ -142,8 +140,9 @@ This document outlines the detailed user journeys through The Chain application,
      ```
      [Banner notification]
      "Your ticket expired without being used"
-     "Wasted tickets: 3"
-     [Generate New Ticket button]
+     "Strike 1/3"
+     "A new ticket has been created automatically"
+     [View New Ticket button]
      ```
    - If ticket is claimed:
      ```
@@ -298,9 +297,9 @@ This document outlines the detailed user journeys through The Chain application,
    Joined: Oct 5, 2025
    Days in chain: 3
 
-   🎟️ Tickets Generated: 3
-   ❌ Wasted Tickets: 2
-   ✅ Successful Attachment: Yes
+   🎟️ Total Tickets: 3 (auto-renewed)
+   ❌ Wasted Tickets (Strikes): 2/3
+   ✅ Successful Invitation: Yes
    ```
 
 3. **Your Lineage**
@@ -401,11 +400,11 @@ This document outlines the detailed user journeys through The Chain application,
    "⏰ Ticket Expired"
 
    "Your invitation wasn't used within 24 hours."
-   "This counts as a wasted ticket."
+   "This counts as a wasted ticket (strike)."
 
-   "Wasted tickets: 3"
+   "Strikes: 3/3"
+   "You have been removed from the chain"
 
-   [Generate New Ticket button]
    [View Chain button]
    ```
 
@@ -431,9 +430,8 @@ This document outlines the detailed user journeys through The Chain application,
    ```
    "Cancel Ticket?"
 
-   "This will count as a wasted ticket and
-   you won't be able to generate a new one
-   for 10 minutes."
+   "This will count as a wasted ticket (strike 1/3).
+   A new ticket will be created automatically."
 
    [Cancel] [Yes, Cancel Ticket]
    ```
@@ -441,16 +439,17 @@ This document outlines the detailed user journeys through The Chain application,
 3. **If Confirmed**
    - App sends `DELETE /tickets/my`
    - Ticket marked as `cancelled`
-   - Added to `wasted_tickets` table
-   - Shows cooldown period
+   - Strike counter increments
+   - **New ticket automatically created immediately**
 
-4. **Cooldown Screen**
+4. **New Ticket Screen**
    ```
    "Ticket Cancelled"
 
-   "You can generate a new ticket in:"
-   [09:47 countdown]
+   "Strike 1/3"
+   "A new ticket has been created"
 
+   [View New Ticket button]
    [View Chain button]
    ```
 
@@ -567,7 +566,7 @@ This is NOT a user flow, but an administrative action:
    - Inserts first user with position #1
    - Display name: "The Seeder"
    - No parent_id (NULL)
-   - Generates special QR code for first ticket
+   - **System automatically creates first ticket** for seed user
 
 3. **Admin shares seed ticket**
    - Via official social media channels
@@ -575,7 +574,7 @@ This is NOT a user flow, but an administrative action:
 
 4. **Seed account monitoring**
    - Admin monitors if seed ticket is claimed
-   - If not claimed within 24h, generates new ticket
+   - If not claimed within 24h, **system auto-creates new ticket** (no strike for seed)
    - Process repeats until first attachment succeeds
 
 ---
@@ -622,7 +621,7 @@ This is NOT a user flow, but an administrative action:
 ```
 Landing/Login
     ↓
-Home Screen ───────────┬──→ Generate Ticket → Share → [Wait for claim]
+Home Screen ───────────┬──→ View Active Ticket (FAB) → Share → [Wait for claim]
     │                  │
     ├─→ Stats Tab ─────┼──→ Global Stats
     │                  │

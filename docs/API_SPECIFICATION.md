@@ -176,19 +176,12 @@ Get current user information.
 
 ## Ticket Management
 
-### POST /tickets/generate
-Generate a new invitation ticket (one per user, replaces previous unused ticket).
+### GET /tickets/me/active
+Get user's active invitation ticket (automatically created by system on registration/expiration).
 
 **Headers:** `Authorization: Bearer {token}`
 
-**Request:**
-```json
-{
-  "message": "string (optional, max 100 chars)"
-}
-```
-
-**Response (201 Created):**
+**Response (200 OK):**
 ```json
 {
   "ticketId": "uuid",
@@ -198,13 +191,15 @@ Generate a new invitation ticket (one per user, replaces previous unused ticket)
   "signature": "base64-signature",
   "issuedAt": "2025-10-08T12:34:56Z",
   "expiresAt": "2025-10-09T12:34:56Z",
-  "status": "active"
+  "status": "active",
+  "attemptNumber": 2,
+  "wastedTicketsCount": 1
 }
 ```
 
 **Errors:**
-- `409` - User already has an active ticket or already attached someone
-- `429` - Rate limit (max 1 ticket per 10 minutes after returns)
+- `404` - User has no active ticket (already successfully invited someone)
+- `401` - Unauthorized
 
 ---
 
@@ -554,7 +549,7 @@ All errors follow this format:
 | Endpoint | Limit |
 |----------|-------|
 | POST /auth/register | 3 per device per day |
-| POST /tickets/generate | 1 per 10 minutes per user |
+| GET /tickets/me/active | No limit (view own ticket) |
 | GET /chain/* | 100 per minute per user |
 | POST /auth/refresh | 10 per hour per token |
 
