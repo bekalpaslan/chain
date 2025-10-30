@@ -46,17 +46,47 @@ public class TicketService {
     @Value("${ticket.expiration-hours}")
     private int expirationHours;
 
-    @Transactional
-    public TicketResponse generateTicket(UUID userId) {
+    /**
+     * Get the active ticket for a user.
+     * Returns 404 if user has no active ticket (successfully completed invitation).
+     */
+    public TicketResponse getActiveTicketForUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
 
-        // Check if user already has an active invitee
+        // Check if user has already successfully invited someone
+        if (user.getActiveChildId() != null) {
+            throw new BusinessException("NO_ACTIVE_TICKET", "User has already successfully completed their invitation");
+        }
+
+        // Find active ticket
+        Ticket ticket = ticketRepository.findByOwnerIdAndStatus(userId, Ticket.TicketStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException("NO_ACTIVE_TICKET", "No active ticket found"));
+
+        // Check if ticket has expired (update status if needed)
+        if (ticket.getExpiresAt().isBefore(Instant.now()) && ticket.getStatus() == Ticket.TicketStatus.ACTIVE) {
+            ticket.setStatus(Ticket.TicketStatus.EXPIRED);
+            ticketRepository.save(ticket);
+        }
+
+        return buildTicketResponse(ticket);
+    }
+
+    /**
+     * Internal method to create a new ticket for a user.
+     * Called automatically after registration or ticket expiration.
+     */
+    @Transactional
+    public Ticket createTicketForUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
+
+        // Check if user already has an active invitee (shouldn't create ticket)
         if (user.getActiveChildId() != null) {
             throw new BusinessException("ALREADY_HAS_INVITEE", "User already has an active invitee");
         }
 
-        // Check for existing active ticket
+        // Check for existing active ticket (avoid duplicates)
         ticketRepository.findByOwnerIdAndStatus(userId, Ticket.TicketStatus.ACTIVE)
                 .ifPresent(existingTicket -> {
                     throw new BusinessException("ACTIVE_TICKET_EXISTS", "User already has an active ticket");
@@ -79,9 +109,9 @@ public class TicketService {
 
         ticket = ticketRepository.save(ticket);
 
-        log.info("Ticket generated for user {} ({})", user.getChainKey(), ticket.getId());
+        log.info("Ticket created for user {} ({})", user.getChainKey(), ticket.getId());
 
-        return buildTicketResponse(ticket);
+        return ticket;
     }
 
     @Cacheable(value = CacheConfig.TICKET_CACHE, key = "#ticketId")
@@ -195,6 +225,15 @@ public class TicketService {
             removeUserFromChain(owner);
         } else {
             userRepository.save(owner);
+
+            // Automatically create a new ticket for the user (hot potato continues!)
+            // They get a fresh 24-hour ticket immediately
+            try {
+                createTicketForUser(owner.getId());
+                log.info("New ticket auto-created for user {} after expiration", owner.getChainKey());
+            } catch (Exception e) {
+                log.error("Failed to auto-create ticket for user {} after expiration", owner.getChainKey(), e);
+            }
         }
 
         log.info("Ticket {} expired for user {}", ticketId, owner.getChainKey());

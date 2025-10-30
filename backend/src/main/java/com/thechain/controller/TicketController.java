@@ -27,41 +27,36 @@ public class TicketController {
 
     private final TicketService ticketService;
 
-    @PostMapping("/generate")
+    @GetMapping("/me/active")
     @Operation(
-        summary = "Generate invite ticket",
-        description = "Creates a new invite ticket with QR code for the authenticated user. " +
-                     "Users can only have one active ticket at a time. Tickets expire after 24 hours. " +
-                     "There's a 10-minute cooldown between ticket generations."
+        summary = "Get my active ticket",
+        description = "Retrieves the currently authenticated user's active ticket. " +
+                     "Every user in the chain has an active ticket until they successfully invite someone. " +
+                     "Tickets expire after 24 hours and are automatically renewed (with a strike penalty)."
     )
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "201",
-            description = "Ticket generated successfully",
+            responseCode = "200",
+            description = "Active ticket found",
             content = @Content(schema = @Schema(implementation = TicketResponse.class))
         ),
         @ApiResponse(
-            responseCode = "400",
-            description = "User already has an active ticket or is in cooldown period",
+            responseCode = "404",
+            description = "No active ticket found (user has successfully completed their invitation)",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "401",
             description = "Authentication required",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "409",
-            description = "User already has an active child (cannot generate new ticket)",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    public ResponseEntity<TicketResponse> generateTicket(
+    public ResponseEntity<TicketResponse> getMyActiveTicket(
         @Parameter(description = "User ID from JWT token", required = true, hidden = true)
         @RequestHeader("X-User-Id") UUID userId
     ) {
-        TicketResponse response = ticketService.generateTicket(userId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        TicketResponse response = ticketService.getActiveTicketForUser(userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{ticketId}")

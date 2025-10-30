@@ -120,6 +120,15 @@ public class AuthService {
         // Check if parent deserves Chain Savior badge
         chainService.checkAndAwardChainSaviorBadge(parent);
 
+        // Automatically create a ticket for the new user (hot potato starts immediately!)
+        try {
+            ticketService.createTicketForUser(newUser.getId());
+            log.info("Initial ticket created for new user {}", newUser.getChainKey());
+        } catch (Exception e) {
+            log.error("Failed to create initial ticket for new user {}", newUser.getChainKey(), e);
+            // Don't fail registration if ticket creation fails - can be retried later
+        }
+
         log.info("New user registered: {} at position {}", newUser.getChainKey(), newUser.getPosition());
 
         // Generate tokens
