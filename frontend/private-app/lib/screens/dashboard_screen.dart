@@ -3,14 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thechain_shared/models/user.dart';
 import '../models/dashboard_models.dart';
-import '../widgets/dashboard/hero_welcome_section.dart';
-import '../widgets/dashboard/critical_actions_area.dart';
-import '../widgets/dashboard/smart_stats_grid.dart';
-import '../widgets/dashboard/interactive_chain_widget.dart';
-import '../widgets/dashboard/activity_feed_section.dart';
-import '../widgets/dashboard/achievements_section.dart';
-import '../widgets/dashboard/seed_node_widget.dart';
-import '../widgets/dashboard/child_candidate_node_widget.dart';
+import '../models/ticket_models.dart';
 import '../widgets/dashboard/enhanced_chain_widget.dart';
 import '../widgets/dashboard/system_notification_panel.dart';
 import '../widgets/dashboard/notification_popup_bar.dart';
@@ -18,6 +11,10 @@ import '../widgets/bottom_panel/chain_stats_panel.dart';
 import '../widgets/bottom_panel/map_button_panel.dart';
 import '../widgets/bottom_panel/activity_button_panel.dart';
 import '../providers/dashboard_providers.dart';
+import '../providers/ticket_providers.dart';
+import '../widgets/ticket/active_ticket_banner.dart';
+import '../widgets/ticket/strike_warning_banner.dart';
+import '../widgets/ticket/ticket_share_fab.dart';
 import '../theme/app_theme.dart';
 import 'package:thechain_shared/utils/storage_helper.dart';
 
@@ -48,9 +45,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     _initializeAnimations();
     _initializeScrollController();
 
-    // Load dashboard data
+    // Load dashboard data and active ticket
     Future.microtask(() {
       ref.read(dashboardDataProvider.notifier).loadDashboardData();
+      ref.read(activeTicketProvider.notifier).fetchActiveTicket();
     });
   }
 
@@ -97,6 +95,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Widget _buildDashboard(DashboardData data) {
+    final activeTicketState = ref.watch(activeTicketProvider);
+    final shouldShowTicketUI = data.user.activeChildId == null; // Show ticket UI only if user hasn't succeeded
+
     return Stack(
       children: [
         // Background gradient
@@ -119,6 +120,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
             // Small padding after notification bar
             const SizedBox(height: 12),
+
+            // Strike warning banner (if 2 or 3 strikes)
+            if (shouldShowTicketUI && data.user.wastedTicketsCount >= 2)
+              StrikeWarningBanner(strikeCount: data.user.wastedTicketsCount),
+
+            // Active ticket banner
+            if (shouldShowTicketUI)
+              activeTicketState.when(
+                data: (ticket) {
+                  if (ticket != null && ticket.isActive) {
+                    return ActiveTicketBanner(
+                      ticket: ticket,
+                      onTap: _navigateToTicketView,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
 
             // Chain visualization - fills remaining space, static position
             Expanded(
@@ -210,6 +231,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           left: 24,
           child: _buildFloatingLogoutButton(),
         ),
+
+        // Floating Action Button for ticket viewing (bottom-right)
+        if (shouldShowTicketUI)
+          activeTicketState.when(
+            data: (ticket) {
+              if (ticket != null && ticket.isActive) {
+                return Positioned(
+                  bottom: 24,
+                  right: 24,
+                  child: TicketShareFAB(
+                    ticket: ticket,
+                    onPressed: _navigateToTicketView,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
 
         // Version indicator
         _buildVersionIndicator(),
@@ -568,16 +609,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     Navigator.pushNamed(context, '/settings');
   }
 
-  void _generateNewTicket() {
-    HapticFeedback.mediumImpact();
-    Navigator.pushNamed(context, '/generate-ticket');
-  }
-
-  void _viewActiveTicket() {
-    HapticFeedback.lightImpact();
-    Navigator.pushNamed(context, '/active-ticket');
-  }
-
   void _showMapPopup() {
     HapticFeedback.lightImpact();
     final theme = AppTheme.darkMystique;
@@ -889,5 +920,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         ),
       ),
     );
+  }
+
+  // ========== Ticket Methods ==========
+
+  void _navigateToTicketView() {
+    Navigator.pushNamed(context, '/ticket');
   }
 }

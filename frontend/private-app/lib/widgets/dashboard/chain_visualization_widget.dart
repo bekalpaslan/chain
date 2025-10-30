@@ -6,12 +6,10 @@ import '../../theme/app_theme.dart';
 /// Shows 5 members for admin users, 3 for regular users
 class ChainVisualizationWidget extends StatefulWidget {
   final List<ChainMember> chainMembers;
-  final VoidCallback? onGenerateTicket;
 
   const ChainVisualizationWidget({
     super.key,
     required this.chainMembers,
-    this.onGenerateTicket,
   });
 
   @override
@@ -161,12 +159,6 @@ class _ChainVisualizationWidgetState extends State<ChainVisualizationWidget>
 
       // Build node with integrated connector
       widgets.add(_buildMemberNodeWithConnector(member, !isLast));
-    }
-
-    // Add generate ticket button if user is the tip
-    if (widget.chainMembers.isNotEmpty &&
-        widget.chainMembers.any((m) => m.isCurrentUser && m.status == ChainMemberStatus.tip)) {
-      widgets.add(_buildGenerateTicketButton());
     }
 
     return widgets;
@@ -420,7 +412,7 @@ class _ChainVisualizationWidgetState extends State<ChainVisualizationWidget>
   Widget _buildConnector() {
     final theme = AppTheme.darkMystique;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 24,
       child: Center(
@@ -480,67 +472,6 @@ class _ChainVisualizationWidgetState extends State<ChainVisualizationWidget>
               ),
         );
       },
-    );
-  }
-
-  Widget _buildGenerateTicketButton() {
-    final theme = AppTheme.darkMystique;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          // Add button circle
-          GestureDetector(
-            onTap: widget.onGenerateTicket,
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.mysticViolet.withOpacity(0.1),
-                border: Border.all(
-                  color: theme.mysticViolet.withOpacity(0.5),
-                  width: 2,
-                  style: BorderStyle.solid,
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.add,
-                  color: theme.mysticViolet,
-                  size: 28,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Invite text
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.mysticViolet.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: theme.mysticViolet.withOpacity(0.2),
-                  width: 1,
-                  style: BorderStyle.solid,
-                ),
-              ),
-              child: Text(
-                'Generate Invitation',
-                style: TextStyle(
-                  color: theme.mysticViolet,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

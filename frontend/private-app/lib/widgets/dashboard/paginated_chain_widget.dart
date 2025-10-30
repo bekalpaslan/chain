@@ -7,7 +7,6 @@ import '../../theme/app_theme.dart';
 class PaginatedChainWidget extends StatefulWidget {
   final List<ChainMember> initialMembers;
   final Future<List<ChainMember>> Function(int offset, int limit) onLoadMore;
-  final VoidCallback? onGenerateTicket;
   final int bufferSize;
   final int pageSize;
 
@@ -15,7 +14,6 @@ class PaginatedChainWidget extends StatefulWidget {
     super.key,
     required this.initialMembers,
     required this.onLoadMore,
-    this.onGenerateTicket,
     this.bufferSize = 10, // Load 10 extra items above and below viewport
     this.pageSize = 20, // Load 20 items at a time
   });
@@ -38,7 +36,7 @@ class _PaginatedChainWidgetState extends State<PaginatedChainWidget>
 
   // Viewport tracking
   double _viewportHeight = 0;
-  double _itemHeight = 140; // Estimated height per chain item
+  final double _itemHeight = 140; // Estimated height per chain item
 
   // Buffer management
   final Map<int, bool> _bufferedPositions = {};
@@ -361,34 +359,13 @@ class _PaginatedChainWidgetState extends State<PaginatedChainWidget>
                 return _buildLoadingIndicator();
               }
 
-              // Generate ticket button for tip user
-              if (!_hasMore &&
-                  index == _allMembers.length &&
-                  _allMembers.isNotEmpty &&
-                  _allMembers.last.isCurrentUser &&
-                  _allMembers.last.status == ChainMemberStatus.tip) {
-                return Column(
-                  children: [
-                    _buildAnimatedConnector(),
-                    _buildGenerateTicketButton(),
-                  ],
-                );
-              }
-
               return null;
             },
-            childCount: _allMembers.length + (_isLoadingMore ? 1 : 0) +
-                      (!_hasMore && _shouldShowGenerateButton() ? 1 : 0),
+            childCount: _allMembers.length + (_isLoadingMore ? 1 : 0),
           ),
         ),
       ],
     );
-  }
-
-  bool _shouldShowGenerateButton() {
-    return _allMembers.isNotEmpty &&
-           _allMembers.last.isCurrentUser &&
-           _allMembers.last.status == ChainMemberStatus.tip;
   }
 
   Widget _buildMemberNode(ChainMember member, int index) {
@@ -602,7 +579,7 @@ class _PaginatedChainWidgetState extends State<PaginatedChainWidget>
   Widget _buildAnimatedConnector() {
     final theme = AppTheme.darkMystique;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 24,
       child: Center(
@@ -667,59 +644,6 @@ class _PaginatedChainWidgetState extends State<PaginatedChainWidget>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGenerateTicketButton() {
-    final theme = AppTheme.darkMystique;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.mediumImpact();
-          widget.onGenerateTicket?.call();
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                theme.mysticViolet.withOpacity(0.1),
-                theme.mysticViolet.withOpacity(0.05),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: theme.mysticViolet.withOpacity(0.3),
-              width: 2,
-              style: BorderStyle.solid,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: theme.mysticViolet,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Generate Invitation Ticket',
-                style: TextStyle(
-                  color: theme.mysticViolet,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

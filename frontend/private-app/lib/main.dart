@@ -4,6 +4,7 @@ import 'package:thechain_shared/thechain_shared.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/home_screen.dart'; // Keep for backward compatibility
+import 'screens/ticket_view_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/auth_guard.dart';
 
@@ -52,13 +53,9 @@ class PrivateApp extends StatelessWidget {
           routeName: '/achievements',
           child: Scaffold(body: Center(child: Text('Achievements'))),
         ),
-        '/generate-ticket': (context) => const AuthGuard(
-          routeName: '/generate-ticket',
-          child: Scaffold(body: Center(child: Text('Generate Ticket'))),
-        ),
-        '/active-ticket': (context) => const AuthGuard(
-          routeName: '/active-ticket',
-          child: Scaffold(body: Center(child: Text('Active Ticket'))),
+        '/ticket': (context) => const AuthGuard(
+          routeName: '/ticket',
+          child: TicketViewScreen(),
         ),
       },
     );
