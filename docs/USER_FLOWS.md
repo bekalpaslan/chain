@@ -181,7 +181,7 @@ This document outlines the detailed user journeys through The Chain application,
 
 ### Preconditions
 - User previously registered
-- App installed on same device OR user has credentials
+- App installed on same device OR user has email/password credentials
 
 ### Steps
 
@@ -195,6 +195,8 @@ This document outlines the detailed user journeys through The Chain application,
      - Shows home screen
 
 3. **Manual login** (if token expired/cleared)
+
+#### Flow 3A: Device Fingerprint Login (Passwordless)
    ```
    "Welcome back to The Chain"
 
@@ -202,15 +204,43 @@ This document outlines the detailed user journeys through The Chain application,
    "Tap to continue on this device"
    [Login button]
 
-   [Lost access? link]
+   [Login with Email/Password link]
    ```
    - App sends `POST /auth/login` with device fingerprint
    - **Success:** Home screen
-   - **Error:** Device not recognized → Contact support
+   - **Error:** Device not recognized → Show Flow 3B
+
+#### Flow 3B: Email/Password Login (Implemented Oct 9, 2025)
+   ```
+   "Welcome back to The Chain"
+
+   Email Address
+   [Text input]
+
+   Password
+   [Password input]
+
+   [Remember this device checkbox] ← NEW
+   [Login button]
+
+   [Forgot password? link]
+   ```
+   - User enters email and password
+   - If "Remember this device" is checked:
+     - App includes deviceId and deviceFingerprint in request
+     - Device will be registered for future fast logins
+   - App sends `POST /auth/login` with email/password (+ optional device info)
+   - Server validates credentials with BCrypt
+   - **Success:** Returns JWT tokens → Home screen
+   - **Errors:**
+     - `404` User not found → "Email not found"
+     - `401` Invalid password → "Incorrect password"
+     - `409` Device already registered → "This device is linked to another account"
 
 ### Postconditions
 - User authenticated and sees current chain status
 - WebSocket reconnects for real-time updates
+- If device was registered, future logins can use Flow 3A
 
 ---
 
@@ -417,11 +447,18 @@ This document outlines the detailed user journeys through The Chain application,
 
 ## Flow 8: Cancel Active Ticket
 
+**Status:** ⚠️ Backend implemented, **UI deferred to v1.1**
+
 ### Preconditions
 - User has active ticket
 - Ticket not yet used
+- **Note:** Cancel button NOT in MVP UI (users must let tickets expire naturally)
 
-### Steps
+### Backend Implementation (Available via API)
+
+**Endpoint:** `DELETE /tickets/my`
+
+### Steps (If UI is implemented)
 
 1. **On Ticket Display Screen**
    - Tap "Cancel Ticket" button (secondary action)
@@ -452,6 +489,9 @@ This document outlines the detailed user journeys through The Chain application,
    [View New Ticket button]
    [View Chain button]
    ```
+
+### MVP Note
+For MVP, users cannot manually cancel tickets through the UI. Tickets expire naturally after 24 hours if unused. The backend endpoint exists for future implementation or manual admin operations.
 
 ---
 

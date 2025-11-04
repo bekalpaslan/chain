@@ -158,7 +158,8 @@ Get current user information.
   "displayName": "Alice",
   "position": 42,
   "parentId": "uuid",
-  "childId": "uuid or null",
+  "inviterPosition": 41,
+  "inviteePosition": 43,
   "createdAt": "2025-10-08T12:34:56Z",
   "ticketStatus": {
     "hasActiveTicket": true,
@@ -171,6 +172,8 @@ Get current user information.
   }
 }
 ```
+
+**Note:** `inviteePosition` is `null` if the user hasn't successfully invited anyone yet.
 
 ---
 
@@ -501,9 +504,9 @@ Headers: Authorization: Bearer {token}
   "type": "user.ticket.used",
   "data": {
     "ticketId": "uuid",
-    "childId": "uuid",
-    "childDisplayName": "Charlie",
-    "childPosition": 123457,
+    "inviteeId": "uuid",
+    "inviteeDisplayName": "Charlie",
+    "inviteePosition": 123457,
     "usedAt": "2025-10-08T12:34:56Z"
   }
 }

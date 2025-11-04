@@ -27,19 +27,23 @@ This document defines the **Minimum Viable Product** (MVP) scope for The Chain, 
 
 | Feature | Priority | MVP Scope | Notes |
 |---------|----------|-----------|-------|
-| Device-based registration | **P0** | ✅ Full implementation | Core authentication method |
+| **Hybrid Authentication** | **P0** | ✅ **Full implementation (Oct 9, 2025)** | Email/Password + Device Fingerprint |
+| Device-based registration | **P0** | ✅ Full implementation | Passwordless authentication |
+| Email/Password authentication | **P0** | ✅ Full implementation | BCrypt hashing, optional device registration |
 | JWT token auth | **P0** | ✅ Access + refresh tokens | Required for API security |
 | Display name (optional) | **P0** | ✅ With "Anonymous #N" default | User identity |
 | Chain Key generation | **P0** | ✅ Auto-generated unique ID | Immutable identifier |
 | Profile view | **P1** | ✅ Basic profile screen | Show chain key, stats |
 | Profile editing | **P1** | ✅ Change display name only | Location toggle deferred to P1.5 |
-| Multi-device support | **P2** | ❌ Defer to v1.1 | Single device per user for MVP |
+| Multi-device support | **P1** | ✅ Via email/password | Devices can register during email login |
 | Account deletion | **P2** | ❌ Defer to v1.1 | Manual support process for MVP |
-| Social login (Apple/Google) | **P3** | ❌ Defer to v2.0 | Device-based auth sufficient |
+| Social login (Apple/Google) | **P3** | ❌ Defer to v2.0 | Hybrid auth sufficient |
 
 **MVP Scope:**
-- Device fingerprinting on registration
-- Single device per user (no device switching)
+- **Hybrid authentication** with two methods:
+  1. Email/Password (BCrypt) - allows multi-device
+  2. Device fingerprint (SHA-256) - passwordless
+- Optional device registration during email login for fast future logins
 - Basic profile with chain key and stats
 - Display name can be updated
 - No account deletion UI (support handles manually)
@@ -59,7 +63,7 @@ This document defines the **Minimum Viable Product** (MVP) scope for The Chain, 
 | Ticket expiration notification | **P1** | ✅ Push notification | User awareness |
 | Ticket countdown timer | **P1** | ✅ Live countdown | Creates urgency |
 | Wasted ticket tracking | **P1** | ✅ Count visible in profile | Transparency feature |
-| Cancel ticket manually | **P2** | ❌ Defer to v1.1 | Let them expire naturally |
+| Cancel ticket manually | **P2** | ⚠️ **Backend implemented, UI deferred** | `/tickets/my` DELETE endpoint exists, counts as strike |
 | Custom ticket message | **P2** | ❌ Defer to v1.2 | Plain tickets for MVP |
 | Ticket generation cooldown | **P2** | ⚠️ Basic (10 min after waste) | Full abuse protection in v1.1 |
 
@@ -497,6 +501,19 @@ If by Month 3:
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2025-10-08
-**Status:** Ready for development kickoff
+## Document Change Log
+
+### Version 1.1 (November 4, 2025)
+- ✅ Added **Hybrid Authentication** as P0 feature (implemented Oct 9, 2025)
+- ✅ Updated multi-device support to P1 (available via email/password)
+- ✅ Clarified cancel ticket status (backend implemented, UI deferred)
+- ✅ Updated MVP Scope section with hybrid auth details
+
+### Version 1.0 (October 8, 2025)
+- Initial MVP requirements document
+
+---
+
+**Document Version:** 1.1
+**Last Updated:** 2025-11-04
+**Status:** Updated to reflect current implementation

@@ -18,27 +18,53 @@ CREATE TABLE users (
     chain_key VARCHAR(32) UNIQUE NOT NULL,           -- Immutable public identifier
     display_name VARCHAR(50) NOT NULL,
     position INTEGER UNIQUE NOT NULL,                -- Position in chain (sequential)
+
+    -- Relationships (position-based for ±1 visibility)
     parent_id UUID REFERENCES users(id),             -- NULL for seed user
-    child_id UUID REFERENCES users(id),              -- NULL if no child yet
-    device_id VARCHAR(255) NOT NULL,                 -- For device-based auth
-    device_fingerprint VARCHAR(255) NOT NULL,
-    share_location BOOLEAN DEFAULT false,
+    inviter_position INTEGER,                        -- Position of parent (denormalized for performance)
+    invitee_position INTEGER,                        -- Position of active child (NULL if no child yet)
+
+    -- Authentication (Hybrid: Email/Password + Device Fingerprint)
+    email VARCHAR(255),                              -- Optional, for email/password auth
+    email_verified BOOLEAN DEFAULT FALSE,
+    password_hash VARCHAR(255),                      -- BCrypt hash (cost factor 10)
+    device_id VARCHAR(255),                          -- For device-based auth
+    device_fingerprint VARCHAR(255),                 -- SHA-256 hash of device metadata
+
+    -- Profile
+    share_location BOOLEAN DEFAULT FALSE,
     location_lat DECIMAL(9,6),
     location_lon DECIMAL(9,6),
     location_country CHAR(2),                        -- ISO country code
     location_city VARCHAR(100),
+
+    -- Status & Tracking
+    status VARCHAR(20) DEFAULT 'active',             -- active, removed, seed
+    removal_reason VARCHAR(50),
+    removed_at TIMESTAMP WITH TIME ZONE,
+    wasted_tickets_count INTEGER DEFAULT 0,          -- Counter for 3-strike removal
+    last_active_at TIMESTAMP WITH TIME ZONE,
+
+    -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE,             -- Soft delete
 
     INDEX idx_users_chain_key (chain_key),
     INDEX idx_users_parent_id (parent_id),
-    INDEX idx_users_child_id (child_id),
+    INDEX idx_users_invitee_position (invitee_position),
     INDEX idx_users_position (position),
     INDEX idx_users_device_id (device_id),
+    INDEX idx_users_device_fingerprint (device_fingerprint),
+    INDEX idx_users_email (email),
     INDEX idx_users_created_at (created_at),
-    INDEX idx_users_location_country (location_country)
+    INDEX idx_users_location_country (location_country),
+    INDEX idx_users_status (status)
 );
+
+-- Migration Note (October 8, 2025):
+-- Changed from child_id (UUID reference) to invitee_position (INTEGER)
+-- This enables position-based ±1 visibility without circular dependencies
 
 -- Generate unique chain_key on insert
 CREATE OR REPLACE FUNCTION generate_chain_key()
@@ -256,13 +282,14 @@ SELECT
     u.display_name,
     u.position,
     u.parent_id,
-    u.child_id,
+    u.inviter_position,
+    u.invitee_position,
     u.location_country,
     u.location_city,
     u.created_at,
     u.deleted_at,
     COALESCE(wt.wasted_count, 0) as wasted_tickets_count,
-    CASE WHEN u.child_id IS NOT NULL THEN TRUE ELSE FALSE END as has_child
+    CASE WHEN u.invitee_position IS NOT NULL THEN TRUE ELSE FALSE END as has_child
 FROM users u
 LEFT JOIN (
     SELECT owner_id, COUNT(*) as wasted_count
