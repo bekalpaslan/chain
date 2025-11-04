@@ -42,4 +42,19 @@ public class UserProfileResponse {
 
     @Schema(description = "Account creation timestamp", example = "2024-01-15T10:30:00Z")
     private Instant createdAt;
+
+    @Schema(description = "Membership tier: candidate (probationary) or permanent (verified)", example = "candidate", allowableValues = {"candidate", "permanent"})
+    private String membershipTier;
+
+    @Schema(description = "Timestamp when user was promoted to permanent status", example = "2024-01-20T15:45:00Z")
+    private Instant promotedToPermanentAt;
+
+    @Schema(description = "Depth of invitee chain (0=no child, 1=has child, 2=has grandchild)", example = "1")
+    private Integer inviteeDepth;
+
+    @Schema(description = "Indicates if user has achieved permanent status", example = "false")
+    private Boolean isPermanent;
+
+    @Schema(description = "Next ticket duration in hours if user needs to retry", example = "12")
+    private Integer nextTicketDurationHours;
 }

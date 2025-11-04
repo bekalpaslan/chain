@@ -41,4 +41,16 @@ public class TicketResponse {
 
     @Schema(description = "UUID of the ticket owner (issuer)", example = "b2c3d4e5-f6a7-8901-bcde-f12345678901")
     private UUID ownerId;
+
+    @Schema(description = "Which attempt number this is (1, 2, or 3)", example = "1")
+    private Integer attemptNumber;
+
+    @Schema(description = "Current ticket duration in hours", example = "24")
+    private Integer durationHours;
+
+    @Schema(description = "Strike count for the ticket owner", example = "0")
+    private Integer strikeCount;
+
+    @Schema(description = "Duration of next attempt if this fails (in hours)", example = "12")
+    private Integer nextAttemptDurationHours;
 }

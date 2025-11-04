@@ -199,6 +199,22 @@ public class TicketService {
 
         long timeRemaining = ticket.getExpiresAt().toEpochMilli() - Instant.now().toEpochMilli();
 
+        // Get owner to calculate attempt info
+        User owner = userRepository.findById(ticket.getOwnerId()).orElse(null);
+        int strikeCount = owner != null ? owner.getWastedTicketsCount() : 0;
+        int attemptNumber = strikeCount + 1;
+        int durationHours = (int) ((ticket.getExpiresAt().toEpochMilli() - ticket.getIssuedAt().toEpochMilli()) / 3600000);
+
+        // Calculate next attempt duration if this fails
+        Integer nextDuration = null;
+        if (strikeCount < 2) {
+            nextDuration = switch(strikeCount) {
+                case 0 -> 12;  // After first failure: 12h
+                case 1 -> 6;   // After second failure: 6h
+                default -> null;
+            };
+        }
+
         return TicketResponse.builder()
                 .ticketId(ticket.getId())
                 .qrPayload(qrPayload)
@@ -209,6 +225,11 @@ public class TicketService {
                 .expiresAt(ticket.getExpiresAt())
                 .status(ticket.getStatus().name())
                 .timeRemaining(Math.max(0, timeRemaining))
+                .ownerId(ticket.getOwnerId())
+                .attemptNumber(attemptNumber)
+                .durationHours(durationHours)
+                .strikeCount(strikeCount)
+                .nextAttemptDurationHours(nextDuration)
                 .build();
     }
 
