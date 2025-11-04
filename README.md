@@ -12,13 +12,23 @@ A single, global chain connects everyone, starting from one seed user. Every new
 
 ## 🎯 Core Mechanics
 
-- **Automatic Tickets**: Upon joining, each user **automatically receives** one shareable QR code ticket. **Users do not generate tickets manually.**
-- **Time Limit**: Tickets expire after **24 hours**.
-- **3-Strike Rule**: If a user's invitation ticket expires unused 3 times, that user is **removed** from the chain. This is logged as 3 "strikes."
-- **Chain Reversion**: If a user is removed, the ability to invite passes back to their inviter, who can then "save" the chain by inviting someone new.
+### Two-Tier Membership System
+
+- **Candidates (Probationary Period)**: New users start as "candidates" and must prove themselves by successfully inviting someone.
+- **Permanent Members (Verified)**: Users become "permanent" when their invitee successfully invites someone else (achieving depth-2 in the chain).
+
+### Ticket System
+
+- **Automatic Tickets**: Upon joining, each candidate **automatically receives** one shareable QR code ticket. **Users do not generate tickets manually.**
+- **Variable Time Limits**: Tickets expire with decreasing time windows:
+  - First attempt: **24 hours**
+  - Second attempt: **12 hours** (after first strike)
+  - Third attempt: **6 hours** (after second strike)
+- **3-Strike Rule**: If a candidate's ticket expires unused 3 times, they are **removed** from the chain.
+- **Smart Chain Reversion**: When a candidate fails, the ticket reverts to the **last permanent member** up the chain (not just the immediate parent), preventing cascading failures.
 - **Limited Visibility**: Each user can only see their direct inviter and the person they invited, maintaining privacy and focus.
 - **Chain Key**: Each user receives a unique, permanent "Chain Key" as proof of their position in the chain.
-- **One & Done**: Once a user successfully invites someone, their primary obligation is complete. They become a permanent link.
+- **Progression Path**: Candidate → Successfully invite someone → Their invitee invites someone → **Promoted to Permanent!**
 
 ## 🏗️ Architecture
 
