@@ -39,4 +39,5 @@ public class Badge {
     public static final String CHAIN_SAVIOR = "chain_savior";
     public static final String CHAIN_GUARDIAN = "chain_guardian";
     public static final String CHAIN_LEGEND = "chain_legend";
+    public static final String CHAIN_BUILDER = "chain_builder";
 }

@@ -484,9 +484,10 @@ public class ChainService {
         final int MAX_STEPS = 1000; // Safety limit
 
         while (current.getParentId() != null && steps < MAX_STEPS) {
+            final User currentUser = current;  // Make it effectively final for lambda
             User parent = userRepository.findById(current.getParentId())
                 .orElseThrow(() -> new BusinessException("PARENT_NOT_FOUND",
-                             "Parent not found for user " + current.getChainKey()));
+                             "Parent not found for user " + currentUser.getChainKey()));
 
             // Check if parent is permanent or seed
             if ("permanent".equals(parent.getMembershipTier()) || "seed".equals(parent.getStatus())) {
@@ -517,19 +518,6 @@ public class ChainService {
             .orElseThrow(() -> new BusinessException("SEED_NOT_FOUND", "Seed user not found"));
     }
 
-    /**
-     * Check and award Chain Savior badge if conditions are met.
-     * Chain Savior is awarded when a permanent member receives a ticket back
-     * and successfully uses it.
-     *
-     * @param user The user to check
-     */
-    public void checkAndAwardChainSaviorBadge(User user) {
-        if ("permanent".equals(user.getMembershipTier())) {
-            log.info("User {} qualifies for Chain Savior opportunity", user.getChainKey());
-            // Badge will be awarded when they successfully use the ticket
-        }
-    }
 
     /**
      * Helper method to get active child ID from invitations

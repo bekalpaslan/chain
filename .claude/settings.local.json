@@ -95,7 +95,8 @@
       "Bash(Select-String -Pattern \"error -\")",
       "Bash(Select-Object -First 10)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjE3NzgwODAsImV4cCI6MTc2MTc4MTY4MH0.zmCBdq4Fb2sRrhQddJhB3tS0vtrmbyGajghTDxJ2xn8\")",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": [],
     "ask": []
