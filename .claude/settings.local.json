@@ -96,7 +96,9 @@
       "Bash(Select-Object -First 10)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiJ9.eyJjaGFpbktleSI6IlNFRUQwMDAwMDAwMSIsInR5cGUiOiJhY2Nlc3MiLCJzdWIiOiJhMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJpYXQiOjE3NjE3NzgwODAsImV4cCI6MTc2MTc4MTY4MH0.zmCBdq4Fb2sRrhQddJhB3tS0vtrmbyGajghTDxJ2xn8\")",
       "Bash(git checkout:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(git fetch:*)",
+      "Bash(start https://github.com/bekalpaslan/chain/pull/new/feature/candidate-permanent-system)"
     ],
     "deny": [],
     "ask": []

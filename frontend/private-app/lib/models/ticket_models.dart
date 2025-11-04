@@ -13,6 +13,12 @@ class Ticket {
   final int timeRemainingMs; // Milliseconds remaining
   final String? ownerId;
 
+  // New attempt tracking fields
+  final int attemptNumber;        // 1, 2, or 3
+  final int durationHours;        // Current ticket duration (24, 12, or 6)
+  final int strikeCount;          // Number of wasted tickets (0, 1, or 2)
+  final int? nextAttemptDurationHours;  // Next duration if this fails
+
   Ticket({
     required this.ticketId,
     required this.qrPayload,
@@ -24,6 +30,10 @@ class Ticket {
     required this.status,
     required this.timeRemainingMs,
     this.ownerId,
+    this.attemptNumber = 1,
+    this.durationHours = 24,
+    this.strikeCount = 0,
+    this.nextAttemptDurationHours,
   });
 
   factory Ticket.fromJson(Map<String, dynamic> json) {
@@ -38,6 +48,10 @@ class Ticket {
       status: _parseTicketStatus(json['status']),
       timeRemainingMs: json['timeRemaining'] ?? 0,
       ownerId: json['ownerId'],
+      attemptNumber: json['attemptNumber'] ?? 1,
+      durationHours: json['durationHours'] ?? 24,
+      strikeCount: json['strikeCount'] ?? 0,
+      nextAttemptDurationHours: json['nextAttemptDurationHours'],
     );
   }
 
@@ -142,6 +156,39 @@ class Ticket {
 
   /// Check if ticket is active
   bool get isActive => status == TicketStatus.active && timeRemainingMs > 0;
+
+  /// Display text for attempt number
+  String get attemptDisplay => 'Attempt $attemptNumber/3';
+
+  /// Display text for duration
+  String get durationDisplay => '${durationHours}h ticket';
+
+  /// Check if this is the final attempt
+  bool get isFinalAttempt => attemptNumber == 3;
+
+  /// Get urgency color based on attempt number
+  Color get attemptUrgencyColor {
+    switch (attemptNumber) {
+      case 1:
+        return Colors.green;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  /// Get warning message for current attempt
+  String get attemptWarning {
+    if (isFinalAttempt) {
+      return 'FINAL ATTEMPT - Use it or lose your spot!';
+    } else if (nextAttemptDurationHours != null) {
+      return 'If this expires: Next attempt only ${nextAttemptDurationHours}h';
+    }
+    return '';
+  }
 }
 
 /// Ticket status enum

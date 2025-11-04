@@ -23,6 +23,13 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       ? null
       : DateTime.parse(json['removedAt'] as String),
   removalReason: json['removalReason'] as String?,
+  membershipTier: json['membershipTier'] as String?,
+  promotedToPermanentAt: json['promotedToPermanentAt'] == null
+      ? null
+      : DateTime.parse(json['promotedToPermanentAt'] as String),
+  inviteeDepth: (json['inviteeDepth'] as num?)?.toInt() ?? 0,
+  isPermanent: json['isPermanent'] as bool? ?? false,
+  nextTicketDurationHours: (json['nextTicketDurationHours'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -38,4 +45,9 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'updatedAt': instance.updatedAt?.toIso8601String(),
   'removedAt': instance.removedAt?.toIso8601String(),
   'removalReason': instance.removalReason,
+  'membershipTier': instance.membershipTier,
+  'promotedToPermanentAt': instance.promotedToPermanentAt?.toIso8601String(),
+  'inviteeDepth': instance.inviteeDepth,
+  'isPermanent': instance.isPermanent,
+  'nextTicketDurationHours': instance.nextTicketDurationHours,
 };

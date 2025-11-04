@@ -134,14 +134,23 @@ class _HeroWelcomeSectionState extends State<HeroWelcomeSection>
                               transform: GradientRotation(_shimmerAnimation.value),
                             ).createShader(bounds);
                           },
-                          child: Text(
-                            widget.user.displayName,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.5,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.user.displayName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              if (widget.user.membershipTier != null) ...[
+                                const SizedBox(width: 12),
+                                _buildMembershipBadge(),
+                              ],
+                            ],
                           ),
                         );
                       },
@@ -169,6 +178,9 @@ class _HeroWelcomeSectionState extends State<HeroWelcomeSection>
 
           // Activity status
           _buildActivityStatus(),
+
+          // Progression indicator for candidates
+          if (widget.user.isCandidate) _buildProgressionIndicator(),
         ],
       ),
     );
@@ -389,6 +401,112 @@ class _HeroWelcomeSectionState extends State<HeroWelcomeSection>
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMembershipBadge() {
+    final theme = AppTheme.darkMystique;
+    final isPermanent = widget.user.isPermanentMember;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: widget.user.membershipColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: widget.user.membershipColor,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.user.membershipColor.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.user.membershipBadge,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isPermanent ? 'PERMANENT' : 'CANDIDATE',
+            style: TextStyle(
+              color: widget.user.membershipColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressionIndicator() {
+    if (widget.user.isPermanentMember) return const SizedBox.shrink();
+
+    final theme = AppTheme.darkMystique;
+
+    return Container(
+      margin: const EdgeInsets.only(top: AppTheme.spacingM),
+      padding: const EdgeInsets.all(AppTheme.spacingM),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(AppTheme.radiusM),
+        border: Border.all(
+          color: Colors.blue.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.trending_up,
+                color: Colors.blue,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Path to Permanent Status',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: widget.user.inviteeDepth / 2.0,
+              backgroundColor: Colors.grey.withOpacity(0.3),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              minHeight: 8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.user.inviteeDepth == 0
+                ? '📝 Step 1: Invite someone to join the chain'
+                : widget.user.inviteeDepth == 1
+                    ? '⏳ Step 2: Your invitee needs to invite someone'
+                    : '🎉 Promotion achieved!',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );
