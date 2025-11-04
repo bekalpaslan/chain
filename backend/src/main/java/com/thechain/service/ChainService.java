@@ -535,7 +535,10 @@ public class ChainService {
      * Helper method to get active child ID from invitations
      */
     private UUID getActiveChildId(UUID parentId) {
-        return invitationRepository.findByParentIdAndStatus(parentId, Invitation.InvitationStatus.COMPLETED)
+        return invitationRepository.findByParentId(parentId)
+            .stream()
+            .filter(inv -> inv.getStatus() == Invitation.InvitationStatus.ACTIVE)
+            .findFirst()
             .map(Invitation::getChildId)
             .orElse(null);
     }
