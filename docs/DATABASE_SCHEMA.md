@@ -45,6 +45,11 @@ CREATE TABLE users (
     wasted_tickets_count INTEGER DEFAULT 0,          -- Counter for 3-strike removal
     last_active_at TIMESTAMP WITH TIME ZONE,
 
+    -- Membership Tier System (Candidate/Permanent)
+    membership_tier VARCHAR(20) DEFAULT 'candidate', -- candidate (probationary) or permanent (verified)
+    promoted_to_permanent_at TIMESTAMP WITH TIME ZONE, -- When user achieved permanent status
+    invitee_depth INTEGER DEFAULT 0,                 -- 0=no child, 1=has child, 2=has grandchild (triggers promotion)
+
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

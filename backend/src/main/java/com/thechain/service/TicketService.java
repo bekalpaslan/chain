@@ -73,6 +73,33 @@ public class TicketService {
     }
 
     /**
+     * Calculate ticket expiration time based on user's strike count.
+     * Implements halving rule: 24h → 12h → 6h
+     */
+    private Instant calculateExpirationTime(User owner) {
+        int strikeCount = owner.getWastedTicketsCount();
+
+        int hours = switch(strikeCount) {
+            case 0 -> 24;  // First attempt: full 24 hours
+            case 1 -> 12;  // Second attempt: half time
+            case 2 -> 6;   // Final attempt: quarter time
+            default -> {
+                // Should never reach here - user should be removed at 3 strikes
+                log.error("User {} has {} strikes (should be removed at 3!)",
+                          owner.getChainKey(), strikeCount);
+                yield 6;  // Fallback to minimum time
+            }
+        };
+
+        Instant expiresAt = Instant.now().plusSeconds(hours * 3600L);
+
+        log.info("Ticket for user {} (strike {}/3) expires in {} hours at {}",
+                 owner.getChainKey(), strikeCount, hours, expiresAt);
+
+        return expiresAt;
+    }
+
+    /**
      * Internal method to create a new ticket for a user.
      * Called automatically after registration or ticket expiration.
      */
@@ -92,9 +119,15 @@ public class TicketService {
                     throw new BusinessException("ACTIVE_TICKET_EXISTS", "User already has an active ticket");
                 });
 
-        // Create ticket
+        // NEW: Only candidates and reactivated permanents get tickets
+        if ("permanent".equals(user.getMembershipTier()) && user.getActiveChildId() != null) {
+            throw new BusinessException("USER_ALREADY_PERMANENT",
+                "Permanent members with active children don't need tickets");
+        }
+
+        // Create ticket with variable expiration time based on strikes
         Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(expirationHours * 3600L);
+        Instant expiresAt = calculateExpirationTime(user);  // NEW: Variable time
 
         String payload = createPayload(userId, now, expiresAt);
         String signature = signPayload(payload);
@@ -109,7 +142,11 @@ public class TicketService {
 
         ticket = ticketRepository.save(ticket);
 
-        log.info("Ticket created for user {} ({})", user.getChainKey(), ticket.getId());
+        String tier = user.getMembershipTier();
+        int duration = (int) ((expiresAt.toEpochMilli() - now.toEpochMilli()) / 3600000);
+        log.info("Ticket created for user {} ({}), tier={}, strike={}/3, duration={}h",
+                 user.getChainKey(), ticket.getId(), tier,
+                 user.getWastedTicketsCount(), duration);
 
         return ticket;
     }
@@ -162,6 +199,22 @@ public class TicketService {
 
         long timeRemaining = ticket.getExpiresAt().toEpochMilli() - Instant.now().toEpochMilli();
 
+        // Get owner to calculate attempt info
+        User owner = userRepository.findById(ticket.getOwnerId()).orElse(null);
+        int strikeCount = owner != null ? owner.getWastedTicketsCount() : 0;
+        int attemptNumber = strikeCount + 1;
+        int durationHours = (int) ((ticket.getExpiresAt().toEpochMilli() - ticket.getIssuedAt().toEpochMilli()) / 3600000);
+
+        // Calculate next attempt duration if this fails
+        Integer nextDuration = null;
+        if (strikeCount < 2) {
+            nextDuration = switch(strikeCount) {
+                case 0 -> 12;  // After first failure: 12h
+                case 1 -> 6;   // After second failure: 6h
+                default -> null;
+            };
+        }
+
         return TicketResponse.builder()
                 .ticketId(ticket.getId())
                 .qrPayload(qrPayload)
@@ -172,6 +225,11 @@ public class TicketService {
                 .expiresAt(ticket.getExpiresAt())
                 .status(ticket.getStatus().name())
                 .timeRemaining(Math.max(0, timeRemaining))
+                .ownerId(ticket.getOwnerId())
+                .attemptNumber(attemptNumber)
+                .durationHours(durationHours)
+                .strikeCount(strikeCount)
+                .nextAttemptDurationHours(nextDuration)
                 .build();
     }
 
@@ -193,7 +251,7 @@ public class TicketService {
     }
 
     /**
-     * Expires a ticket and triggers chain reversion logic.
+     * Expires a ticket and handles reversion to last permanent member.
      * Called by scheduler when a ticket passes its deadline without being used.
      */
     @CacheEvict(value = CacheConfig.TICKET_CACHE, key = "#ticketId")
@@ -217,22 +275,65 @@ public class TicketService {
 
         // Increment wasted tickets count
         owner.setWastedTicketsCount(owner.getWastedTicketsCount() + 1);
-        log.warn("User {} wasted ticket {}/3", owner.getChainKey(), owner.getWastedTicketsCount());
+        log.warn("User {} wasted ticket {}/3 (tier={})",
+                 owner.getChainKey(), owner.getWastedTicketsCount(), owner.getMembershipTier());
 
         // Check if user should be removed from chain (3 strikes rule)
         if (owner.getWastedTicketsCount() >= 3) {
             log.error("User {} reached 3 wasted tickets - removing from chain", owner.getChainKey());
             removeUserFromChain(owner);
+
+            // NEW: Find last permanent member and give them the ticket
+            User lastPermanent = chainService.findLastPermanentMember(owner.getId());
+
+            if (lastPermanent.getId().equals(owner.getId())) {
+                // Edge case: The removed user WAS the last permanent (shouldn't happen)
+                log.error("Removed user {} was last permanent - walking up to parent",
+                          owner.getChainKey());
+                if (owner.getParentId() != null) {
+                    lastPermanent = userRepository.findById(owner.getParentId()).get();
+                } else {
+                    // No parent - must be seed situation, get seed
+                    lastPermanent = userRepository.findByChainKey("SEED00000001").get();
+                }
+            }
+
+            log.info("Ticket reverting to last permanent member: {} (position {})",
+                     lastPermanent.getChainKey(), lastPermanent.getPosition());
+
+            // Clear last permanent's activeChildId (they lost their candidate chain)
+            // This will be handled by removeUserFromChain which updates parent's activeChildId
+
+            // Create new ticket for last permanent member
+            try {
+                createTicketForUser(lastPermanent.getId());
+                log.info("New ticket created for last permanent {} after candidate removal",
+                         lastPermanent.getChainKey());
+
+                // Check if they qualify for Chain Savior badge
+                chainService.checkAndAwardChainSaviorBadge(lastPermanent);
+
+            } catch (Exception e) {
+                log.error("Failed to create ticket for last permanent member {}",
+                          lastPermanent.getChainKey(), e);
+            }
+
         } else {
             userRepository.save(owner);
 
-            // Automatically create a new ticket for the user (hot potato continues!)
-            // They get a fresh 24-hour ticket immediately
-            try {
-                createTicketForUser(owner.getId());
-                log.info("New ticket auto-created for user {} after expiration", owner.getChainKey());
-            } catch (Exception e) {
-                log.error("Failed to auto-create ticket for user {} after expiration", owner.getChainKey(), e);
+            // NEW: Only create ticket if they're still a candidate
+            if ("candidate".equals(owner.getMembershipTier())) {
+                try {
+                    createTicketForUser(owner.getId());
+                    log.info("New ticket auto-created for candidate {} (strike {}/3, next window shorter)",
+                             owner.getChainKey(), owner.getWastedTicketsCount());
+                } catch (Exception e) {
+                    log.error("Failed to auto-create ticket for candidate {}",
+                              owner.getChainKey(), e);
+                }
+            } else {
+                log.warn("User {} is permanent but wasted a ticket - no auto-ticket",
+                         owner.getChainKey());
             }
         }
 

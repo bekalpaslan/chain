@@ -114,6 +114,18 @@ public class User {
     @Column(name = "is_admin")
     private Boolean isAdmin = false;
 
+    // Membership tier fields for candidate/permanent system
+    @Builder.Default
+    @Column(name = "membership_tier", length = 20)
+    private String membershipTier = "candidate";
+
+    @Column(name = "promoted_to_permanent_at")
+    private Instant promotedToPermanentAt;
+
+    @Builder.Default
+    @Column(name = "invitee_depth")
+    private Integer inviteeDepth = 0;
+
     @PrePersist
     public void prePersist() {
         if (chainKey == null) {
