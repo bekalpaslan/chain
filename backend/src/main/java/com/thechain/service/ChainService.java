@@ -395,4 +395,148 @@ public class ChainService {
 
         return stats;
     }
+
+    /**
+     * Check if a candidate user should be promoted to permanent status.
+     *
+     * Promotion Criteria:
+     * - User is currently a "candidate"
+     * - User has successfully invited someone (activeChildId != null)
+     * - User's child has successfully invited someone (depth-2)
+     *
+     * @param userId The user to check
+     * @return true if user was promoted, false otherwise
+     */
+    @Transactional
+    public boolean checkAndPromoteToPermament(UUID userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
+
+        // Already permanent or removed - skip
+        if (!"candidate".equals(user.getMembershipTier())) {
+            log.debug("User {} is not a candidate (tier={}), skipping promotion check",
+                      user.getChainKey(), user.getMembershipTier());
+            return false;
+        }
+
+        // User must have successfully invited someone
+        UUID activeChildId = getActiveChildId(user.getId());
+        if (activeChildId == null) {
+            log.debug("User {} has no active child, cannot be promoted yet",
+                      user.getChainKey());
+            return false;
+        }
+
+        // Check if child has successfully invited someone (depth-2)
+        User child = userRepository.findById(activeChildId)
+            .orElseThrow(() -> new BusinessException("CHILD_NOT_FOUND", "Child not found"));
+
+        UUID grandchildId = getActiveChildId(child.getId());
+        if (grandchildId != null) {
+            // PROMOTION ACHIEVED!
+            user.setMembershipTier("permanent");
+            user.setPromotedToPermanentAt(Instant.now());
+            user.setInviteeDepth(2);
+            userRepository.save(user);
+
+            log.info("🎉 User {} PROMOTED to PERMANENT (depth-2 achieved at position {})",
+                     user.getChainKey(), user.getPosition());
+
+            // Award Chain Builder badge
+            Map<String, Object> badgeContext = new HashMap<>();
+            badgeContext.put("promoted_at", Instant.now());
+            badgeContext.put("child_position", child.getPosition());
+            badgeContext.put("grandchild_position", grandchildId);
+
+            awardBadge(user.getPosition(), Badge.CHAIN_BUILDER, badgeContext);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Find the last permanent member up the chain.
+     * Used when a candidate fails and ticket needs to revert.
+     *
+     * Algorithm:
+     * 1. Start from current user
+     * 2. Walk up the parent chain
+     * 3. Stop at first "permanent" member or seed
+     * 4. Return that user
+     *
+     * @param startingUserId The user to start from (usually removed candidate)
+     * @return The last permanent member up the chain
+     */
+    @Transactional(readOnly = true)
+    public User findLastPermanentMember(UUID startingUserId) {
+        User current = userRepository.findById(startingUserId)
+            .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "User not found"));
+
+        // If starting user is already permanent, return them
+        if ("permanent".equals(current.getMembershipTier()) || "seed".equals(current.getStatus())) {
+            return current;
+        }
+
+        // Walk up the chain
+        int steps = 0;
+        final int MAX_STEPS = 1000; // Safety limit
+
+        while (current.getParentId() != null && steps < MAX_STEPS) {
+            User parent = userRepository.findById(current.getParentId())
+                .orElseThrow(() -> new BusinessException("PARENT_NOT_FOUND",
+                             "Parent not found for user " + current.getChainKey()));
+
+            // Check if parent is permanent or seed
+            if ("permanent".equals(parent.getMembershipTier()) || "seed".equals(parent.getStatus())) {
+                log.info("Found last permanent member: {} (walked {} steps from {})",
+                         parent.getChainKey(), steps + 1,
+                         userRepository.findById(startingUserId).get().getChainKey());
+                return parent;
+            }
+
+            current = parent;
+            steps++;
+        }
+
+        // Safety check
+        if (steps >= MAX_STEPS) {
+            log.error("Exceeded max steps ({}) walking up chain from user {}",
+                      MAX_STEPS, startingUserId);
+            throw new BusinessException("CHAIN_WALK_EXCEEDED",
+                                       "Chain walk exceeded maximum depth");
+        }
+
+        // If we reach here, we've hit the top of the chain without finding permanent
+        // This shouldn't happen - seed should always be permanent
+        log.warn("Reached top of chain from {} without finding permanent member. " +
+                 "Returning seed as fallback.", startingUserId);
+
+        return userRepository.findByChainKey("SEED00000001")
+            .orElseThrow(() -> new BusinessException("SEED_NOT_FOUND", "Seed user not found"));
+    }
+
+    /**
+     * Check and award Chain Savior badge if conditions are met.
+     * Chain Savior is awarded when a permanent member receives a ticket back
+     * and successfully uses it.
+     *
+     * @param user The user to check
+     */
+    public void checkAndAwardChainSaviorBadge(User user) {
+        if ("permanent".equals(user.getMembershipTier())) {
+            log.info("User {} qualifies for Chain Savior opportunity", user.getChainKey());
+            // Badge will be awarded when they successfully use the ticket
+        }
+    }
+
+    /**
+     * Helper method to get active child ID from invitations
+     */
+    private UUID getActiveChildId(UUID parentId) {
+        return invitationRepository.findByParentIdAndStatus(parentId, Invitation.InvitationStatus.COMPLETED)
+            .map(Invitation::getChildId)
+            .orElse(null);
+    }
 }
