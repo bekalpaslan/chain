@@ -23,7 +23,7 @@ UPDATE users
 SET membership_tier = 'permanent',
     promoted_to_permanent_at = created_at,
     invitee_depth = CASE
-        WHEN active_child_id IS NULL THEN 0
+        WHEN invitee_position IS NULL THEN 0
         ELSE 2  -- Assume existing users with children have achieved depth-2
     END
 WHERE status = 'active';
