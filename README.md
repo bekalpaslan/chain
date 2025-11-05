@@ -40,6 +40,14 @@ The project uses a modern, containerized architecture:
 - **Real-time**: WebSockets are used for live updates of chain statistics and events.
 - **Infrastructure**: The entire stack is containerized with Docker and orchestrated with Docker Compose for consistent development and deployment.
 
+## 🚀 Latest Updates
+
+**November 5, 2025**: Successfully implemented the **Candidate/Permanent Membership System**!
+- Two-tier membership with automatic promotions
+- Variable ticket expiration times (24h → 12h → 6h)
+- Smart chain reversion to last permanent member
+- Full documentation in [docs/IMPLEMENTATION_PROGRESS.md](docs/IMPLEMENTATION_PROGRESS.md)
+
 ## 📁 Project Structure
 
 The repository is organized into the following key directories:
@@ -47,6 +55,8 @@ The repository is organized into the following key directories:
 ```
 ticketz/
 ├── docs/              # Project documentation
+│   ├── IMPLEMENTATION_PROGRESS.md  # Latest development status
+│   └── DATABASE_SCHEMA.md         # Complete schema documentation
 ├── backend/           # Java Spring Boot microservices
 ├── frontend/          # Flutter application (single app for all platforms)
 │   ├── private-app/   # Source code for the main Flutter app
