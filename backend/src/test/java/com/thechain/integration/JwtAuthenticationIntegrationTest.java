@@ -68,8 +68,8 @@ class JwtAuthenticationIntegrationTest extends com.thechain.config.BaseIntegrati
                 .build();
         seed = userRepository.save(seed);
 
-        // Generate a valid ticket using TicketService (properly signed)
-        ticketService.generateTicket(seed.getId());
+        // Create a valid ticket using TicketService (properly signed)
+        ticketService.createTicketForUser(seed.getId());
 
         // Retrieve the generated ticket
         validTicket = ticketRepository.findByOwnerIdAndStatus(seed.getId(), Ticket.TicketStatus.ACTIVE)

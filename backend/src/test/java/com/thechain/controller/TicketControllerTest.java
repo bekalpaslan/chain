@@ -53,15 +53,15 @@ class TicketControllerTest extends com.thechain.config.BaseIntegrationTest {
     }
 
     @Test
-    void generateTicket_Success_Returns201() throws Exception {
+    void getMyActiveTicket_Success_Returns200() throws Exception {
         // Given
-        when(ticketService.generateTicket(any(UUID.class))).thenReturn(ticketResponse);
+        when(ticketService.getActiveTicketForUser(any(UUID.class))).thenReturn(ticketResponse);
 
         // When & Then
-        mockMvc.perform(post("/tickets/generate")
+        mockMvc.perform(get("/tickets/me/active")
                         .header("X-User-Id", userId.toString())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ticketId").value(ticketId.toString()))
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
                 .andExpect(jsonPath("$.signature").value("test-signature"))
@@ -70,9 +70,9 @@ class TicketControllerTest extends com.thechain.config.BaseIntegrationTest {
     }
 
     @Test
-    void generateTicket_WithoutUserId_Returns400() throws Exception {
+    void getMyActiveTicket_WithoutUserId_Returns400() throws Exception {
         // When & Then
-        mockMvc.perform(post("/tickets/generate")
+        mockMvc.perform(get("/tickets/me/active")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }

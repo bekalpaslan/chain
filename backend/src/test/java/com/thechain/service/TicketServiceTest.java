@@ -63,7 +63,7 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_Success() {
+    void createTicketForUser_Success() {
         // Given
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(ticketRepository.findByOwnerIdAndStatus(testUser.getId(), Ticket.TicketStatus.ACTIVE))
@@ -71,27 +71,25 @@ class TicketServiceTest {
         when(ticketRepository.save(any(Ticket.class))).thenReturn(testTicket);
 
         // When
-        TicketResponse response = ticketService.generateTicket(testUser.getId());
+        Ticket ticket = ticketService.createTicketForUser(testUser.getId());
 
         // Then
-        assertThat(response).isNotNull();
-        assertThat(response.getTicketId()).isEqualTo(testTicket.getId());
-        assertThat(response.getStatus()).isEqualTo("ACTIVE");
-        assertThat(response.getSignature()).isNotNull();
-        assertThat(response.getQrPayload()).isNotNull();
-        assertThat(response.getDeepLink()).startsWith("thechain://join?t=");
+        assertThat(ticket).isNotNull();
+        assertThat(ticket.getId()).isEqualTo(testTicket.getId());
+        assertThat(ticket.getStatus()).isEqualTo(Ticket.TicketStatus.ACTIVE);
+        assertThat(ticket.getOwnerId()).isEqualTo(testUser.getId());
 
         verify(ticketRepository).save(any(Ticket.class));
     }
 
     @Test
-    void generateTicket_UserNotFound_ThrowsException() {
+    void createTicketForUser_UserNotFound_ThrowsException() {
         // Given
         UUID userId = UUID.randomUUID();
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> ticketService.generateTicket(userId))
+        assertThatThrownBy(() -> ticketService.createTicketForUser(userId))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("User not found");
 
@@ -99,13 +97,13 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_UserHasActiveChild_ThrowsException() {
+    void createTicketForUser_UserHasActiveChild_ThrowsException() {
         // Given
         testUser.setActiveChildId(UUID.randomUUID());
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then
-        assertThatThrownBy(() -> ticketService.generateTicket(testUser.getId()))
+        assertThatThrownBy(() -> ticketService.createTicketForUser(testUser.getId()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already has an active invitee");
 
@@ -113,14 +111,14 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_ActiveTicketExists_ThrowsException() {
+    void createTicketForUser_ActiveTicketExists_ThrowsException() {
         // Given
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(ticketRepository.findByOwnerIdAndStatus(testUser.getId(), Ticket.TicketStatus.ACTIVE))
                 .thenReturn(Optional.of(testTicket));
 
         // When & Then
-        assertThatThrownBy(() -> ticketService.generateTicket(testUser.getId()))
+        assertThatThrownBy(() -> ticketService.createTicketForUser(testUser.getId()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already has an active ticket");
 
@@ -202,7 +200,7 @@ class TicketServiceTest {
     }
 
     @Test
-    void generateTicket_CreatesValidQrCode() {
+    void createTicketForUser_CreatesTicketWithPayload() {
         // Given
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(ticketRepository.findByOwnerIdAndStatus(testUser.getId(), Ticket.TicketStatus.ACTIVE))
@@ -210,16 +208,16 @@ class TicketServiceTest {
         when(ticketRepository.save(any(Ticket.class))).thenReturn(testTicket);
 
         // When
-        TicketResponse response = ticketService.generateTicket(testUser.getId());
+        Ticket ticket = ticketService.createTicketForUser(testUser.getId());
 
         // Then
-        assertThat(response.getQrCodeUrl()).isNotNull();
-        assertThat(response.getQrCodeUrl()).startsWith("data:image/png;base64,");
-        assertThat(response.getQrPayload()).isNotNull();
+        assertThat(ticket).isNotNull();
+        assertThat(ticket.getPayload()).isNotNull();
+        assertThat(ticket.getSignature()).isNotNull();
     }
 
     @Test
-    void generateTicket_SetsCorrectExpirationTime() {
+    void createTicketForUser_SetsCorrectExpirationTime() {
         // Given
         when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(ticketRepository.findByOwnerIdAndStatus(testUser.getId(), Ticket.TicketStatus.ACTIVE))
@@ -227,10 +225,11 @@ class TicketServiceTest {
         when(ticketRepository.save(any(Ticket.class))).thenReturn(testTicket);
 
         // When
-        TicketResponse response = ticketService.generateTicket(testUser.getId());
+        Ticket ticket = ticketService.createTicketForUser(testUser.getId());
 
         // Then
-        assertThat(response).isNotNull();
+        assertThat(ticket).isNotNull();
+        assertThat(ticket.getExpiresAt()).isNotNull();
         verify(ticketRepository).save(any(Ticket.class));
     }
 }
