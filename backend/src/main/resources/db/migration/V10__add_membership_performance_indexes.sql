@@ -21,7 +21,7 @@ WHERE membership_tier = 'permanent';
 -- Index for finding active permanent members efficiently
 -- This is a partial index that only includes relevant rows
 CREATE INDEX IF NOT EXISTS idx_users_active_permanent
-ON users(id, invited_by_id)
+ON users(id, parent_id)
 WHERE status = 'active' AND membership_tier = 'permanent';
 
 -- Index for finding candidates who need promotion checks

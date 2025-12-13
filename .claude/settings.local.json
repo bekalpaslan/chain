@@ -104,7 +104,13 @@
       "Bash(claude mcp add:*)",
       "Bash(start https://linear.app/settings/api)",
       "Bash(npx -y @linear/mcp-server)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__linear__list_teams",
+      "mcp__linear__create_project",
+      "mcp__linear__list_issue_labels",
+      "mcp__linear__list_issue_statuses",
+      "mcp__linear__create_issue_label",
+      "mcp__linear__create_issue"
     ],
     "deny": [],
     "ask": []

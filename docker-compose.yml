@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: ${DB_USER:-chain_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-chain_pass}
     ports:
-      - "5432:5432"
+      - "15432:5432"  # Using 15432 externally to avoid Hyper-V reserved port range
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
