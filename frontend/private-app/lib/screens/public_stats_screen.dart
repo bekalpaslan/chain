@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:thechain_shared/api/api_client.dart';
 import 'package:thechain_shared/models/chain_stats.dart';
 import 'package:thechain_shared/widgets/mystique_components.dart';
-import '../theme/app_theme.dart';
+import 'package:thechain_shared/theme/dark_mystique_theme.dart';
 
 /// Public statistics page showing detailed chain metrics
 /// No authentication required - anyone can view these stats
@@ -96,29 +96,31 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = AppTheme.darkMystique;
 
     return Scaffold(
-      backgroundColor: theme.deepVoid,
+      backgroundColor: DarkMystiqueTheme.deepVoid,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: DarkMystiqueTheme.shadowPurple.withOpacity(0.8),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white.withOpacity(0.8)),
+          icon: Icon(Icons.arrow_back, color: DarkMystiqueTheme.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Chain Statistics',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+        title: ShaderMask(
+          shaderCallback: (bounds) => DarkMystiqueTheme.mysticGradient.createShader(bounds),
+          child: const Text(
+            'Chain Statistics',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh, color: Colors.white.withOpacity(0.8)),
+            icon: Icon(Icons.refresh, color: DarkMystiqueTheme.ghostCyan),
             onPressed: _loadStats,
           ),
         ],
@@ -139,8 +141,6 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   List<Widget> _buildFloatingOrbs(Size screenSize) {
-    final theme = AppTheme.darkMystique;
-
     return _orbs.map((orb) {
       return AnimatedBuilder(
         animation: _orbController,
@@ -161,8 +161,8 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    theme.mysticViolet.withOpacity(0.1),
-                    theme.mysticViolet.withOpacity(0.03),
+                    DarkMystiqueTheme.mysticViolet.withOpacity(0.1),
+                    DarkMystiqueTheme.mysticViolet.withOpacity(0.03),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.5, 1.0],
@@ -188,30 +188,14 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   Widget _buildLoadingState() {
-    final theme = AppTheme.darkMystique;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            color: theme.mysticViolet,
-            strokeWidth: 2,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Loading statistics...',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 16,
-            ),
-          ),
-        ],
+      child: MystiqueLoadingIndicator(
+        message: 'Loading statistics...',
       ),
     );
   }
 
   Widget _buildErrorState() {
-    final theme = AppTheme.darkMystique;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -221,13 +205,13 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             Icon(
               Icons.cloud_off,
               size: 64,
-              color: theme.errorRed.withOpacity(0.7),
+              color: DarkMystiqueTheme.errorPulse.withOpacity(0.7),
             ),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: DarkMystiqueTheme.textPrimary,
                 fontSize: 18,
               ),
               textAlign: TextAlign.center,
@@ -270,8 +254,6 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   Widget _buildPrimaryStatsSection() {
-    final theme = AppTheme.darkMystique;
-
     return MystiqueCard(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -287,7 +269,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                     value: _stats?.totalUsers.toString() ?? '—',
                     label: 'Total Members',
                     icon: Icons.people,
-                    color: theme.mysticViolet,
+                    color: DarkMystiqueTheme.mysticViolet,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -296,7 +278,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                     value: _stats?.activeTickets.toString() ?? '—',
                     label: 'Active Invitations',
                     icon: Icons.confirmation_number,
-                    color: theme.ghostCyan,
+                    color: DarkMystiqueTheme.ghostCyan,
                   ),
                 ),
               ],
@@ -308,8 +290,6 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   Widget _buildChainHealthSection() {
-    final theme = AppTheme.darkMystique;
-
     return MystiqueCard(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -327,7 +307,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                         ? '${(_stats!.averageGrowthRate * 100).toStringAsFixed(1)}%'
                         : '—',
                     icon: Icons.trending_up,
-                    color: theme.emerald,
+                    color: DarkMystiqueTheme.successGlow,
                     subtitle: 'per day',
                   ),
                 ),
@@ -339,7 +319,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                         ? '${(_stats!.wasteRate * 100).toStringAsFixed(1)}%'
                         : '—',
                     icon: Icons.warning_amber_outlined,
-                    color: theme.amber,
+                    color: DarkMystiqueTheme.warningAura,
                     subtitle: 'expired tickets',
                   ),
                 ),
@@ -353,7 +333,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                     label: 'Countries',
                     value: _stats?.countries.toString() ?? '—',
                     icon: Icons.public,
-                    color: theme.ghostCyan,
+                    color: DarkMystiqueTheme.ghostCyan,
                     subtitle: 'worldwide',
                   ),
                 ),
@@ -363,7 +343,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                     label: 'Wasted',
                     value: _stats?.totalWastedTickets.toString() ?? '—',
                     icon: Icons.delete_outline,
-                    color: theme.errorRed,
+                    color: DarkMystiqueTheme.errorPulse,
                     subtitle: 'total tickets',
                   ),
                 ),
@@ -393,7 +373,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                   child: Text(
                     'No recent activity',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: DarkMystiqueTheme.textMuted,
                       fontSize: 14,
                     ),
                   ),
@@ -413,8 +393,6 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   Widget _buildChainInfoSection() {
-    final theme = AppTheme.darkMystique;
-
     return MystiqueCard(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -440,10 +418,10 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.mysticViolet.withOpacity(0.1),
+                color: DarkMystiqueTheme.mysticViolet.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: theme.mysticViolet.withOpacity(0.2),
+                  color: DarkMystiqueTheme.mysticViolet.withOpacity(0.2),
                 ),
               ),
               child: Row(
@@ -451,7 +429,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                   Icon(
                     Icons.lock_outline,
                     size: 18,
-                    color: theme.mysticViolet.withOpacity(0.8),
+                    color: DarkMystiqueTheme.etherealPurple,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -459,7 +437,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                       'This is an invitation-only chain. Members can only join through valid invitation tickets.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.white.withOpacity(0.7),
+                        color: DarkMystiqueTheme.textSecondary,
                       ),
                     ),
                   ),
@@ -473,17 +451,16 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
   }
 
   Widget _buildSectionHeader(String title, IconData icon) {
-    final theme = AppTheme.darkMystique;
     return Row(
       children: [
-        Icon(icon, color: theme.mysticViolet, size: 22),
+        Icon(icon, color: DarkMystiqueTheme.mysticViolet, size: 22),
         const SizedBox(width: 10),
         Text(
           title,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: DarkMystiqueTheme.textPrimary,
           ),
         ),
       ],
@@ -522,7 +499,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: DarkMystiqueTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -530,7 +507,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.6),
+              color: DarkMystiqueTheme.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -575,14 +552,14 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: DarkMystiqueTheme.textPrimary,
                   ),
                 ),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.white.withOpacity(0.5),
+                    color: DarkMystiqueTheme.textMuted,
                   ),
                 ),
                 if (subtitle != null)
@@ -607,13 +584,11 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
     required String country,
     required String time,
   }) {
-    final theme = AppTheme.darkMystique;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
+        color: DarkMystiqueTheme.twilightGray.withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -622,7 +597,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: theme.mysticViolet.withOpacity(0.2),
+              color: DarkMystiqueTheme.mysticViolet.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
@@ -631,7 +606,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: theme.mysticViolet,
+                  color: DarkMystiqueTheme.mysticViolet,
                 ),
               ),
             ),
@@ -646,14 +621,14 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.9),
+                    color: DarkMystiqueTheme.textPrimary,
                   ),
                 ),
                 Text(
                   country,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.5),
+                    color: DarkMystiqueTheme.textMuted,
                   ),
                 ),
               ],
@@ -663,7 +638,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
             time,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.4),
+              color: DarkMystiqueTheme.textMuted,
             ),
           ),
         ],
@@ -679,7 +654,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
           label,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.white.withOpacity(0.6),
+            color: DarkMystiqueTheme.textSecondary,
           ),
         ),
         Text(
@@ -687,7 +662,7 @@ class _PublicStatsScreenState extends State<PublicStatsScreen>
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.white.withOpacity(0.9),
+            color: DarkMystiqueTheme.textPrimary,
           ),
         ),
       ],

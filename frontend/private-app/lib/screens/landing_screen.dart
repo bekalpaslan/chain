@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:thechain_shared/api/api_client.dart';
 import 'package:thechain_shared/models/chain_stats.dart';
 import 'package:thechain_shared/widgets/mystique_components.dart';
+import 'package:thechain_shared/theme/dark_mystique_theme.dart';
 import 'package:thechain_shared/utils/storage_helper.dart';
-import '../theme/app_theme.dart';
 
 /// Public landing page for The Chain
 /// Displays chain statistics without requiring authentication.
@@ -110,10 +110,9 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = AppTheme.darkMystique;
 
     return Scaffold(
-      backgroundColor: theme.deepVoid,
+      backgroundColor: DarkMystiqueTheme.deepVoid,
       body: Stack(
         children: [
           // Floating animated orbs (background)
@@ -123,29 +122,91 @@ class _LandingScreenState extends State<LandingScreen>
           FadeTransition(
             opacity: _fadeAnimation,
             child: SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 32),
-                        _buildHeader(),
-                        const SizedBox(height: 48),
-                        _buildStatsCard(),
-                        const SizedBox(height: 32),
-                        _buildLoginSection(),
-                        const SizedBox(height: 24),
-                        _buildViewStatsButton(),
-                        const SizedBox(height: 32),
-                        _buildFooter(),
-                        const SizedBox(height: 32),
-                      ],
+              child: Column(
+                children: [
+                  // Top bar with login button
+                  _buildTopBar(),
+
+                  // Scrollable content
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 16),
+                              _buildHeader(),
+                              const SizedBox(height: 48),
+                              _buildStatsCard(),
+                              const SizedBox(height: 32),
+                              _buildViewStatsButton(),
+                              const SizedBox(height: 32),
+                              _buildFooter(),
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Top bar with login button in top right
+  Widget _buildTopBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Login button - top right
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pushNamed(context, '/login'),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: DarkMystiqueTheme.mysticGradient,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: DarkMystiqueTheme.mysticViolet.withOpacity(0.4),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.login,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Sign In',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -156,8 +217,6 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   List<Widget> _buildFloatingOrbs(Size screenSize) {
-    final theme = AppTheme.darkMystique;
-
     return _orbs.map((orb) {
       return AnimatedBuilder(
         animation: _orbController,
@@ -178,8 +237,8 @@ class _LandingScreenState extends State<LandingScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    theme.mysticViolet.withOpacity(0.15),
-                    theme.mysticViolet.withOpacity(0.05),
+                    DarkMystiqueTheme.mysticViolet.withOpacity(0.15),
+                    DarkMystiqueTheme.mysticViolet.withOpacity(0.05),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.5, 1.0],
@@ -193,27 +252,18 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   Widget _buildHeader() {
-    final theme = AppTheme.darkMystique;
-
     return Column(
       children: [
-        // Animated logo
+        // Animated logo with glow
         Container(
           width: 100,
           height: 100,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                theme.mysticViolet,
-                theme.mysticViolet.withOpacity(0.7),
-              ],
-            ),
+            gradient: DarkMystiqueTheme.mysticGradient,
             boxShadow: [
               BoxShadow(
-                color: theme.mysticViolet.withOpacity(0.5),
+                color: DarkMystiqueTheme.mysticViolet.withOpacity(0.5),
                 blurRadius: 40,
                 spreadRadius: 10,
               ),
@@ -226,19 +276,16 @@ class _LandingScreenState extends State<LandingScreen>
           ),
         ),
         const SizedBox(height: 24),
-        Text(
-          'The Chain',
-          style: TextStyle(
-            fontSize: 42,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 2,
-            shadows: [
-              Shadow(
-                color: theme.mysticViolet.withOpacity(0.5),
-                blurRadius: 20,
-              ),
-            ],
+        ShaderMask(
+          shaderCallback: (bounds) => DarkMystiqueTheme.mysticGradient.createShader(bounds),
+          child: const Text(
+            'The Chain',
+            style: TextStyle(
+              fontSize: 42,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: 2,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -247,7 +294,7 @@ class _LandingScreenState extends State<LandingScreen>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w400,
-            color: Colors.white.withOpacity(0.6),
+            color: DarkMystiqueTheme.textSecondary,
             letterSpacing: 1,
           ),
         ),
@@ -256,16 +303,13 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   Widget _buildStatsCard() {
-    final theme = AppTheme.darkMystique;
-
     if (_isLoading) {
       return MystiqueCard(
         child: Padding(
           padding: const EdgeInsets.all(40),
           child: Center(
-            child: CircularProgressIndicator(
-              color: theme.mysticViolet,
-              strokeWidth: 2,
+            child: MystiqueLoadingIndicator(
+              message: 'Loading chain statistics...',
             ),
           ),
         ),
@@ -281,23 +325,21 @@ class _LandingScreenState extends State<LandingScreen>
               Icon(
                 Icons.cloud_off,
                 size: 48,
-                color: theme.errorRed.withOpacity(0.7),
+                color: DarkMystiqueTheme.errorPulse.withOpacity(0.7),
               ),
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: DarkMystiqueTheme.textSecondary,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(height: 16),
-              TextButton(
+              MystiqueButton(
+                text: 'Retry',
                 onPressed: _loadStats,
-                child: Text(
-                  'Retry',
-                  style: TextStyle(color: theme.mysticViolet),
-                ),
+                variant: MystiqueButtonVariant.secondary,
               ),
             ],
           ),
@@ -310,23 +352,32 @@ class _LandingScreenState extends State<LandingScreen>
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            Text(
-              'Live Chain Statistics',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.analytics_outlined,
+                  color: DarkMystiqueTheme.ghostCyan,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Live Chain Statistics',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: DarkMystiqueTheme.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Container(
               width: 60,
               height: 3,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [theme.mysticViolet, theme.ghostCyan],
-                ),
+                gradient: DarkMystiqueTheme.mysticGradient,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -342,19 +393,19 @@ class _LandingScreenState extends State<LandingScreen>
                   icon: Icons.people_outline,
                   value: _stats?.totalUsers.toString() ?? '—',
                   label: 'Members',
-                  color: theme.mysticViolet,
+                  color: DarkMystiqueTheme.mysticViolet,
                 ),
                 _buildStatItem(
                   icon: Icons.confirmation_number_outlined,
                   value: _stats?.activeTickets.toString() ?? '—',
                   label: 'Active Tickets',
-                  color: theme.ghostCyan,
+                  color: DarkMystiqueTheme.ghostCyan,
                 ),
                 _buildStatItem(
                   icon: Icons.public,
                   value: _stats?.countries.toString() ?? '—',
                   label: 'Countries',
-                  color: theme.amber,
+                  color: DarkMystiqueTheme.warningAura,
                 ),
                 _buildStatItem(
                   icon: Icons.trending_up,
@@ -362,7 +413,7 @@ class _LandingScreenState extends State<LandingScreen>
                       ? '${(_stats!.averageGrowthRate * 100).toStringAsFixed(1)}%'
                       : '—',
                   label: 'Growth Rate',
-                  color: theme.emerald,
+                  color: DarkMystiqueTheme.successGlow,
                 ),
               ],
             ),
@@ -375,7 +426,7 @@ class _LandingScreenState extends State<LandingScreen>
                 'Updated ${_formatTimeAgo(_stats!.lastUpdate)}',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.4),
+                  color: DarkMystiqueTheme.textMuted,
                 ),
               ),
           ],
@@ -407,10 +458,10 @@ class _LandingScreenState extends State<LandingScreen>
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: DarkMystiqueTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -418,7 +469,7 @@ class _LandingScreenState extends State<LandingScreen>
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.6),
+              color: DarkMystiqueTheme.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -427,28 +478,7 @@ class _LandingScreenState extends State<LandingScreen>
     );
   }
 
-  Widget _buildLoginSection() {
-    return Column(
-      children: [
-        Text(
-          'Already a member?',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white.withOpacity(0.7),
-          ),
-        ),
-        const SizedBox(height: 16),
-        MystiqueButton(
-          text: 'Sign In',
-          onPressed: () => Navigator.pushNamed(context, '/login'),
-        ),
-      ],
-    );
-  }
-
   Widget _buildViewStatsButton() {
-    final theme = AppTheme.darkMystique;
-
     return TextButton(
       onPressed: () => Navigator.pushNamed(context, '/stats'),
       style: TextButton.styleFrom(
@@ -459,14 +489,14 @@ class _LandingScreenState extends State<LandingScreen>
         children: [
           Icon(
             Icons.analytics_outlined,
-            color: theme.ghostCyan,
+            color: DarkMystiqueTheme.ghostCyan,
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
             'View Detailed Statistics',
             style: TextStyle(
-              color: theme.ghostCyan,
+              color: DarkMystiqueTheme.ghostCyan,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -474,7 +504,7 @@ class _LandingScreenState extends State<LandingScreen>
           const SizedBox(width: 4),
           Icon(
             Icons.arrow_forward,
-            color: theme.ghostCyan,
+            color: DarkMystiqueTheme.ghostCyan,
             size: 18,
           ),
         ],
@@ -485,26 +515,30 @@ class _LandingScreenState extends State<LandingScreen>
   Widget _buildFooter() {
     return Column(
       children: [
+        // Invitation-only notice
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: DarkMystiqueTheme.mysticViolet.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: DarkMystiqueTheme.mysticViolet.withOpacity(0.2),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.info_outline,
+                Icons.vpn_key_outlined,
                 size: 18,
-                color: Colors.white.withOpacity(0.5),
+                color: DarkMystiqueTheme.etherealPurple,
               ),
               const SizedBox(width: 8),
               Text(
                 'Membership by invitation only',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.5),
+                  color: DarkMystiqueTheme.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -516,7 +550,7 @@ class _LandingScreenState extends State<LandingScreen>
           '© 2025 The Chain. All rights reserved.',
           style: TextStyle(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.3),
+            color: DarkMystiqueTheme.textMuted,
           ),
         ),
       ],

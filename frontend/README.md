@@ -41,8 +41,29 @@ dependencies:
 
 **Port:** 3000
 
+**Route Structure:**
+```
+Public Routes (no authentication required):
+├── /             # Landing page with live chain statistics
+├── /stats        # Detailed public statistics page
+└── /login        # Sign-in page for existing members
+
+Protected Routes (authentication required):
+├── /home         # Main dashboard (redirects here after login)
+├── /dashboard    # Alias for /home
+├── /chain        # Chain visualization
+├── /ticket       # Active ticket view
+├── /profile      # User profile
+├── /settings     # User settings
+├── /notifications # Notification center
+└── /achievements  # Achievements page
+```
+
 **Features:**
-- Landing page with real-time chain statistics (public)
+- Public landing page with real-time chain statistics (uses Dark Mystique theme)
+- "Sign In" button in top-right corner for existing members
+- Detailed public statistics page at `/stats`
+- Automatic session detection (redirects to dashboard if logged in)
 - Device-based login and registration
 - User profile and chain management (authenticated)
 - Ticket generation and QR codes (authenticated)

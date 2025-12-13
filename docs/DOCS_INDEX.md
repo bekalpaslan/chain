@@ -16,6 +16,9 @@ The Chain is a viral invitation-based application with a sophisticated two-tier 
 - ✅ **public-app removed** - Consolidated into private-app (now on port 3000)
 - ✅ Private-app now serves as unified landing page + authenticated dashboard
 - ✅ Public stats visible without login, full features require authentication
+- ✅ **Public landing page** - `/` shows live chain statistics with Dark Mystique theme
+- ✅ **Public stats page** - `/stats` shows detailed chain metrics
+- ✅ **Top-right login button** - Sign In button in landing page header
 
 ---
 
@@ -241,8 +244,10 @@ See [archive/README.md](archive/README.md) for a complete list of archived docum
 
 ### Completed Features ✅
 - ✅ **Candidate/Permanent Member System** - Fully implemented and deployed
+- ✅ **Public Landing Page** - Live chain statistics at `/` with Dark Mystique theme
+- ✅ **Public Stats Page** - Detailed chain metrics at `/stats`
 - ✅ Hybrid Authentication (Email/Password + Device Fingerprint)
-- ✅ Dark Mystique Design System
+- ✅ Dark Mystique Design System (consistent across all pages)
 - ✅ Complete REST API with versioning
 - ✅ Docker containerization
 - ✅ Flutter unified app architecture (formerly dual Public + Private, now consolidated)
