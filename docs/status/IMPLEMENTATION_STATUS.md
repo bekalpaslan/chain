@@ -492,6 +492,22 @@ GET    /chain/geography           ⏳ Geographic distribution (pending)
 GET    /api/v1/actuator/health    ✅ Health check
 ```
 
+### Frontend Routes (December 2025)
+
+#### Public Routes (No Authentication)
+```
+GET    /                          ✅ Landing page with Dark Mystique theme
+GET    /stats                     ✅ Detailed chain statistics page
+```
+
+#### Protected Routes (Authentication Required)
+```
+GET    /dashboard                 ⏳ User dashboard (pending)
+GET    /dashboard/tickets         ⏳ Ticket management (pending)
+GET    /dashboard/chain           ⏳ Chain visualization (pending)
+GET    /dashboard/profile         ⏳ User profile management (pending)
+```
+
 ### Pending Endpoints
 
 #### Users
