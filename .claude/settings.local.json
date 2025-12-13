@@ -100,7 +100,11 @@
       "Bash(Select-Object -First 5)",
       "Bash(claude mcp list:*)",
       "Bash(claude mcp add linear -- npx -y @linear/mcp-server)",
-      "Bash(claude mcp remove:*)"
+      "Bash(claude mcp remove:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(start https://linear.app/settings/api)",
+      "Bash(npx -y @linear/mcp-server)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
