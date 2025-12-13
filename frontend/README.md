@@ -1,21 +1,25 @@
 # The Chain - Frontend Architecture
 
-Flutter-based dual deployment architecture with shared core library.
+Flutter-based unified application with shared core library.
 
 ## Structure
 
 ```
 frontend/
 ├── shared/          # Shared API client, models, and utilities (Flutter package)
-├── public-app/      # Public marketing site (Flutter web app, port 3000)
-└── private-app/     # Private user dashboard (Flutter web app, port 3001)
+├── private-app/     # Main application (Flutter web app, port 3000)
+└── demos/           # Demo components and prototypes
 ```
+
+> **Note (December 2025):** The `public-app` was removed and consolidated into `private-app`.
+> The private-app now serves as the main landing page with public stats visible to all users.
+> Authenticated features are available after login.
 
 ## Packages
 
 ### 1. Shared Package (`shared/`)
 
-Common code used by both apps.
+Common code used by the main app.
 
 **Contains:**
 - API client (Dio-based with auto token refresh)
@@ -31,34 +35,18 @@ dependencies:
     path: ../shared
 ```
 
-### 2. Public App (`public-app/`)
+### 2. Main App (`private-app/`)
 
-**Purpose:** Public marketing site showing chain statistics
+**Purpose:** Unified application serving both public and authenticated users
 
 **Port:** 3000
 
 **Features:**
-- Landing page with real-time stats
-- No authentication required
-- Calls `/chain/stats` endpoint
-
-**Run:**
-```bash
-cd public-app
-flutter run -d chrome
-```
-
-### 3. Private App (`private-app/`)
-
-**Purpose:** Authenticated user dashboard
-
-**Port:** 3001
-
-**Features:**
-- Device-based login
-- User profile and chain management
-- Ticket generation
-- Protected routes requiring JWT
+- Landing page with real-time chain statistics (public)
+- Device-based login and registration
+- User profile and chain management (authenticated)
+- Ticket generation and QR codes (authenticated)
+- Membership tier badges (candidate/permanent)
 
 **Run:**
 ```bash
@@ -68,10 +56,9 @@ flutter run -d chrome
 
 ## Development
 
-**Install dependencies for all packages:**
+**Install dependencies:**
 ```bash
 cd shared && flutter pub get
-cd ../public-app && flutter pub get
 cd ../private-app && flutter pub get
 ```
 
@@ -90,8 +77,7 @@ docker-compose up --build
 ```
 
 **Access:**
-- Public App: http://localhost:3000
-- Private App: http://localhost:3001
+- Main App: http://localhost:3000
 - Backend API: http://localhost:8080
 
 ## Tech Stack
@@ -107,10 +93,26 @@ docker-compose up --build
 ## Design Principles
 
 1. **Shared Core:** Single source of truth for API logic
-2. **Separation of Concerns:** Public vs Private functionality
-3. **Consistent Tech Stack:** Same libraries across both apps
-4. **Docker Ready:** Both apps fully containerized
+2. **Unified App:** Single app with public and authenticated sections
+3. **Progressive Enhancement:** Public stats visible, login reveals more
+4. **Docker Ready:** Fully containerized deployment
+
+## Migration Notes
+
+### December 2025: public-app Consolidation
+
+The dual-app architecture (public-app + private-app) was consolidated into a single app:
+
+| Before | After |
+|--------|-------|
+| `public-app` on port 3000 | Removed |
+| `private-app` on port 3001 | `private-app` on port 3000 |
+
+**Reason:** Simplified deployment and maintenance. The private-app now handles:
+- Public landing page with chain stats (no auth required)
+- Login/registration flows
+- Authenticated dashboard and features
 
 ## Documentation
 
-See [docs/FLUTTER_IMPLEMENTATION_COMPLETE.md](../docs/FLUTTER_IMPLEMENTATION_COMPLETE.md) for comprehensive implementation details.
+See [docs/guides/FLUTTER_IMPLEMENTATION_COMPLETE.md](../docs/guides/FLUTTER_IMPLEMENTATION_COMPLETE.md) for comprehensive implementation details.

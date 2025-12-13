@@ -12,6 +12,11 @@ The Chain is a viral invitation-based application with a sophisticated two-tier 
 
 **Key Achievement:** The candidate/permanent member system has been successfully deployed, replacing the original "hot potato" 3-strike system with a more sophisticated probation period model.
 
+### Recent Changes (December 2025)
+- ✅ **public-app removed** - Consolidated into private-app (now on port 3000)
+- ✅ Private-app now serves as unified landing page + authenticated dashboard
+- ✅ Public stats visible without login, full features require authentication
+
 ---
 
 ## Quick Start
@@ -240,7 +245,7 @@ See [archive/README.md](archive/README.md) for a complete list of archived docum
 - ✅ Dark Mystique Design System
 - ✅ Complete REST API with versioning
 - ✅ Docker containerization
-- ✅ Flutter dual app architecture (Public + Private)
+- ✅ Flutter unified app architecture (formerly dual Public + Private, now consolidated)
 - ✅ Database schema with migrations
 - ✅ Redis caching layer
 - ✅ QR code ticket generation

@@ -11,9 +11,10 @@ spring:
       password: ${REDIS_PASSWORD:}
 
   # Docker profile specific CORS settings
+  # NOTE: public-app removed (Dec 2025) - private-app now serves on port 3000
   web:
     cors:
-      allowed-origins: http://localhost:3000,http://localhost:3001,http://public-app:3000,http://private-app:3001
+      allowed-origins: http://localhost:3000,http://private-app:3000
 
 # Logging configuration for Docker
 logging:
