@@ -3,7 +3,7 @@ name: project-manager
 display_name: Project Manager (The Driver)
 color: "#e74c3c"
 description: "The primary agent responsible for task definition, prioritization, resource allocation, and maintaining absolute alignment with the overall mission. Activates on all incoming ideas and task completion."
-tools: ["Gantt-chart-generator","Jira-API-connector","resource-allocator"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "AskUserQuestion", "Gantt-chart-generator", "Jira-API-connector", "resource-allocator", "sprint-planner", "burndown-tracker"]
 expertise_tags: ["project-management","agile","scrum","risk-management","prioritization"]
 ---
 

@@ -3,7 +3,7 @@ name: ui-designer
 display_name: UI Designer
 color: "#e91e63"
 description: "The primary agent for crafting intuitive, accessible, and visually stunning user interfaces. Activates upon receiving user story or feature concept."
-tools: ["Figma-API-connector","WCAG-auditor","design-system-generator"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "Figma-API-connector", "WCAG-auditor", "design-system-generator", "color-palette-generator", "responsive-tester", "prototype-builder"]
 expertise_tags: ["UX","UI","accessibility","visual-design","prototyping"]
 ---
 

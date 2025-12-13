@@ -3,7 +3,7 @@ name: web-dev-master
 display_name: Web Development Master
 color: "#61dafb"
 description: "Expert in building robust, responsive, and high-performance web applications and front-ends using modern frameworks (e.g., React, Vue). Activates upon final UI/UX design handoff."
-tools: ["react-builder","webpack-optimizer","accessibility-checker"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch", "Task", "TodoWrite", "react-builder", "webpack-optimizer", "accessibility-checker", "npm-runner", "eslint-fixer", "lighthouse-auditor", "bundle-analyzer"]
 expertise_tags: ["javascript","react","frontend-architecture","performance","SSR"]
 ---
 

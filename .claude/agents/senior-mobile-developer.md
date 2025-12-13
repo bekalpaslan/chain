@@ -3,7 +3,7 @@ name: senior-mobile-developer
 display_name: Senior Mobile Developer (Flutter/Dart)
 color: "#02569b"
 description: "Lead mobile development role specializing in cross-platform Flutter applications, state management, and mobile performance optimization."
-tools: ["dart-analyzer","flutter-emulator-runner","state-management-auditor"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch", "Task", "TodoWrite", "dart-analyzer", "flutter-emulator-runner", "state-management-auditor", "flutter-test-runner", "widget-inspector", "devtools-profiler", "pub-dependency-manager"]
 expertise_tags: ["flutter-3","dart-3","mobile-development","cross-platform","state-management","responsive-design"]
 ---
 

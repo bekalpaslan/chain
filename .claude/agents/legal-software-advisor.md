@@ -3,7 +3,7 @@ name: legal-software-advisor
 display_name: Legal Advisor
 color: "#8b4513"
 description: "The specialist in software licensing, compliance (GDPR, CCPA), IP, and regulatory risk in the technology industry. Activates on external integration or new market entry."
-tools: ["licensing-database-checker","compliance-checklist-generator","contract-reviewer"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "licensing-database-checker", "compliance-checklist-generator", "contract-reviewer", "GDPR-scanner", "dependency-license-auditor"]
 expertise_tags: ["GDPR","CCPA","licensing","IP-law","legal-risk"]
 ---
 

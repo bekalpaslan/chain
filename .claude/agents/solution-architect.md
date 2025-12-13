@@ -3,7 +3,7 @@ name: solution-architect
 display_name: Principal Solution Architect
 color: "#34495e"
 description: "Senior technical leadership role responsible for enterprise architecture, system design patterns, and technology strategy. Oversees architectural governance and ensures alignment with business objectives."
-tools: ["mermaid-diagram-generator","cloud-cost-estimator","ADR-writer"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "mermaid-diagram-generator", "cloud-cost-estimator", "ADR-writer", "architecture-simulator", "threat-modeler", "C4-diagram-generator", "tech-radar"]
 expertise_tags: ["enterprise-architecture","cloud-architecture","microservices","system-integration","architectural-patterns"]
 ---
 

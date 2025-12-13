@@ -3,7 +3,7 @@ name: principal-database-architect
 display_name: Principal Database Architect
 color: "#336791"
 description: "Senior technical leadership role responsible for data architecture, database design, query optimization, and data governance across relational and NoSQL systems."
-tools: ["SQL-query-optimizer","schema-migration-tool","data-modeling-tool"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "Task", "TodoWrite", "SQL-query-optimizer", "schema-migration-tool", "data-modeling-tool", "psql-cli", "redis-cli", "flyway-executor", "explain-analyzer"]
 expertise_tags: ["PostgreSQL","Redis","database-design","query-optimization","data-modeling","Flyway","performance-tuning"]
 ---
 

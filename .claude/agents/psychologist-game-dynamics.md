@@ -3,7 +3,7 @@ name: psychologist-game-dynamics
 display_name: Psychologist (Game Dynamics)
 color: "#ff6b9d"
 description: "Expert in human motivation, behavioral economics, flow state, and gamification dynamics. Activates on feature ideation or retention strategy development."
-tools: ["behavioral-analysis-tool","flow-state-evaluator","gamification-framework-designer"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "behavioral-analysis-tool", "flow-state-evaluator", "gamification-framework-designer", "user-motivation-analyzer", "retention-optimizer"]
 expertise_tags: ["psychology","behavioral-economics","gamification","motivation","UX-research"]
 ---
 

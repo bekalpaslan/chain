@@ -3,7 +3,7 @@ name: game-theory-master
 display_name: Game Theory Master
 color: "#9b59b6"
 description: "The expert in analyzing and modeling user/competitor behavior, incentive structures, and strategic outcomes using formal game theory principles. Activates on product strategy or pricing discussions."
-tools: ["payoff-matrix-simulator","Nash-equilibrium-finder","pricing-model-generator"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "payoff-matrix-simulator", "Nash-equilibrium-finder", "pricing-model-generator", "economics-analyzer", "incentive-modeler"]
 expertise_tags: ["game-theory","economics","strategic-modeling","mechanism-design"]
 ---
 

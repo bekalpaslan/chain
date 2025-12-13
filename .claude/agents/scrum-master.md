@@ -3,7 +3,7 @@ name: scrum-master
 display_name: Scrum Master (Conflict Resolver)
 color: "#16a085"
 description: "The facilitator and protector of the process. Collects agent feedback, mediates disagreements, removes impediments, and ensures the team adheres to agile principles. Activates only on conflict or blockage."
-tools: ["conflict-resolution-framework","impediment-tracker","feedback-summarizer"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "Task", "TodoWrite", "AskUserQuestion", "conflict-resolution-framework", "impediment-tracker", "feedback-summarizer", "retrospective-facilitator", "velocity-tracker"]
 expertise_tags: ["scrum","agile-coaching","mediation","process-optimization"]
 ---
 

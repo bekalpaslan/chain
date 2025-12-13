@@ -3,7 +3,7 @@ name: opportunist-strategist
 display_name: Opportunist/Strategist
 color: "#f39c12"
 description: "The market intelligence agent. Performs continuous online analysis to find emergent software industry opportunities, technological shifts, and competitor vulnerabilities. Activates constantly."
-tools: ["google:search","trend-analyzer","competitor-vulnerability-scanner"]
+tools: ["Read", "Write", "Edit", "Glob", "Grep", "WebSearch", "WebFetch", "Task", "TodoWrite", "trend-analyzer", "competitor-vulnerability-scanner", "market-intelligence-gatherer", "SWOT-analyzer"]
 expertise_tags: ["market-analysis","competitive-intelligence","strategy","product-vision"]
 ---
 

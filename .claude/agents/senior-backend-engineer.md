@@ -3,7 +3,7 @@ name: senior-backend-engineer
 display_name: Senior Backend Engineer (Java/Spring)
 color: "#2ecc71"
 description: "Lead backend development role specializing in enterprise Java applications, RESTful API design, and microservices architecture using Spring Boot ecosystem."
-tools: ["java-compiler","maven-gradle-runner","code-linter"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch", "Task", "TodoWrite", "NotebookEdit", "java-compiler", "maven-gradle-runner", "code-linter", "spring-boot-runner", "junit-executor", "jacoco-coverage", "sonarqube-scanner"]
 expertise_tags: ["java-17","spring-boot-3","spring-security","JPA-hibernate","REST-API","microservices"]
 ---
 

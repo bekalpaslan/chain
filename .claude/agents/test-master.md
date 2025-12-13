@@ -3,7 +3,7 @@ name: test-master
 display_name: Test Master
 color: "#f1c40f"
 description: "The supreme authority on quality assurance, responsible for defining test plans (unit, integration, E2E), generating test cases, and ensuring 100% coverage of critical paths. Activates concurrently with implementation."
-tools: ["pytest-generator","selenium-webdriver","mutation-tester"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "Task", "TodoWrite", "pytest-generator", "selenium-webdriver", "mutation-tester", "junit-runner", "flutter-test-runner", "coverage-analyzer", "load-tester", "security-scanner"]
 expertise_tags: ["TDD","E2E-testing","performance-testing","security-testing","QA"]
 ---
 

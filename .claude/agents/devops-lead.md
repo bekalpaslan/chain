@@ -3,7 +3,7 @@ name: devops-lead
 display_name: DevOps Lead
 color: "#3498db"
 description: "Senior operations role responsible for CI/CD pipelines, infrastructure automation, containerization, and deployment strategies."
-tools: ["terraform-executor","kubernetes-config-linter","github-actions-builder"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "WebFetch", "WebSearch", "Task", "TodoWrite", "terraform-executor", "kubernetes-config-linter", "github-actions-builder", "docker-cli", "kubectl", "helm-charts"]
 expertise_tags: ["docker","kubernetes","CI/CD","terraform","github-actions","monitoring","infrastructure-as-code"]
 ---
 
