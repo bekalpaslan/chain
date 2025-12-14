@@ -1,7 +1,7 @@
 # Frontend Implementation Status
 
-**Version:** 1.0
-**Date:** December 13, 2025
+**Version:** 1.1
+**Date:** December 14, 2025
 **Framework:** Flutter 3.35.5 / Dart 3.9.2
 **App:** private-app (unified public + authenticated)
 
@@ -11,10 +11,10 @@
 
 | Category | Complete | Partial | TODO |
 |----------|----------|---------|------|
-| **Screens** | 5 | 2 | 4 |
+| **Screens** | 11 | 1 | 0 |
 | **Auth Features** | 6 | 1 | 3 |
 | **Dashboard Features** | 8 | 2 | 4 |
-| **API Integrations** | 4 | 1 | 2 |
+| **API Integrations** | 5 | 1 | 1 |
 
 ---
 
@@ -24,9 +24,17 @@
 
 | Screen | File | Status | Description |
 |--------|------|--------|-------------|
-| Landing | `landing_screen.dart` | ✅ Complete | Public homepage with chain stats, Sign In button |
+| Landing | `landing_screen.dart` | ✅ Complete | Public homepage with chain stats, Sign In, Join buttons |
 | Public Stats | `public_stats_screen.dart` | ✅ Complete | Detailed chain metrics, recent joins |
 | Login | `login_screen.dart` | ✅ Complete | Email/password login with API integration |
+
+### Registration Flow (No Auth Required)
+
+| Screen | File | Status | Description |
+|--------|------|--------|-------------|
+| QR Scanner | `qr_scanner_screen.dart` | ✅ Complete | Camera-based QR scanning with mobile_scanner |
+| Scan Result | `ticket_scan_result_screen.dart` | ✅ Complete | Shows inviter info, future position, countdown |
+| Registration | `registration_screen.dart` | ✅ Complete | Username/password form with inviter context |
 
 ### Protected Screens (Auth Required)
 
@@ -34,11 +42,11 @@
 |--------|------|--------|-------------|
 | Dashboard | `dashboard_screen.dart` | ✅ Complete | Main user dashboard (930 lines) |
 | Home/Chain | `home_screen.dart` | ✅ Complete | Chain visualization alternate view |
-| Ticket View | `ticket_view_screen.dart` | ✅ Complete | Active ticket display with QR |
-| Notifications | Route stub only | 🚧 TODO | Placeholder screen |
-| Settings | Route stub only | 🚧 TODO | Placeholder screen |
-| Profile | Route stub only | 🚧 TODO | Placeholder screen |
-| Achievements | Route stub only | 🚧 TODO | Placeholder screen |
+| Ticket View | `ticket_view_screen.dart` | ✅ Complete | Active ticket with QR + native share |
+| Settings | `settings_screen.dart` | ✅ Complete | User preferences |
+| Profile | `profile_screen.dart` | ✅ Complete | User profile management |
+| Achievements | `achievements_screen.dart` | ✅ Complete | Badge display |
+| Notifications | Route stub only | ⏳ Partial | Placeholder screen |
 
 ---
 
@@ -121,18 +129,19 @@
 
 | Endpoint | Method | Used In | Status |
 |----------|--------|---------|--------|
-| `/api/auth/login` | POST | login_screen.dart | ✅ Working |
-| `/api/auth/refresh` | POST | api_client.dart | ✅ Working |
-| `/api/users/me/dashboard` | GET | dashboard_providers.dart | ✅ Working |
-| `/api/chain/stats` | GET | landing_screen.dart | ✅ Working |
+| `/api/v1/auth/login` | POST | login_screen.dart | ✅ Working |
+| `/api/v1/auth/register` | POST | registration_screen.dart | ✅ Working |
+| `/api/v1/auth/refresh` | POST | api_client.dart | ✅ Working |
+| `/api/v1/users/me/dashboard` | GET | dashboard_providers.dart | ✅ Working |
+| `/api/v1/chain/stats` | GET | landing_screen.dart | ✅ Working |
+| `/api/v1/tickets/scan` | POST | qr_scanner_screen.dart, landing_screen.dart | ✅ Working |
 
 ### Not Connected
 
 | Endpoint | Purpose | Priority |
 |----------|---------|----------|
-| `/api/auth/logout` | Invalidate tokens | Medium |
-| `/api/users/me/activities` | Paginated activities | Low |
-| `/api/chain/members` | Paginated chain | Low |
+| `/api/v1/auth/logout` | Invalidate tokens | Medium |
+| `/api/v1/users/me/activities` | Paginated activities | Low |
 
 ---
 
@@ -168,30 +177,84 @@
 /                   → LandingScreen (public)
 /stats              → PublicStatsScreen (public)
 /login              → LoginScreen (public)
+
+# Registration Flow (public - no auth required)
+/scan               → QrScannerScreen (public)
+/scan-result        → TicketScanResultScreen (public)
+/register           → RegistrationScreen (public)
+
+# Protected Routes (auth required)
 /home               → DashboardScreen (protected)
 /dashboard          → DashboardScreen (protected)
 /chain              → HomeScreen (protected)
 /ticket             → TicketViewScreen (protected)
 /notifications      → Placeholder (protected)
-/settings           → Placeholder (protected)
-/profile            → Placeholder (protected)
-/achievements       → Placeholder (protected)
+/settings           → SettingsScreen (protected)
+/profile            → ProfileScreen (protected)
+/achievements       → AchievementsScreen (protected)
 ```
 
 ---
 
 ## Next Implementation Priorities
 
-1. **Map Visualization** - Replace "coming soon" placeholder
-2. **Activity Feed** - Display recent activities from API data
-3. **Settings Screen** - User preferences
-4. **Profile Screen** - User profile management
-5. **Achievements Screen** - Badge display
-6. **Real-time Updates** - WebSocket integration
+1. **Notifications Screen** - Build out from placeholder
+2. **Map Visualization** - Replace "coming soon" placeholder
+3. **Activity Feed** - Display recent activities from API data
+4. **Real-time Updates** - WebSocket integration
+
+---
+
+## New Features (December 14, 2025)
+
+### Registration Flow
+Complete user registration flow via QR code or invitation link:
+
+1. **QR Scanner Screen** (`qr_scanner_screen.dart`)
+   - Camera-based scanning with `mobile_scanner` package
+   - Animated scan frame with pulsing effect
+   - Torch toggle for low-light conditions
+   - Manual entry fallback option
+   - Parses deep link format: `thechain://join?t=<base64>`
+
+2. **Scan Result Screen** (`ticket_scan_result_screen.dart`)
+   - Displays inviter information (name, position, tier)
+   - Shows user's future position in chain
+   - Live countdown timer with urgency styling
+   - Chain statistics display
+   - Navigation to registration form
+
+3. **Registration Screen** (`registration_screen.dart`)
+   - Inviter context display
+   - Username/password fields with validation
+   - Password visibility toggle
+   - Terms acceptance checkbox
+   - Error handling for duplicate usernames
+
+### Landing Page Updates
+- **Two Join Options**: "Scan QR" button + "Paste Link" button
+- **Paste Link Dialog**: Parse invitation links directly
+- **Updated messaging**: "Scan a QR code or paste an invitation link"
+
+### Ticket Sharing Enhancements
+- **Native Share**: Added `share_plus` package for OS share sheet
+- **Share Message**: Includes invitation text, deep link, expiration time
+- **Fallback**: Clipboard copy if native share unavailable
 
 ---
 
 ## Change Log
+
+### Version 1.1 (December 14, 2025)
+- ✅ Added complete registration flow (QR scan + link paste)
+- ✅ Created QrScannerScreen with mobile_scanner
+- ✅ Created TicketScanResultScreen with inviter info
+- ✅ Created RegistrationScreen with form validation
+- ✅ Added scanTicket API integration
+- ✅ Updated landing page with dual join options
+- ✅ Implemented native share with share_plus
+- ✅ Added /scan, /scan-result, /register routes
+- Updated screen counts: 11 complete, 1 partial, 0 TODO
 
 ### Version 1.0 (December 13, 2025)
 - Initial frontend status document
@@ -202,4 +265,4 @@
 ---
 
 **Generated with Claude Code**
-**Last Updated:** December 13, 2025
+**Last Updated:** December 14, 2025

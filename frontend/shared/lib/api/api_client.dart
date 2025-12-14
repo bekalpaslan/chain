@@ -206,6 +206,23 @@ class ApiClient {
     }
   }
 
+  /// Scan a ticket QR code (public endpoint for joining)
+  /// Returns ticket validation result with inviter info
+  Future<Map<String, dynamic>> scanTicket(String ticketId, String signature) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.ticketsScan,
+        data: {
+          'ticketId': ticketId,
+          'signature': signature,
+        },
+      );
+      return response.data as Map<String, dynamic>;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ========== Error handling ==========
 
   ApiException _handleError(dynamic error) {

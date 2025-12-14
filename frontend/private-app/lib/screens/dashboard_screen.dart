@@ -699,6 +699,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   void _showActivityPopup() {
     HapticFeedback.lightImpact();
     final theme = AppTheme.darkMystique;
+    final dashboardData = ref.read(dashboardDataProvider).valueOrNull;
+    final activities = dashboardData?.recentActivities ?? [];
 
     showGeneralDialog(
       context: context,
@@ -718,11 +720,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               curve: Curves.easeOutCubic,
             )),
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery.of(context).size.width * 0.9,
               margin: const EdgeInsets.only(bottom: 120),
               decoration: BoxDecoration(
-                color: theme.deepVoid.withOpacity(0.9),
+                color: theme.deepVoid.withOpacity(0.95),
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
@@ -762,17 +764,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   ),
                   Divider(color: theme.gray700.withOpacity(0.3), height: 1),
 
-                  // Content
+                  // Activity List
                   Expanded(
-                    child: Center(
-                      child: Text(
-                        'Activity feed coming soon...',
-                        style: TextStyle(
-                          color: theme.gray600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
+                    child: activities.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.inbox_outlined,
+                                  color: theme.gray600,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No recent activity',
+                                  style: TextStyle(
+                                    color: theme.gray600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: activities.length,
+                            itemBuilder: (context, index) {
+                              final activity = activities[index];
+                              return _buildActivityItem(activity, theme);
+                            },
+                          ),
                   ),
                 ],
               ),
@@ -780,6 +802,70 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildActivityItem(Activity activity, DarkMystiqueTheme theme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: theme.shadowDark.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: activity.type.color.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: activity.type.color.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              activity.type.icon,
+              color: activity.type.color,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  activity.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  activity.description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            activity.timeAgo,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.4),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

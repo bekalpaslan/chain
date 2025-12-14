@@ -16,6 +16,7 @@ class ApiConstants {
   // Ticket endpoints
   static const String ticketsMyActive = '/tickets/me/active';
   static const String ticketsById = '/tickets';
+  static const String ticketsScan = '/tickets/scan';
 
   // Chain endpoints
   static const String chainStats = '/chain/stats';

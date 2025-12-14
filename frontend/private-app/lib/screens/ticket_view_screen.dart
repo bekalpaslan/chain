@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import '../models/ticket_models.dart';
@@ -682,19 +683,27 @@ class _TicketViewScreenState extends ConsumerState<TicketViewScreen>
 
     HapticFeedback.mediumImpact();
 
-    // TODO: Implement native share using share_plus package
-    // For now, just copy to clipboard
-    await _copyToClipboard();
+    final timeRemaining = ticket.formattedTimeRemaining;
+    final shareText = '''
+Join me on The Chain! 🔗
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Link copied! Share it with someone to invite them.'),
-          backgroundColor: AppTheme.darkMystique.mysticViolet,
-          duration: const Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
+I'm inviting you to be part of an exclusive viral invitation network. Use this link to join:
+
+${ticket.deepLink}
+
+⏰ This invitation expires in $timeRemaining
+
+The Chain - Grow with solidarity and trust.
+''';
+
+    try {
+      await Share.share(
+        shareText,
+        subject: 'You\'re Invited to The Chain!',
       );
+    } catch (e) {
+      // Fallback to clipboard if share fails
+      await _copyToClipboard();
     }
   }
 }

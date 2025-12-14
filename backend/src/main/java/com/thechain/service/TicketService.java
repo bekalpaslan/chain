@@ -2,6 +2,7 @@ package com.thechain.service;
 
 import com.thechain.config.CacheConfig;
 import com.thechain.dto.TicketResponse;
+import com.thechain.dto.TicketScanResponse;
 import com.thechain.entity.Invitation;
 import com.thechain.entity.RemovalReason;
 import com.thechain.entity.Ticket;
@@ -376,5 +377,165 @@ public class TicketService {
         }
 
         log.info("User {} at position {} removed from chain", user.getChainKey(), userPosition);
+    }
+
+    /**
+     * Scan a QR code ticket and validate it for registration.
+     * This is the first step when a new user wants to join the chain.
+     *
+     * QR Payload Format: Base64(ticketId|signature)
+     *
+     * @param qrPayloadBase64 The base64-encoded QR payload from scanning
+     * @return TicketScanResponse with ticket and inviter details
+     * @throws BusinessException if ticket is invalid, expired, or already used
+     */
+    @Transactional(readOnly = true)
+    public TicketScanResponse scanTicket(String qrPayloadBase64) {
+        // 1. Decode the base64 payload
+        String decodedPayload;
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(qrPayloadBase64);
+            decodedPayload = new String(decodedBytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid base64 QR payload: {}", qrPayloadBase64);
+            throw new BusinessException("INVALID_QR_FORMAT", "Invalid QR code format");
+        }
+
+        // 2. Parse ticketId and signature from "ticketId|signature"
+        String[] parts = decodedPayload.split("\\|", 2);
+        if (parts.length != 2) {
+            log.warn("Invalid QR payload format (expected ticketId|signature): {}", decodedPayload);
+            throw new BusinessException("INVALID_QR_FORMAT", "Invalid QR code format");
+        }
+
+        UUID ticketId;
+        try {
+            ticketId = UUID.fromString(parts[0]);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid ticket ID in QR payload: {}", parts[0]);
+            throw new BusinessException("INVALID_QR_FORMAT", "Invalid ticket ID format");
+        }
+        String providedSignature = parts[1];
+
+        // 3. Look up the ticket
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> {
+                    log.warn("Ticket not found: {}", ticketId);
+                    return new BusinessException("TICKET_NOT_FOUND", "Ticket not found");
+                });
+
+        // 4. Validate ticket status
+        if (ticket.getStatus() == Ticket.TicketStatus.USED) {
+            log.warn("Ticket {} has already been used", ticketId);
+            return buildInvalidScanResponse(ticket, "This invitation has already been used");
+        }
+
+        if (ticket.getStatus() == Ticket.TicketStatus.EXPIRED) {
+            log.warn("Ticket {} has expired (status)", ticketId);
+            return buildInvalidScanResponse(ticket, "This invitation has expired");
+        }
+
+        if (ticket.getStatus() == Ticket.TicketStatus.CANCELLED) {
+            log.warn("Ticket {} was cancelled", ticketId);
+            return buildInvalidScanResponse(ticket, "This invitation has been cancelled");
+        }
+
+        // 5. Check expiration time
+        if (ticket.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Ticket {} expired at {}", ticketId, ticket.getExpiresAt());
+            // Update status to expired
+            ticket.setStatus(Ticket.TicketStatus.EXPIRED);
+            ticketRepository.save(ticket);
+            return buildInvalidScanResponse(ticket, "This invitation has expired");
+        }
+
+        // 6. Verify signature
+        if (!verifyTicketSignature(ticket, providedSignature)) {
+            log.warn("Invalid signature for ticket {}", ticketId);
+            throw new BusinessException("INVALID_SIGNATURE", "Invalid ticket signature");
+        }
+
+        // 7. Load the inviter (ticket owner)
+        User inviter = userRepository.findById(ticket.getOwnerId())
+                .orElseThrow(() -> {
+                    log.error("Ticket owner not found: {}", ticket.getOwnerId());
+                    return new BusinessException("INVITER_NOT_FOUND", "Inviter not found");
+                });
+
+        // 8. Check inviter status
+        if ("removed".equals(inviter.getStatus())) {
+            log.warn("Inviter {} has been removed from chain", inviter.getChainKey());
+            return buildInvalidScanResponse(ticket, "The person who sent this invitation is no longer in the chain");
+        }
+
+        // 9. Check if inviter already has an active invitee
+        boolean hasActiveInvitee = invitationRepository.findByParentId(inviter.getId())
+                .stream()
+                .anyMatch(inv -> inv.getStatus() == Invitation.InvitationStatus.ACTIVE);
+
+        if (hasActiveInvitee) {
+            log.warn("Inviter {} already has an active invitee", inviter.getChainKey());
+            return buildInvalidScanResponse(ticket, "This person has already invited someone else");
+        }
+
+        // 10. Calculate chain statistics
+        Long totalActiveMembers = userRepository.countByStatus("active") +
+                                  userRepository.countByStatus("seed");
+        Integer maxPosition = userRepository.findMaxPosition();
+        Integer nextPosition = (maxPosition != null ? maxPosition : 0) + 1;
+
+        // 11. Build successful response
+        int strikeCount = inviter.getWastedTicketsCount();
+        int attemptNumber = strikeCount + 1;
+        int durationHours = (int) ((ticket.getExpiresAt().toEpochMilli() - ticket.getIssuedAt().toEpochMilli()) / 3600000);
+        long timeRemaining = ticket.getExpiresAt().toEpochMilli() - Instant.now().toEpochMilli();
+
+        log.info("Ticket {} scanned successfully. Inviter: {} (position {})",
+                 ticketId, inviter.getChainKey(), inviter.getPosition());
+
+        return TicketScanResponse.builder()
+                // Ticket info
+                .ticketId(ticket.getId())
+                .status(ticket.getStatus().name())
+                .issuedAt(ticket.getIssuedAt())
+                .expiresAt(ticket.getExpiresAt())
+                .timeRemaining(Math.max(0, timeRemaining))
+                .attemptNumber(attemptNumber)
+                .durationHours(durationHours)
+                // Inviter info
+                .inviterId(inviter.getId())
+                .inviterDisplayName(inviter.getDisplayName())
+                .inviterChainKey(inviter.getChainKey())
+                .inviterPosition(inviter.getPosition())
+                .inviterCountry(inviter.getAssociatedWith())
+                .inviterMembershipTier(inviter.getMembershipTier())
+                // Chain context
+                .yourFuturePosition(nextPosition)
+                .totalChainMembers(totalActiveMembers)
+                // Validation
+                .isValid(true)
+                .validationMessage("Invitation is valid! You can join the chain.")
+                .build();
+    }
+
+    /**
+     * Build an invalid scan response with the given message.
+     */
+    private TicketScanResponse buildInvalidScanResponse(Ticket ticket, String message) {
+        User inviter = userRepository.findById(ticket.getOwnerId()).orElse(null);
+
+        return TicketScanResponse.builder()
+                .ticketId(ticket.getId())
+                .status(ticket.getStatus().name())
+                .issuedAt(ticket.getIssuedAt())
+                .expiresAt(ticket.getExpiresAt())
+                .timeRemaining(0L)
+                .inviterId(ticket.getOwnerId())
+                .inviterDisplayName(inviter != null ? inviter.getDisplayName() : "Unknown")
+                .inviterChainKey(inviter != null ? inviter.getChainKey() : null)
+                .inviterPosition(inviter != null ? inviter.getPosition() : null)
+                .isValid(false)
+                .validationMessage(message)
+                .build();
     }
 }

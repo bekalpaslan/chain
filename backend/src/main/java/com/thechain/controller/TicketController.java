@@ -2,6 +2,7 @@ package com.thechain.controller;
 
 import com.thechain.dto.ErrorResponse;
 import com.thechain.dto.TicketResponse;
+import com.thechain.dto.TicketScanResponse;
 import com.thechain.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -82,6 +83,48 @@ public class TicketController {
         @PathVariable UUID ticketId
     ) {
         TicketResponse response = ticketService.getTicket(ticketId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/scan")
+    @Operation(
+        summary = "Scan a QR code ticket",
+        description = "Validates a scanned QR code ticket and returns ticket and inviter details. " +
+                     "This is the first step when a new user wants to join the chain. " +
+                     "The QR payload is a base64-encoded string containing the ticket ID and signature. " +
+                     "This endpoint is PUBLIC and does not require authentication."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Ticket scanned successfully. Check 'isValid' field for validation result.",
+            content = @Content(schema = @Schema(implementation = TicketScanResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid QR code format or malformed payload",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Ticket not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Invalid ticket signature",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    public ResponseEntity<TicketScanResponse> scanTicket(
+        @Parameter(
+            description = "Base64-encoded QR payload (format: base64(ticketId|signature))",
+            required = true,
+            example = "YTFiMmMzZDQtZTVmNi03ODkwLWFiY2QtZWYxMjM0NTY3ODkwfGV5SmhiR2NpT2..."
+        )
+        @RequestParam String qrPayload
+    ) {
+        TicketScanResponse response = ticketService.scanTicket(qrPayload);
         return ResponseEntity.ok(response);
     }
 }

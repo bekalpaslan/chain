@@ -6,6 +6,12 @@ import 'screens/public_stats_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/home_screen.dart'; // Keep for backward compatibility
 import 'screens/ticket_view_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/achievements_screen.dart';
+import 'screens/qr_scanner_screen.dart';
+import 'screens/ticket_scan_result_screen.dart';
+import 'screens/registration_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/auth_guard.dart';
 
@@ -31,6 +37,11 @@ class PrivateApp extends StatelessWidget {
         '/stats': (context) => const PublicStatsScreen(),
         '/login': (context) => const LoginScreen(),
 
+        // ========== Registration flow (public, no auth required) ==========
+        '/scan': (context) => const QrScannerScreen(),
+        '/scan-result': (context) => const TicketScanResultScreen(),
+        '/register': (context) => const RegistrationScreen(),
+
         // ========== Protected routes (auth required) ==========
         '/home': (context) => const AuthGuard(
           routeName: '/home',
@@ -50,15 +61,15 @@ class PrivateApp extends StatelessWidget {
         ),
         '/settings': (context) => const AuthGuard(
           routeName: '/settings',
-          child: Scaffold(body: Center(child: Text('Settings'))),
+          child: SettingsScreen(),
         ),
         '/profile': (context) => const AuthGuard(
           routeName: '/profile',
-          child: Scaffold(body: Center(child: Text('Profile'))),
+          child: ProfileScreen(),
         ),
         '/achievements': (context) => const AuthGuard(
           routeName: '/achievements',
-          child: Scaffold(body: Center(child: Text('Achievements'))),
+          child: AchievementsScreen(),
         ),
         '/ticket': (context) => const AuthGuard(
           routeName: '/ticket',

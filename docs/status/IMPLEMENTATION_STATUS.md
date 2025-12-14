@@ -1,8 +1,8 @@
 # The Chain - Implementation Status & Technical Documentation
 
-**Version:** 2.5
-**Date:** December 13, 2025
-**Status:** Public Landing Pages Complete + Full Route Structure Documented
+**Version:** 2.6
+**Date:** December 14, 2025
+**Status:** Registration Flow Complete + Native Share + Dual Join Options
 **Author:** Alpaslan Bek
 **Document Type:** Implementation Status & Technical Reference
 
@@ -474,8 +474,8 @@ POST   /auth/logout               ⏳ Session invalidation (pending)
 ```
 GET    /tickets/me/active         ✅ Get user's active ticket (auto-created on registration)
 GET    /tickets/{id}              ✅ Get ticket details (with QR code)
+POST   /tickets/scan              ✅ Scan and validate ticket (returns inviter info)
 POST   /tickets/validate          ⏳ Validate ticket signature (pending)
-POST   /tickets/scan              ⏳ Scan and use ticket to join chain (pending)
 ```
 
 #### Chain
@@ -498,14 +498,25 @@ GET    /api/v1/actuator/health    ✅ Health check
 ```
 GET    /                          ✅ Landing page with Dark Mystique theme
 GET    /stats                     ✅ Detailed chain statistics page
+GET    /login                     ✅ Login screen with email/password
+```
+
+#### Registration Flow (No Authentication)
+```
+GET    /scan                      ✅ QR scanner screen (mobile_scanner)
+GET    /scan-result               ✅ Scan result with inviter info
+GET    /register                  ✅ Registration form
 ```
 
 #### Protected Routes (Authentication Required)
 ```
-GET    /dashboard                 ⏳ User dashboard (pending)
-GET    /dashboard/tickets         ⏳ Ticket management (pending)
-GET    /dashboard/chain           ⏳ Chain visualization (pending)
-GET    /dashboard/profile         ⏳ User profile management (pending)
+GET    /home                      ✅ User dashboard
+GET    /dashboard                 ✅ User dashboard (alias)
+GET    /chain                     ✅ Chain visualization
+GET    /ticket                    ✅ Ticket view with QR + native share
+GET    /settings                  ✅ User settings
+GET    /profile                   ✅ User profile
+GET    /achievements              ✅ Badge display
 ```
 
 ### Pending Endpoints
@@ -881,6 +892,25 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 
 ## Change Log
 
+### Version 2.6 (December 14, 2025)
+- ✅ **Implemented Complete Registration Flow**
+  - Created QrScannerScreen with mobile_scanner package
+  - Created TicketScanResultScreen showing inviter info + countdown
+  - Created RegistrationScreen with form validation
+  - Added POST /tickets/scan endpoint integration
+  - Added /scan, /scan-result, /register routes
+- ✅ **Dual Join Options on Landing Page**
+  - "Scan QR" button → camera scanner
+  - "Paste Link" button → dialog to paste invitation link
+  - Link parsing: `thechain://join?t=<base64(ticketId|signature)>`
+- ✅ **Native Share Implementation**
+  - Added share_plus package (^7.2.2)
+  - Updated ticket_view_screen.dart with OS share sheet
+  - Share message includes invitation text, link, expiration
+- ✅ **API Client Updates**
+  - Added scanTicket() method to ApiClient
+  - Added ticketsScan constant to ApiConstants
+
 ### Version 2.5 (December 13, 2025)
 - ✅ **Implemented Public Landing Pages**
 - ✅ Added landing page at `/` with Dark Mystique theme
@@ -973,7 +1003,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ---
 
 **Generated with Claude Code** - Implementation Status Report
-**Last Updated:** December 13, 2025, 00:00 UTC
+**Last Updated:** December 14, 2025
 
 ---
 

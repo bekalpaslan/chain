@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated:** December 13, 2025
+**Last Updated:** December 14, 2025
 **Project:** The Chain (ticketz)
 **Status:** Candidate/Permanent Member System - COMPLETE
 
@@ -19,6 +19,9 @@ The Chain is a viral invitation-based application with a sophisticated two-tier 
 - ✅ **Public landing page** - `/` shows live chain statistics with Dark Mystique theme
 - ✅ **Public stats page** - `/stats` shows detailed chain metrics
 - ✅ **Top-right login button** - Sign In button in landing page header
+- ✅ **Registration flow** - `/scan` → `/scan-result` → `/register` (NEW Dec 14)
+- ✅ **Dual join options** - QR scanner + paste link dialog on landing page (NEW Dec 14)
+- ✅ **Native share** - OS share sheet for ticket invitations (NEW Dec 14)
 
 ---
 
@@ -246,6 +249,9 @@ See [archive/README.md](archive/README.md) for a complete list of archived docum
 - ✅ **Candidate/Permanent Member System** - Fully implemented and deployed
 - ✅ **Public Landing Page** - Live chain statistics at `/` with Dark Mystique theme
 - ✅ **Public Stats Page** - Detailed chain metrics at `/stats`
+- ✅ **Complete Registration Flow** - QR scan or paste link → validation → registration
+- ✅ **Native Share** - OS share sheet for ticket invitations (share_plus)
+- ✅ **Dual Join Options** - "Scan QR" + "Paste Link" on landing page
 - ✅ Hybrid Authentication (Email/Password + Device Fingerprint)
 - ✅ Dark Mystique Design System (consistent across all pages)
 - ✅ Complete REST API with versioning
@@ -321,4 +327,4 @@ See [archive/README.md](archive/README.md) for a complete list of archived docum
 **Maintained by:** Claude Code
 **Project:** The Chain
 **Repository:** ticketz
-**Documentation Version:** 3.0 (Reorganized December 2025)
+**Documentation Version:** 3.1 (Updated December 14, 2025)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:thechain_shared/api/api_client.dart';
 import 'package:thechain_shared/models/chain_stats.dart';
@@ -515,6 +516,30 @@ class _LandingScreenState extends State<LandingScreen>
   Widget _buildFooter() {
     return Column(
       children: [
+        // Join options row
+        Row(
+          children: [
+            // Scan QR button
+            Expanded(
+              child: MystiqueButton(
+                text: 'Scan QR',
+                icon: Icons.qr_code_scanner,
+                onPressed: () => Navigator.pushNamed(context, '/scan'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Paste Link button
+            Expanded(
+              child: MystiqueButton(
+                text: 'Paste Link',
+                icon: Icons.link,
+                variant: MystiqueButtonVariant.secondary,
+                onPressed: _showPasteLinkDialog,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         // Invitation-only notice
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -534,12 +559,14 @@ class _LandingScreenState extends State<LandingScreen>
                 color: DarkMystiqueTheme.etherealPurple,
               ),
               const SizedBox(width: 8),
-              Text(
-                'Membership by invitation only',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: DarkMystiqueTheme.textSecondary,
-                  fontStyle: FontStyle.italic,
+              Flexible(
+                child: Text(
+                  'Scan a QR code or paste an invitation link',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: DarkMystiqueTheme.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
             ],
@@ -555,6 +582,200 @@ class _LandingScreenState extends State<LandingScreen>
         ),
       ],
     );
+  }
+
+  void _showPasteLinkDialog() {
+    final linkController = TextEditingController();
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: DarkMystiqueTheme.shadowPurple,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.link, color: DarkMystiqueTheme.ghostCyan),
+              const SizedBox(width: 12),
+              Text(
+                'Paste Invitation Link',
+                style: TextStyle(color: DarkMystiqueTheme.textPrimary),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Paste the invitation link you received:',
+                style: TextStyle(
+                  color: DarkMystiqueTheme.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: linkController,
+                style: TextStyle(color: DarkMystiqueTheme.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'thechain://join?t=...',
+                  hintStyle: TextStyle(color: DarkMystiqueTheme.textMuted),
+                  errorText: errorText,
+                  prefixIcon: Icon(
+                    Icons.content_paste,
+                    color: DarkMystiqueTheme.ghostCyan,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: DarkMystiqueTheme.mysticViolet.withOpacity(0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: DarkMystiqueTheme.etherealPurple),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: DarkMystiqueTheme.errorPulse),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: DarkMystiqueTheme.errorPulse),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: DarkMystiqueTheme.deepVoid.withOpacity(0.5),
+                ),
+                maxLines: 2,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: DarkMystiqueTheme.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final link = linkController.text.trim();
+                final result = _parseInvitationLink(link);
+
+                if (result == null) {
+                  setDialogState(() {
+                    errorText = 'Invalid invitation link format';
+                  });
+                  return;
+                }
+
+                Navigator.pop(context);
+                _processInvitationLink(result['ticketId']!, result['signature']!);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: DarkMystiqueTheme.mysticViolet,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Parse invitation link and extract ticketId and signature
+  /// Supports: thechain://join?t=<base64(ticketId|signature)>
+  Map<String, String>? _parseInvitationLink(String link) {
+    try {
+      // Remove any whitespace
+      link = link.trim();
+
+      // Try to parse as URI
+      Uri? uri;
+      if (link.startsWith('thechain://')) {
+        uri = Uri.parse(link);
+      } else if (link.contains('thechain://')) {
+        // Extract thechain:// part if embedded in other text
+        final match = RegExp(r'thechain://[^\s]+').firstMatch(link);
+        if (match != null) {
+          uri = Uri.parse(match.group(0)!);
+        }
+      }
+
+      if (uri == null) return null;
+
+      // Get the 't' parameter (base64 encoded payload)
+      final payload = uri.queryParameters['t'];
+      if (payload == null || payload.isEmpty) return null;
+
+      // Decode base64 payload
+      final decoded = String.fromCharCodes(base64Decode(payload));
+
+      // Split by '|' to get ticketId and signature
+      final parts = decoded.split('|');
+      if (parts.length < 2) return null;
+
+      return {
+        'ticketId': parts[0],
+        'signature': parts.sublist(1).join('|'), // Handle '|' in signature
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> _processInvitationLink(String ticketId, String signature) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: DarkMystiqueTheme.shadowPurple,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MystiqueLoadingIndicator(message: 'Validating invitation...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final apiClient = ApiClient();
+      final scanResult = await apiClient.scanTicket(ticketId, signature);
+
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Navigate to scan result screen
+      Navigator.pushNamed(
+        context,
+        '/scan-result',
+        arguments: scanResult,
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Show error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceAll('ApiException: ', ''),
+          ),
+          backgroundColor: DarkMystiqueTheme.errorPulse,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   String _formatTimeAgo(DateTime dateTime) {
