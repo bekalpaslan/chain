@@ -42,11 +42,13 @@ The project uses a modern, containerized architecture:
 
 ## 🚀 Latest Updates
 
-**November 5, 2025**: Successfully implemented the **Candidate/Permanent Membership System**!
-- Two-tier membership with automatic promotions
-- Variable ticket expiration times (24h → 12h → 6h)
-- Smart chain reversion to last permanent member
-- Full documentation in [docs/IMPLEMENTATION_PROGRESS.md](docs/IMPLEMENTATION_PROGRESS.md)
+**December 2025**: Candidate/Permanent System **FULLY OPERATIONAL** in production!
+- ✅ Two-tier membership with automatic promotions
+- ✅ Variable ticket expiration times (24h → 12h → 6h)
+- ✅ Smart chain reversion to last permanent member
+- ✅ Unified frontend app on port 3000 (public + authenticated views)
+- ✅ Dark Mystique theme applied throughout
+- Full documentation in [docs/status/IMPLEMENTATION_PROGRESS.md](docs/status/IMPLEMENTATION_PROGRESS.md)
 
 ## 📁 Project Structure
 
@@ -67,10 +69,12 @@ ticketz/
 
 ## 📚 Key Documentation
 
-- **[NEXT_STEPS_ROADMAP.md](NEXT_STEPS_ROADMAP.md)**: The most up-to-date development plan.
-- **[docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md)**: Detailed technical status of the backend and infrastructure.
-- **[docs/API_SPECIFICATION.md](docs/API_SPECIFICATION.md)**: REST API endpoints and contracts.
-- **[docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)**: The complete database structure.
+- **[docs/DOCS_INDEX.md](docs/DOCS_INDEX.md)**: Master documentation index (START HERE)
+- **[docs/status/IMPLEMENTATION_STATUS.md](docs/status/IMPLEMENTATION_STATUS.md)**: Detailed technical status of backend and infrastructure
+- **[docs/status/FRONTEND_IMPLEMENTATION_STATUS.md](docs/status/FRONTEND_IMPLEMENTATION_STATUS.md)**: Frontend screens and API integration status
+- **[docs/architecture/API_SPECIFICATION.md](docs/architecture/API_SPECIFICATION.md)**: REST API endpoints and contracts
+- **[docs/architecture/DATABASE_SCHEMA.md](docs/architecture/DATABASE_SCHEMA.md)**: The complete database structure
+- **[docs/features/CANDIDATE_PERMANENT_IMPLEMENTATION_PLAN.md](docs/features/CANDIDATE_PERMANENT_IMPLEMENTATION_PLAN.md)**: Core feature documentation
 
 ## 🚀 Getting Started
 
@@ -91,8 +95,8 @@ ticketz/
     docker-compose up -d
     ```
 3.  **Access the application:**
-    - **Web App**: [http://localhost:3001](http://localhost:3001)
-    - **Backend API**: [http://localhost:8080](http://localhost:8080)
+    - **Web App**: [http://localhost:3000](http://localhost:3000) (unified public + authenticated)
+    - **Backend API**: [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
 
 ## 🔐 Authentication
 

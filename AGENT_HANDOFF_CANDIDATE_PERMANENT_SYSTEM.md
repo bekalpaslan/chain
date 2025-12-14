@@ -1,9 +1,21 @@
+# ⚠️ ARCHIVED DOCUMENT
+
+> **This document has been superseded.**
+> **The candidate/permanent system is FULLY IMPLEMENTED (November 2025).**
+>
+> For current information, see:
+> - `/docs/status/IMPLEMENTATION_PROGRESS.md` - Implementation completion report
+> - `/docs/features/CANDIDATE_PERMANENT_IMPLEMENTATION_PLAN.md` - Feature specification
+> - `/docs/status/IMPLEMENTATION_STATUS.md` - Current technical status
+
+---
+
 # 🤖 Agent Handoff: Candidate/Permanent Member System Implementation
 
 **Created:** November 4, 2025
-**Status:** 🟡 Ready for Implementation
-**Priority:** HIGH - Core Game Mechanics Change
-**Estimated Effort:** 19-24 hours (2-3 working days)
+**Status:** ✅ **COMPLETE** (Implemented November 5, 2025)
+**Priority:** DONE
+**Actual Effort:** ~22 hours
 
 ---
 
